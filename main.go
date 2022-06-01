@@ -5,6 +5,8 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	"github.com/labstack/echo/v4"
 )
 
 func main() {
@@ -14,5 +16,20 @@ func main() {
 	}
 
 	port := ":" + os.Getenv("PORT")
-	log.Println("Listening on port:", port)
+
+	e := echo.New()
+
+	if os.Getenv("ENV") == "production" {
+		middleware.BodyLimit(e)
+		middleware.Gzip(e)
+		middleware.RateLimiter(e)
+		middleware.Recover(e)
+		middleware.Secure(e)
+		middleware.RemoveTrailingSlash(e)
+	} else {
+		middleware.Logger(e)
+		middleware.RemoveTrailingSlash(e)
+	}
+
+	e.Logger.Fatal(e.Start(port))
 }
