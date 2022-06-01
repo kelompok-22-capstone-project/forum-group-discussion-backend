@@ -1,4 +1,83 @@
 basePath: /api/v1
+definitions:
+  controller.idData:
+    properties:
+      userID:
+        type: string
+    type: object
+  controller.loginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.tokenData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.registerResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.idData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.tokenData:
+    properties:
+      role:
+        type: string
+        x-order: "1"
+      token:
+        type: string
+        x-order: "0"
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  payload.Login:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 5
+        type: string
+        x-order: "1"
+      username:
+        maxLength: 20
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.Register:
+    properties:
+      email:
+        maxLength: 50
+        minLength: 5
+        type: string
+        x-order: "1"
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+        x-order: "2"
+      password:
+        maxLength: 20
+        minLength: 5
+        type: string
+        x-order: "3"
+      username:
+        maxLength: 20
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
 host: localhost:3000
 info:
   contact:
@@ -12,7 +91,75 @@ info:
   termsOfService: http://swagger.io/terms/
   title: Forum Group Discussion API
   version: "1.0"
-paths: {}
+paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used for user login
+      parameters:
+      - description: user credentials
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Login
+      tags:
+      - login
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used for user register.
+      parameters:
+      - description: register payload
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.Register'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.registerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: User Register
+      tags:
+      - register
 securityDefinitions:
   ApiKeyAuth:
     in: header
