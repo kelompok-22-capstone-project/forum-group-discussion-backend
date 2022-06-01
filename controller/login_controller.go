@@ -1,0 +1,59 @@
+package controller
+
+import (
+	"net/http"
+
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
+	"github.com/labstack/echo/v4"
+)
+
+type loginController struct{}
+
+func NewLoginController() *loginController {
+	return &loginController{}
+}
+
+func (l *loginController) Route(g *echo.Group) {
+	group := g.Group("/login")
+	group.POST("", l.postLogin)
+}
+
+// PostLogin     godoc
+// @Summary      User Login
+// @Description  This endpoint is used for user login
+// @Tags         login
+// @Accept       json
+// @Produce      json
+// @Param        default  body      payload.Login  true  "user credentials"
+// @Success      200      {object}  loginResponse
+// @Failure      400      {object}  echo.HTTPError
+// @Failure      401      {object}  echo.HTTPError
+// @Failure      404      {object}  echo.HTTPError
+// @Failure      500      {object}  echo.HTTPError
+// @Router       /login [post]
+func (l *loginController) postLogin(c echo.Context) error {
+	credential := new(payload.Login)
+	if err := c.Bind(credential); err != nil {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payload. Please check the payload schema in the API Documentation.")
+	}
+
+	token := "random.jwt.token"
+	role := "admin"
+
+	tokenResponse := map[string]any{"token": token, "role": role}
+	response := model.NewResponse("success", "Login successful.", tokenResponse)
+	return c.JSON(http.StatusOK, response)
+}
+
+// loginResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
+type loginResponse struct {
+	Status  string    `json:"status" extensions:"x-order=0"`
+	Message string    `json:"message" extensions:"x-order=1"`
+	Data    tokenData `json:"data" extensions:"x-order=2"`
+}
+
+type tokenData struct {
+	Token string `json:"token" extensions:"x-order=0"`
+	Role  string `json:"role" extensions:"x-order=1"`
+}
