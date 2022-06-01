@@ -1,0 +1,21 @@
+basePath: /api/v1
+host: localhost:3000
+info:
+  contact:
+    email: erikriosetiawan15@gmail.com
+    name: Kelompok 22
+    url: http://www.swagger.io/support
+  description: API for Forum Group Discussion
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Forum Group Discussion API
+  version: "1.0"
+paths: {}
+securityDefinitions:
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
