@@ -39,6 +39,7 @@ func main() {
 	port := ":" + os.Getenv("PORT")
 
 	registerController := controller.NewRegisterController()
+	loginController := controller.NewLoginController()
 
 	e := echo.New()
 
@@ -59,6 +60,7 @@ func main() {
 	g := e.Group("/api/v1")
 
 	registerController.Route(g)
+	loginController.Route(g)
 
 	e.Logger.Fatal(e.Start(port))
 }
