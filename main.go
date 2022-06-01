@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/joho/godotenv"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/controller"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	"github.com/labstack/echo/v4"
 )
@@ -16,6 +17,8 @@ func main() {
 	}
 
 	port := ":" + os.Getenv("PORT")
+
+	registerController := controller.NewRegisterController()
 
 	e := echo.New()
 
@@ -30,6 +33,10 @@ func main() {
 		middleware.Logger(e)
 		middleware.RemoveTrailingSlash(e)
 	}
+
+	g := e.Group("/api/v1")
+
+	registerController.Route(g)
 
 	e.Logger.Fatal(e.Start(port))
 }
