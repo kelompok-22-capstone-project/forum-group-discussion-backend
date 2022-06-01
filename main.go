@@ -14,5 +14,5 @@ func main() {
 	}
 
 	port := ":" + os.Getenv("PORT")
-	log.Println("Listening on port", port)
+	log.Println("Listening on port:", port)
 }
