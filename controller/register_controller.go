@@ -19,6 +19,17 @@ func (r *registerController) Route(g *echo.Group) {
 	group.POST("", r.postRegister)
 }
 
+// PostRegister  godoc
+// @Summary      User Register
+// @Description  This endpoint is used for user register.
+// @Tags         register
+// @Accept       json
+// @Produce      json
+// @Param        default  body      payload.Register  true  "register payload"
+// @Success      201      {object}  registerResponse
+// @Failure      400      {object}  echo.HTTPError
+// @Failure      500      {object}  echo.HTTPError
+// @Router       /register [post]
 func (p *registerController) postRegister(c echo.Context) error {
 	registerPayload := new(payload.Register)
 	if err := c.Bind(registerPayload); err != nil {
@@ -27,7 +38,18 @@ func (p *registerController) postRegister(c echo.Context) error {
 
 	id := "u-xy4Zia"
 
-	idResponse := map[string]any{"id": id}
+	idResponse := map[string]any{"userID": id}
 	response := model.NewResponse("success", "Register successful.", idResponse)
-	return c.JSON(http.StatusOK, response)
+	return c.JSON(http.StatusCreated, response)
+}
+
+// registerResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
+type registerResponse struct {
+	Status  string `json:"status" extensions:"x-order=0"`
+	Message string `json:"message" extensions:"x-order=1"`
+	Data    idData `json:"data" extensions:"x-order=2"`
+}
+
+type idData struct {
+	UserID string `json:"userID"`
 }
