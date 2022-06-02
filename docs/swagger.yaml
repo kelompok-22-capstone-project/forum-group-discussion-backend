@@ -477,6 +477,36 @@ paths:
       tags:
       - threads
   /threads/{id}:
+    delete:
+      description: This endpoint is used to delete a thread by ID
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Thread by ID
+      tags:
+      - threads
     put:
       consumes:
       - application/json
