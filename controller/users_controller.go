@@ -35,7 +35,6 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Tags         users
 // @Produce      json
 // @Param        username          path  string  true  "username"
-// @Security     ApiKeyAuth
 // @Success      200  {object}  profileResponse
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
