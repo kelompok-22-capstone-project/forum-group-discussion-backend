@@ -98,6 +98,33 @@ definitions:
       ID:
         type: string
     type: object
+  controller.infoData:
+    properties:
+      totalModerator:
+        type: integer
+        x-order: "2"
+      totalReport:
+        type: integer
+        x-order: "3"
+      totalThread:
+        type: integer
+        x-order: "1"
+      totalUser:
+        type: integer
+        x-order: "0"
+    type: object
+  controller.infoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.infoData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
   controller.loginResponse:
     properties:
       data:
@@ -449,6 +476,24 @@ paths:
       summary: Get Category Threads
       tags:
       - categories
+  /info:
+    get:
+      description: This endpoint is used to get all information for admin dashboard
+        purpose
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.infoResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Info
+      tags:
+      - info
   /login:
     post:
       consumes:
@@ -529,6 +574,10 @@ paths:
         in: query
         name: limit
         type: integer
+      - description: search by keyword, default empty string
+        in: query
+        name: search
+        type: string
       produces:
       - application/json
       responses:
@@ -640,8 +689,6 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
       summary: Get Thread by ID
       tags:
       - threads

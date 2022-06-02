@@ -104,6 +104,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/info": {
+            "get": {
+                "description": "This endpoint is used to get all information for admin dashboard purpose",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "info"
+                ],
+                "summary": "Get Info",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.infoResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "This endpoint is used for user login",
@@ -230,6 +256,12 @@ const docTemplate = `{
                         "description": "limit, default 10",
                         "name": "limit",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search by keyword, default empty string",
+                        "name": "search",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -311,11 +343,6 @@ const docTemplate = `{
         },
         "/threads/{id}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "This endpoint is used to get thread by ID",
                 "produces": [
                     "application/json"
@@ -853,6 +880,44 @@ const docTemplate = `{
             "properties": {
                 "ID": {
                     "type": "string"
+                }
+            }
+        },
+        "controller.infoData": {
+            "type": "object",
+            "properties": {
+                "totalUser": {
+                    "type": "integer",
+                    "x-order": "0"
+                },
+                "totalThread": {
+                    "type": "integer",
+                    "x-order": "1"
+                },
+                "totalModerator": {
+                    "type": "integer",
+                    "x-order": "2"
+                },
+                "totalReport": {
+                    "type": "integer",
+                    "x-order": "3"
+                }
+            }
+        },
+        "controller.infoResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.infoData"
                 }
             }
         },
