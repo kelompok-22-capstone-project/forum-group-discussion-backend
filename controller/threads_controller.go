@@ -19,6 +19,7 @@ func (t *threadsController) Route(g *echo.Group) {
 	group.GET("/:id", t.getThread)
 	group.PUT("/:id", t.putUpdateThread)
 	group.DELETE("/:id", t.deleteThread)
+	group.GET("/:id/comments", t.getThreadComments)
 }
 
 // getThreads     godoc
@@ -26,10 +27,14 @@ func (t *threadsController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all threads
 // @Tags         threads
 // @Produce      json
-// @Success      200  {object}  threadsResponse
-// @Failure      500  {object}  echo.HTTPError
+// @Param        page   query     int  false  "page, default 1"
+// @Param        limit  query     int  false  "limit, default 10"
+// @Success      200    {object}  threadsResponse
+// @Failure      500    {object}  echo.HTTPError
 // @Router       /threads [get]
 func (t *threadsController) getThreads(c echo.Context) error {
+	_ = c.QueryParam("page")
+	_ = c.QueryParam("limit")
 	return nil
 }
 
@@ -44,8 +49,8 @@ func (t *threadsController) getThreads(c echo.Context) error {
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
-// @Failure      404  {object}  echo.HTTPError
-// @Failure      500  {object}  echo.HTTPError
+// @Failure      404    {object}  echo.HTTPError
+// @Failure      500    {object}  echo.HTTPError
 // @Router       /threads [post]
 func (t *threadsController) postCreateThread(c echo.Context) error {
 	return nil
@@ -106,6 +111,25 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 	return c.NoContent(http.StatusNoContent)
 }
 
+// getThreadComments godoc
+// @Summary      Get Thread Comments
+// @Description  This endpoint is used to get the thread comments
+// @Tags         threads
+// @Produce      json
+// @Param        id     path      string  true   "thread ID"
+// @Param        page   query     int     false  "page, default 1"
+// @Param        limit  query     int     false  "limit, default 20"
+// @Success      200    {object}  commentsResponse
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id}/comments [get]
+func (t *threadsController) getThreadComments(c echo.Context) error {
+	_ = c.Param("id")
+	_ = c.QueryParam("page")
+	_ = c.QueryParam("limit")
+	return nil
+}
+
 // createThreadResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type createThreadResponse struct {
 	Status  string `json:"status" extensions:"x-order=0"`
@@ -122,4 +146,26 @@ type threadResponse struct {
 	Status  string     `json:"status" extensions:"x-order=0"`
 	Message string     `json:"message" extensions:"x-order=1"`
 	Data    threadData `json:"data" extensions:"x-order=2"`
+}
+
+// commentsResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
+type commentsResponse struct {
+	Status  string              `json:"status" extensions:"x-order=0"`
+	Message string              `json:"message" extensions:"x-order=1"`
+	Data    commentsInfoWrapper `json:"data" extensions:"x-order=2"`
+}
+
+type commentsInfoWrapper struct {
+	Threads  []commentData `json:"comments" extensions:"x-order=0"`
+	PageInfo pageInfoData  `json:"pageInfo" extensions:"x-order=1"`
+}
+
+type commentData struct {
+	ID       string `json:"ID" extensions:"x-order=0"`
+	UserID   string `json:"userID" extensions:"x-order=1"`
+	Username string `json:"username" extensions:"x-order=2"`
+	Name     string `json:"name" extensions:"x-order=3"`
+	Comment  string `json:"comment" extensions:"x-order=4"`
+	// PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
+	PublishedOn string `json:"publishedOn" extensions:"x-order=5"`
 }
