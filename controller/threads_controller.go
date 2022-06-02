@@ -27,10 +27,11 @@ func (t *threadsController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all threads
 // @Tags         threads
 // @Produce      json
-// @Param        page   query     int  false  "page, default 1"
-// @Param        limit  query     int  false  "limit, default 10"
-// @Success      200    {object}  threadsResponse
-// @Failure      500    {object}  echo.HTTPError
+// @Param        page    query     int     false  "page, default 1"
+// @Param        limit   query     int     false  "limit, default 10"
+// @Param        search  query     string  false  "search by keyword, default empty string"
+// @Success      200     {object}  threadsResponse
+// @Failure      500     {object}  echo.HTTPError
 // @Router       /threads [get]
 func (t *threadsController) getThreads(c echo.Context) error {
 	_ = c.QueryParam("page")
@@ -61,8 +62,7 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 // @Description  This endpoint is used to get thread by ID
 // @Tags         threads
 // @Produce      json
-// @Param        id  path  string  true  "thread ID"
-// @Security     ApiKeyAuth
+// @Param        id   path      string  true  "thread ID"
 // @Success      200  {object}  threadResponse
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError

@@ -51,6 +51,7 @@ func main() {
 	usersController := controller.NewUsersController()
 	categoriesController := controller.NewCategoriesController()
 	threadsController := controller.NewThreadsController()
+	infoController := controller.NewInfoController()
 
 	e := echo.New()
 
@@ -75,6 +76,7 @@ func main() {
 	usersController.Route(g)
 	categoriesController.Route(g)
 	threadsController.Route(g)
+	infoController.Route(g)
 
 	e.Logger.Fatal(e.Start(port))
 }
