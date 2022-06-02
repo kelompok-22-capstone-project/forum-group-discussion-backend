@@ -171,6 +171,29 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  controller.profilesInfoWrapper:
+    properties:
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+      users:
+        items:
+          $ref: '#/definitions/controller.profileData'
+        type: array
+        x-order: "0"
+    type: object
+  controller.profilesResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.profilesInfoWrapper'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
   controller.registerResponse:
     properties:
       data:
@@ -699,6 +722,40 @@ paths:
       summary: Get Thread Comments
       tags:
       - threads
+  /users:
+    get:
+      description: This endpoint is used to get all users
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      - description: 'options: registered_date, ranking, default registered_date'
+        in: query
+        name: order_by
+        type: string
+      - description: 'options: active, banned, default active'
+        in: query
+        name: status
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profilesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Users
+      tags:
+      - users
   /users/{username}:
     get:
       description: This endpoint is used to get the another user by username

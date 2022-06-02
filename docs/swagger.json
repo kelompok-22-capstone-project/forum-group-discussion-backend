@@ -519,6 +519,58 @@
                 }
             }
         },
+        "/users": {
+            "get": {
+                "description": "This endpoint is used to get all users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get Users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 20",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "options: registered_date, ranking, default registered_date",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "options: active, banned, default active",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.profilesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me": {
             "get": {
                 "security": [
@@ -895,6 +947,39 @@
                 "data": {
                     "x-order": "2",
                     "$ref": "#/definitions/controller.profileData"
+                }
+            }
+        },
+        "controller.profilesInfoWrapper": {
+            "type": "object",
+            "properties": {
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.profileData"
+                    },
+                    "x-order": "0"
+                },
+                "pageInfo": {
+                    "x-order": "1",
+                    "$ref": "#/definitions/controller.pageInfoData"
+                }
+            }
+        },
+        "controller.profilesResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.profilesInfoWrapper"
                 }
             }
         },
