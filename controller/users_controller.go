@@ -106,10 +106,11 @@ type threadData struct {
 	TotalComment    uint   `json:"totalComment" extensions:"x-order=6"`
 	CreatorID       string `json:"creatorID" extensions:"x-order=7"`
 	CreatorUsername string `json:"creatorUsername" extensions:"x-order=8"`
-	CategoryID      string `json:"categoryID" extensions:"x-order=9"`
-	CategoryName    string `json:"categoryName" extensions:"x-order=10"`
+	CreatorName     string `json:"creatorName" extensions:"x-order=9"`
+	CategoryID      string `json:"categoryID" extensions:"x-order=10"`
+	CategoryName    string `json:"categoryName" extensions:"x-order=11"`
 	// PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	PublishedOn string `json:"publishedOn" extensions:"x-order=11"`
+	PublishedOn string `json:"publishedOn" extensions:"x-order=12"`
 }
 
 type pageInfoData struct {

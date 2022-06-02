@@ -16,6 +16,7 @@ func (t *threadsController) Route(g *echo.Group) {
 	group := g.Group("/threads")
 	group.GET("", t.getThreads)
 	group.POST("", t.postCreateThread)
+	group.GET("/:id", t.getThread)
 	group.PUT("/:id", t.putUpdateThread)
 	group.DELETE("/:id", t.deleteThread)
 }
@@ -47,6 +48,24 @@ func (t *threadsController) getThreads(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [post]
 func (t *threadsController) postCreateThread(c echo.Context) error {
+	return nil
+}
+
+// getThread godoc
+// @Summary      Get Thread by ID
+// @Description  This endpoint is used to get thread by ID
+// @Tags         threads
+// @Produce      json
+// @Param        id  path  string  true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      200  {object}  threadResponse
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id} [get]
+func (t *threadsController) getThread(c echo.Context) error {
+	_ = c.Param("id")
+
 	return nil
 }
 
@@ -96,4 +115,11 @@ type createThreadResponse struct {
 
 type idData struct {
 	ID string `json:"ID"`
+}
+
+// threadResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
+type threadResponse struct {
+	Status  string     `json:"status" extensions:"x-order=0"`
+	Message string     `json:"message" extensions:"x-order=1"`
+	Data    threadData `json:"data" extensions:"x-order=2"`
 }
