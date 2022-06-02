@@ -17,6 +17,21 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  controller.pageInfoData:
+    properties:
+      limit:
+        type: integer
+        x-order: "0"
+      page:
+        type: integer
+        x-order: "1"
+      pageTotal:
+        type: integer
+        x-order: "2"
+      total:
+        type: integer
+        x-order: "3"
+    type: object
   controller.profileData:
     properties:
       email:
@@ -35,11 +50,6 @@ definitions:
       role:
         type: string
         x-order: "4"
-      threads:
-        items:
-          $ref: '#/definitions/controller.threadData'
-        type: array
-        x-order: "9"
       totalFollower:
         type: integer
         x-order: "8"
@@ -116,6 +126,29 @@ definitions:
       totalViewer:
         type: integer
         x-order: "3"
+    type: object
+  controller.threadsInfoWrapper:
+    properties:
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+      threads:
+        items:
+          $ref: '#/definitions/controller.threadData'
+        type: array
+        x-order: "0"
+    type: object
+  controller.threadsResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.threadsInfoWrapper'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
     type: object
   controller.tokenData:
     properties:
@@ -276,9 +309,46 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKeyAuth: []
       summary: Get User by Username
+      tags:
+      - users
+  /users/{username}/threads:
+    get:
+      description: This endpoint is used to get the user threads
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get User Threads
       tags:
       - users
   /users/me:

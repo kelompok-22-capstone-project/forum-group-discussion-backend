@@ -174,11 +174,6 @@ const docTemplate = `{
         },
         "/users/{username}": {
             "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
                 "description": "This endpoint is used to get the another user by username",
                 "produces": [
                     "application/json"
@@ -201,6 +196,65 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/controller.profileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/users/{username}/threads": {
+            "get": {
+                "description": "This endpoint is used to get the user threads",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get User Threads",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadsResponse"
                         }
                     },
                     "401": {
@@ -251,6 +305,27 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.pageInfoData": {
+            "type": "object",
+            "properties": {
+                "limit": {
+                    "type": "integer",
+                    "x-order": "0"
+                },
+                "page": {
+                    "type": "integer",
+                    "x-order": "1"
+                },
+                "pageTotal": {
+                    "type": "integer",
+                    "x-order": "2"
+                },
+                "total": {
+                    "type": "integer",
+                    "x-order": "3"
+                }
+            }
+        },
         "controller.profileData": {
             "type": "object",
             "properties": {
@@ -290,13 +365,6 @@ const docTemplate = `{
                 "totalFollower": {
                     "type": "integer",
                     "x-order": "8"
-                },
-                "threads": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.threadData"
-                    },
-                    "x-order": "9"
                 }
             }
         },
@@ -385,6 +453,39 @@ const docTemplate = `{
                 "categoryID": {
                     "type": "string",
                     "x-order": "9"
+                }
+            }
+        },
+        "controller.threadsInfoWrapper": {
+            "type": "object",
+            "properties": {
+                "threads": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.threadData"
+                    },
+                    "x-order": "0"
+                },
+                "pageInfo": {
+                    "x-order": "1",
+                    "$ref": "#/definitions/controller.pageInfoData"
+                }
+            }
+        },
+        "controller.threadsResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.threadsInfoWrapper"
                 }
             }
         },
