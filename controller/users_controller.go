@@ -37,7 +37,6 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Produce      json
 // @Param        username  path      string  true  "username"
 // @Success      200  {object}  profileResponse
-// @Failure      401       {object}  echo.HTTPError
 // @Failure      404       {object}  echo.HTTPError
 // @Failure      500       {object}  echo.HTTPError
 // @Router       /users/{username} [get]
@@ -55,7 +54,6 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Param        page      query     int     false  "page, default 1"
 // @Param        limit     query     int     false  "limit, default 10"
 // @Success      200       {object}  threadsResponse
-// @Failure      401  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/threads [get]
