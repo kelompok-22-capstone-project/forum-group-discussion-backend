@@ -1,6 +1,10 @@
 package controller
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+)
 
 type threadsController struct{}
 
@@ -12,6 +16,7 @@ func (t *threadsController) Route(g *echo.Group) {
 	group := g.Group("/threads")
 	group.GET("", t.getThreads)
 	group.POST("", t.postCreateThread)
+	group.PUT("/:id", t.putUpdateThread)
 }
 
 // getThreads     godoc
@@ -42,6 +47,26 @@ func (t *threadsController) getThreads(c echo.Context) error {
 // @Router       /threads [post]
 func (t *threadsController) postCreateThread(c echo.Context) error {
 	return nil
+}
+
+// putUpdateThread godoc
+// @Summary      Update a Thread
+// @Description  This endpoint is used to update a thread
+// @Tags         threads
+// @Accept       json
+// @Produce      json
+// @Param        default  body  payload.UpdateThread  true  "request body"
+// @Param        id       path  string                true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      400  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id} [put]
+func (t *threadsController) putUpdateThread(c echo.Context) error {
+	_ = c.Param("id")
+	return c.NoContent(http.StatusNoContent)
 }
 
 // createThreadResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
