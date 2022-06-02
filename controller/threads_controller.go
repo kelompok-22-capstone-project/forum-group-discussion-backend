@@ -17,6 +17,7 @@ func (t *threadsController) Route(g *echo.Group) {
 	group.GET("", t.getThreads)
 	group.POST("", t.postCreateThread)
 	group.PUT("/:id", t.putUpdateThread)
+	group.DELETE("/:id", t.deleteThread)
 }
 
 // getThreads     godoc
@@ -65,6 +66,23 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id} [put]
 func (t *threadsController) putUpdateThread(c echo.Context) error {
+	_ = c.Param("id")
+	return c.NoContent(http.StatusNoContent)
+}
+
+// deleteThread godoc
+// @Summary      Delete Thread by ID
+// @Description  This endpoint is used to delete a thread by ID
+// @Tags         threads
+// @Produce      json
+// @Param        id  path  string  true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id} [delete]
+func (t *threadsController) deleteThread(c echo.Context) error {
 	_ = c.Param("id")
 	return c.NoContent(http.StatusNoContent)
 }
