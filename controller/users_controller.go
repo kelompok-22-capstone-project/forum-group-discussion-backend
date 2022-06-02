@@ -11,6 +11,7 @@ func NewUsersController() *usersController {
 func (u *usersController) Route(g *echo.Group) {
 	group := g.Group("/users")
 	group.GET("/me", u.getMe)
+	group.GET("/:username", u.getUserByUsername)
 }
 
 // getOwnProfile godoc
@@ -25,6 +26,23 @@ func (u *usersController) Route(g *echo.Group) {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/me [get]
 func (u *usersController) getMe(c echo.Context) error {
+	return nil
+}
+
+// getUserByUsername godoc
+// @Summary      Get User by Username
+// @Description  This endpoint is used to get the another user by username
+// @Tags         users
+// @Produce      json
+// @Param        username          path  string  true  "username"
+// @Security     ApiKeyAuth
+// @Success      200  {object}  profileResponse
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /users/{username} [get]
+func (u *usersController) getUserByUsername(c echo.Context) error {
+	_ = c.Param("username")
 	return nil
 }
 

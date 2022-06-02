@@ -248,6 +248,39 @@ paths:
       summary: User Register
       tags:
       - register
+  /users/{username}:
+    get:
+      description: This endpoint is used to get the another user by username
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get User by Username
+      tags:
+      - users
   /users/me:
     get:
       description: This endpoint is used to get their own user profile
