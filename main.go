@@ -48,6 +48,7 @@ func main() {
 
 	registerController := controller.NewRegisterController()
 	loginController := controller.NewLoginController()
+	usersController := controller.NewUsersController()
 
 	e := echo.New()
 
@@ -69,6 +70,7 @@ func main() {
 
 	registerController.Route(g)
 	loginController.Route(g)
+	usersController.Route(g)
 
 	e.Logger.Fatal(e.Start(port))
 }

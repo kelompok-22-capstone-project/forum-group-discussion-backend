@@ -17,6 +17,54 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  controller.profileData:
+    properties:
+      email:
+        type: string
+        x-order: "2"
+      isActive:
+        type: boolean
+        x-order: "5"
+      name:
+        type: string
+        x-order: "3"
+      registeredOn:
+        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "6"
+      role:
+        type: string
+        x-order: "4"
+      threads:
+        items:
+          $ref: '#/definitions/controller.threadData'
+        type: array
+        x-order: "9"
+      totalFollower:
+        type: integer
+        x-order: "8"
+      totalThread:
+        type: integer
+        x-order: "7"
+      userID:
+        type: string
+        x-order: "0"
+      username:
+        type: string
+        x-order: "1"
+    type: object
+  controller.profileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.profileData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
   controller.registerResponse:
     properties:
       data:
@@ -28,6 +76,46 @@ definitions:
       status:
         type: string
         x-order: "0"
+    type: object
+  controller.threadData:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      categoryID:
+        type: string
+        x-order: "9"
+      categoryName:
+        type: string
+        x-order: "10"
+      creatorID:
+        type: string
+        x-order: "7"
+      creatorUsername:
+        type: string
+        x-order: "8"
+      description:
+        type: string
+        x-order: "2"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "11"
+      title:
+        type: string
+        x-order: "1"
+      totalComment:
+        type: integer
+        x-order: "6"
+      totalFollower:
+        type: integer
+        x-order: "5"
+      totalLike:
+        type: integer
+        x-order: "4"
+      totalViewer:
+        type: integer
+        x-order: "3"
     type: object
   controller.tokenData:
     properties:
@@ -46,7 +134,7 @@ definitions:
     properties:
       password:
         maxLength: 20
-        minLength: 5
+        minLength: 8
         type: string
         x-order: "1"
       username:
@@ -69,7 +157,7 @@ definitions:
         x-order: "2"
       password:
         maxLength: 20
-        minLength: 5
+        minLength: 8
         type: string
         x-order: "3"
       username:
@@ -160,6 +248,33 @@ paths:
       summary: User Register
       tags:
       - register
+  /users/me:
+    get:
+      description: This endpoint is used to get their own user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Own Profile
+      tags:
+      - users
 securityDefinitions:
   ApiKeyAuth:
     in: header

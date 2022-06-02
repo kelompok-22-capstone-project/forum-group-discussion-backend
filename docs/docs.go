@@ -128,6 +128,49 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/users/me": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to get their own user profile",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "Get Own Profile",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.profileResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -156,6 +199,72 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.profileData": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "x-order": "5"
+                },
+                "registeredOn": {
+                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "6"
+                },
+                "totalThread": {
+                    "type": "integer",
+                    "x-order": "7"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "8"
+                },
+                "threads": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.threadData"
+                    },
+                    "x-order": "9"
+                }
+            }
+        },
+        "controller.profileResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.profileData"
+                }
+            }
+        },
         "controller.registerResponse": {
             "type": "object",
             "properties": {
@@ -170,6 +279,60 @@ const docTemplate = `{
                 "data": {
                     "x-order": "2",
                     "$ref": "#/definitions/controller.idData"
+                }
+            }
+        },
+        "controller.threadData": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "title": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "categoryName": {
+                    "type": "string",
+                    "x-order": "10"
+                },
+                "publishedOn": {
+                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "11"
+                },
+                "description": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "totalViewer": {
+                    "type": "integer",
+                    "x-order": "3"
+                },
+                "totalLike": {
+                    "type": "integer",
+                    "x-order": "4"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "5"
+                },
+                "totalComment": {
+                    "type": "integer",
+                    "x-order": "6"
+                },
+                "creatorID": {
+                    "type": "string",
+                    "x-order": "7"
+                },
+                "creatorUsername": {
+                    "type": "string",
+                    "x-order": "8"
+                },
+                "categoryID": {
+                    "type": "string",
+                    "x-order": "9"
                 }
             }
         },
@@ -204,7 +367,7 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "maxLength": 20,
-                    "minLength": 5,
+                    "minLength": 8,
                     "x-order": "1"
                 }
             }
@@ -233,7 +396,7 @@ const docTemplate = `{
                 "password": {
                     "type": "string",
                     "maxLength": 20,
-                    "minLength": 5,
+                    "minLength": 8,
                     "x-order": "3"
                 }
             }
