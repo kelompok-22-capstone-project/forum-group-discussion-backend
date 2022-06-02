@@ -45,11 +45,11 @@ func (p *registerController) postRegister(c echo.Context) error {
 
 // registerResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type registerResponse struct {
-	Status  string `json:"status" extensions:"x-order=0"`
-	Message string `json:"message" extensions:"x-order=1"`
-	Data    idData `json:"data" extensions:"x-order=2"`
+	Status  string     `json:"status" extensions:"x-order=0"`
+	Message string     `json:"message" extensions:"x-order=1"`
+	Data    userIDData `json:"data" extensions:"x-order=2"`
 }
 
-type idData struct {
+type userIDData struct {
 	UserID string `json:"userID"`
 }
