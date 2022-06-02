@@ -142,13 +142,16 @@ definitions:
         x-order: "0"
       categoryID:
         type: string
-        x-order: "9"
+        x-order: "10"
       categoryName:
         type: string
-        x-order: "10"
+        x-order: "11"
       creatorID:
         type: string
         x-order: "7"
+      creatorName:
+        type: string
+        x-order: "9"
       creatorUsername:
         type: string
         x-order: "8"
@@ -158,7 +161,7 @@ definitions:
       publishedOn:
         description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
         type: string
-        x-order: "11"
+        x-order: "12"
       title:
         type: string
         x-order: "1"
@@ -174,6 +177,18 @@ definitions:
       totalViewer:
         type: integer
         x-order: "3"
+    type: object
+  controller.threadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.threadData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
     type: object
   controller.threadsInfoWrapper:
     properties:
@@ -505,6 +520,38 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Delete Thread by ID
+      tags:
+      - threads
+    get:
+      description: This endpoint is used to get thread by ID
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Thread by ID
       tags:
       - threads
     put:

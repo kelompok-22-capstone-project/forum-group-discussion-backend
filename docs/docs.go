@@ -296,6 +296,56 @@ const docTemplate = `{
             }
         },
         "/threads/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to get thread by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Get Thread by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "put": {
                 "security": [
                     {
@@ -749,14 +799,18 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "1"
                 },
-                "categoryName": {
+                "categoryID": {
                     "type": "string",
                     "x-order": "10"
+                },
+                "categoryName": {
+                    "type": "string",
+                    "x-order": "11"
                 },
                 "publishedOn": {
                     "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
-                    "x-order": "11"
+                    "x-order": "12"
                 },
                 "description": {
                     "type": "string",
@@ -786,9 +840,26 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "8"
                 },
-                "categoryID": {
+                "creatorName": {
                     "type": "string",
                     "x-order": "9"
+                }
+            }
+        },
+        "controller.threadResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.threadData"
                 }
             }
         },
