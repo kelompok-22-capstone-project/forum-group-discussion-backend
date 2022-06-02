@@ -881,6 +881,10 @@ const docTemplate = `{
                 "totalFollower": {
                     "type": "integer",
                     "x-order": "8"
+                },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "9"
                 }
             }
         },
@@ -941,6 +945,21 @@ const docTemplate = `{
                     "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
                     "x-order": "12"
+                },
+                "isLiked": {
+                    "type": "boolean",
+                    "x-order": "13"
+                },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "14"
+                },
+                "moderators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.profileData"
+                    },
+                    "x-order": "15"
                 },
                 "description": {
                     "type": "string",
