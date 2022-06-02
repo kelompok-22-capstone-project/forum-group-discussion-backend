@@ -208,6 +208,93 @@ const docTemplate = `{
                 }
             }
         },
+        "/threads": {
+            "get": {
+                "description": "This endpoint is used to get all threads",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Get Threads",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to create a thread",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Create a Thread",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payload.CreateThread"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.createThreadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me": {
             "get": {
                 "security": [
@@ -398,10 +485,27 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.createThreadResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.idData"
+                }
+            }
+        },
         "controller.idData": {
             "type": "object",
             "properties": {
-                "userID": {
+                "ID": {
                     "type": "string"
                 }
             }
@@ -516,7 +620,7 @@ const docTemplate = `{
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.idData"
+                    "$ref": "#/definitions/controller.userIDData"
                 }
             }
         },
@@ -620,10 +724,40 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.userIDData": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string"
+                }
+            }
+        },
         "echo.HTTPError": {
             "type": "object",
             "properties": {
                 "message": {}
+            }
+        },
+        "payload.CreateThread": {
+            "type": "object",
+            "properties": {
+                "title": {
+                    "type": "string",
+                    "maxLength": 50,
+                    "minLength": 2,
+                    "x-order": "0"
+                },
+                "description": {
+                    "type": "string",
+                    "minLength": 2,
+                    "x-order": "1"
+                },
+                "categoryID": {
+                    "type": "string",
+                    "maxLength": 6,
+                    "minLength": 4,
+                    "x-order": "2"
+                }
             }
         },
         "payload.Login": {
