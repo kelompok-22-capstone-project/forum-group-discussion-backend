@@ -211,6 +211,20 @@
                     "threads"
                 ],
                 "summary": "Get Threads",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
@@ -452,6 +466,59 @@
                 }
             }
         },
+        "/threads/{id}/comments": {
+            "get": {
+                "description": "This endpoint is used to get the thread comments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Get Thread Comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 20",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.commentsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/users/me": {
             "get": {
                 "security": [
@@ -639,6 +706,69 @@
                     "description": "CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
                     "x-order": "3"
+                }
+            }
+        },
+        "controller.commentData": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "comment": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "publishedOn": {
+                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "5"
+                }
+            }
+        },
+        "controller.commentsInfoWrapper": {
+            "type": "object",
+            "properties": {
+                "comments": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.commentData"
+                    },
+                    "x-order": "0"
+                },
+                "pageInfo": {
+                    "x-order": "1",
+                    "$ref": "#/definitions/controller.pageInfoData"
+                }
+            }
+        },
+        "controller.commentsResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.commentsInfoWrapper"
                 }
             }
         },

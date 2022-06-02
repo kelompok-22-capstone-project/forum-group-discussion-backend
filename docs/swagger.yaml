@@ -36,6 +36,51 @@ definitions:
         type: string
         x-order: "1"
     type: object
+  controller.commentData:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      comment:
+        type: string
+        x-order: "4"
+      name:
+        type: string
+        x-order: "3"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "5"
+      userID:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "2"
+    type: object
+  controller.commentsInfoWrapper:
+    properties:
+      comments:
+        items:
+          $ref: '#/definitions/controller.commentData'
+        type: array
+        x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+    type: object
+  controller.commentsResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.commentsInfoWrapper'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
   controller.createThreadResponse:
     properties:
       data:
@@ -438,6 +483,15 @@ paths:
   /threads:
     get:
       description: This endpoint is used to get all threads
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
       produces:
       - application/json
       responses:
@@ -594,6 +648,41 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Update a Thread
+      tags:
+      - threads
+  /threads/{id}/comments:
+    get:
+      description: This endpoint is used to get the thread comments
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.commentsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Thread Comments
       tags:
       - threads
   /users/{username}:
