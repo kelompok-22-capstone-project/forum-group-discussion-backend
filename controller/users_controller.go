@@ -89,6 +89,7 @@ type profileData struct {
 	RegisteredOn  string `json:"registeredOn" extensions:"x-order=6"`
 	TotalThread   uint   `json:"totalThread" extensions:"x-order=7"`
 	TotalFollower uint   `json:"totalFollower" extensions:"x-order=8"`
+	IsFollowed    bool   `json:"isFollowed" extensions:"x-order=9"`
 }
 
 type threadsInfoWrapper struct {
@@ -110,7 +111,10 @@ type threadData struct {
 	CategoryID      string `json:"categoryID" extensions:"x-order=10"`
 	CategoryName    string `json:"categoryName" extensions:"x-order=11"`
 	// PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	PublishedOn string `json:"publishedOn" extensions:"x-order=12"`
+	PublishedOn string        `json:"publishedOn" extensions:"x-order=12"`
+	IsLiked     bool          `json:"isLiked" extensions:"x-order=13"`
+	IsFollowed  bool          `json:"isFollowed" extensions:"x-order=14"`
+	Moderators  []profileData `json:"moderators" extensions:"x-order=15"`
 }
 
 type pageInfoData struct {
