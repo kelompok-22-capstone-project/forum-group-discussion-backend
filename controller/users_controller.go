@@ -22,7 +22,7 @@ func (u *usersController) Route(g *echo.Group) {
 // @Produce      json
 // @Security     ApiKeyAuth
 // @Success      200       {object}  profileResponse
-// @Failure      401       {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
 // @Failure      404       {object}  echo.HTTPError
 // @Failure      500       {object}  echo.HTTPError
 // @Router       /users/me [get]
@@ -59,6 +59,8 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Router       /users/{username}/threads [get]
 func (u *usersController) getUserThreads(c echo.Context) error {
 	_ = c.Param("username")
+	_ = c.QueryParam("page")
+	_ = c.QueryParam("limit")
 	return nil
 }
 

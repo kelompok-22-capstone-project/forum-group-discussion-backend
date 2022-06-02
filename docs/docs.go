@@ -25,6 +25,85 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/categories": {
+            "get": {
+                "description": "This endpoint is used to get all category",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Get Categories",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.categoriesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/categories/{id}/threads": {
+            "get": {
+                "description": "This endpoint is used to get the threads of particular category",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "categories"
+                ],
+                "summary": "Get Category Threads",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "category ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "This endpoint is used for user login",
@@ -198,12 +277,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/controller.profileResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -257,12 +330,6 @@ const docTemplate = `{
                             "$ref": "#/definitions/controller.threadsResponse"
                         }
                     },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -280,6 +347,57 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "controller.categoriesData": {
+            "type": "object",
+            "properties": {
+                "categories": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.categoryData"
+                    },
+                    "x-order": "0"
+                }
+            }
+        },
+        "controller.categoriesResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.categoriesData"
+                }
+            }
+        },
+        "controller.categoryData": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "description": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "createdOn": {
+                    "description": "CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "3"
+                }
+            }
+        },
         "controller.idData": {
             "type": "object",
             "properties": {

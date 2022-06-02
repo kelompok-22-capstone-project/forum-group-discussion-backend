@@ -1,5 +1,41 @@
 basePath: /api/v1
 definitions:
+  controller.categoriesData:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/controller.categoryData'
+        type: array
+        x-order: "0"
+    type: object
+  controller.categoriesResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.categoriesData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.categoryData:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      createdOn:
+        description: 'CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "3"
+      description:
+        type: string
+        x-order: "2"
+      name:
+        type: string
+        x-order: "1"
+    type: object
   controller.idData:
     properties:
       userID:
@@ -213,6 +249,58 @@ info:
   title: Forum Group Discussion API
   version: "1.0"
 paths:
+  /categories:
+    get:
+      description: This endpoint is used to get all category
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.categoriesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Categories
+      tags:
+      - categories
+  /categories/{id}/threads:
+    get:
+      description: This endpoint is used to get the threads of particular category
+      parameters:
+      - description: category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      summary: Get Category Threads
+      tags:
+      - categories
   /login:
     post:
       consumes:
@@ -297,10 +385,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.profileResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
@@ -336,10 +420,6 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/controller.threadsResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
         "404":
           description: Not Found
           schema:
