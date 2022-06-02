@@ -10,9 +10,30 @@ func NewUsersController() *usersController {
 
 func (u *usersController) Route(g *echo.Group) {
 	group := g.Group("/users")
+	group.GET("/", u.getUsers)
 	group.GET("/me", u.getMe)
 	group.GET("/:username", u.getUserByUsername)
 	group.GET("/:username/threads", u.getUserThreads)
+}
+
+// getUsers     godoc
+// @Summary      Get Users
+// @Description  This endpoint is used to get all users
+// @Tags         users
+// @Produce      json
+// @Param        page      query     int     false  "page, default 1"
+// @Param        limit     query     int     false  "limit, default 20"
+// @Param        order_by  query     string  false  "options: registered_date, ranking, default registered_date"
+// @Param        status    query     string  false  "options: active, banned, default active"
+// @Success      200       {object}  profilesResponse
+// @Failure      500       {object}  echo.HTTPError
+// @Router       /users [get]
+func (u *usersController) getUsers(c echo.Context) error {
+	_ = c.QueryParam("page")
+	_ = c.QueryParam("limit")
+	_ = c.QueryParam("order_by")
+	_ = c.QueryParam("status")
+	return nil
 }
 
 // getOwnProfile godoc
@@ -71,6 +92,13 @@ type profileResponse struct {
 	Data    profileData `json:"data" extensions:"x-order=2"`
 }
 
+// profilesResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
+type profilesResponse struct {
+	Status  string              `json:"status" extensions:"x-order=0"`
+	Message string              `json:"message" extensions:"x-order=1"`
+	Data    profilesInfoWrapper `json:"data" extensions:"x-order=2"`
+}
+
 // threadsResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type threadsResponse struct {
 	Status  string             `json:"status" extensions:"x-order=0"`
@@ -90,6 +118,11 @@ type profileData struct {
 	TotalThread   uint   `json:"totalThread" extensions:"x-order=7"`
 	TotalFollower uint   `json:"totalFollower" extensions:"x-order=8"`
 	IsFollowed    bool   `json:"isFollowed" extensions:"x-order=9"`
+}
+
+type profilesInfoWrapper struct {
+	Threads  []profileData `json:"users" extensions:"x-order=0"`
+	PageInfo pageInfoData  `json:"pageInfo" extensions:"x-order=1"`
 }
 
 type threadsInfoWrapper struct {
