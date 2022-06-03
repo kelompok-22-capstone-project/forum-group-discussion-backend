@@ -534,6 +534,26 @@ info:
   title: Forum Group Discussion API
   version: "1.0"
 paths:
+  /admin/dashboard:
+    get:
+      description: This endpoint is used to get all information for admin dashboard
+        purpose
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.infoResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Get Info
+      tags:
+      - admin
   /categories:
     get:
       description: This endpoint is used to get all category
@@ -698,24 +718,6 @@ paths:
       summary: Get Category Threads
       tags:
       - categories
-  /info:
-    get:
-      description: This endpoint is used to get all information for admin dashboard
-        purpose
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/controller.infoResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      summary: Get Info
-      tags:
-      - info
   /login:
     post:
       consumes:
