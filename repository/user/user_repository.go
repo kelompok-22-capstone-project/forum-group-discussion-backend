@@ -1,0 +1,12 @@
+package user
+
+import (
+	"context"
+
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
+)
+
+type UserRepository interface {
+	Insert(ctx context.Context, user entity.User) (err error)
+	FindByUsername(ctx context.Context, username string) (user entity.User, err error)
+}
