@@ -20,6 +20,8 @@ func (t *threadsController) Route(g *echo.Group) {
 	group.PUT("/:id", t.putUpdateThread)
 	group.DELETE("/:id", t.deleteThread)
 	group.GET("/:id/comments", t.getThreadComments)
+	group.PUT("/:id/like", t.putThreadLike)
+	group.PUT("/:id/follow", t.putThreadFollow)
 }
 
 // getThreads     godoc
@@ -81,7 +83,7 @@ func (t *threadsController) getThread(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        default  body  payload.UpdateThread  true  "request body"
-// @Param        id       path  string                true  "thread ID"
+// @Param        id  path  string  true  "thread ID"
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
@@ -128,6 +130,42 @@ func (t *threadsController) getThreadComments(c echo.Context) error {
 	_ = c.QueryParam("page")
 	_ = c.QueryParam("limit")
 	return nil
+}
+
+// putThreadLike godoc
+// @Summary      Like/Unlike a Thread
+// @Description  This endpoint is used to like/unlike a thread
+// @Tags         threads
+// @Accept       json
+// @Produce      json
+// @Param        id  path  string  true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id}/like [put]
+func (t *threadsController) putThreadLike(c echo.Context) error {
+	_ = c.Param("id")
+	return c.NoContent(http.StatusNoContent)
+}
+
+// putThreadFollow godoc
+// @Summary      Like/Unlike a Thread
+// @Description  This endpoint is used to follow/unfollow a thread
+// @Tags         threads
+// @Accept       json
+// @Produce      json
+// @Param        id       path  string                true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id}/follow [put]
+func (t *threadsController) putThreadFollow(c echo.Context) error {
+	_ = c.Param("id")
+	return c.NoContent(http.StatusNoContent)
 }
 
 // createThreadResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
