@@ -151,7 +151,7 @@ func (t *threadsController) putThreadLike(c echo.Context) error {
 }
 
 // putThreadFollow godoc
-// @Summary      Like/Unlike a Thread
+// @Summary      Follow/Unfollow a Thread
 // @Description  This endpoint is used to follow/unfollow a thread
 // @Tags         threads
 // @Accept       json
