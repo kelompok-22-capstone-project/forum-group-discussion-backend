@@ -799,7 +799,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKeyAuth: []
-      summary: Like/Unlike a Thread
+      summary: Follow/Unfollow a Thread
       tags:
       - threads
   /threads/{id}/like:
@@ -894,6 +894,39 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Get User by Username
+      tags:
+      - users
+  /users/{username}/follow:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to follow/unfollow a user
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Follow/Unfollow a User
       tags:
       - users
   /users/{username}/threads:
