@@ -107,7 +107,7 @@ func (c *categoriesController) getCategoryThreads(e echo.Context) error {
 	return nil
 }
 
-// profileResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
+// categoriesResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type categoriesResponse struct {
 	Status  string         `json:"status" extensions:"x-order=0"`
 	Message string         `json:"message" extensions:"x-order=1"`
