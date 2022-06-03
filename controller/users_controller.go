@@ -1,6 +1,10 @@
 package controller
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+)
 
 type usersController struct{}
 
@@ -14,6 +18,7 @@ func (u *usersController) Route(g *echo.Group) {
 	group.GET("/me", u.getMe)
 	group.GET("/:username", u.getUserByUsername)
 	group.GET("/:username/threads", u.getUserThreads)
+	group.PUT("/:username/follow", u.putUserFollow)
 }
 
 // getUsers     godoc
@@ -83,6 +88,24 @@ func (u *usersController) getUserThreads(c echo.Context) error {
 	_ = c.QueryParam("page")
 	_ = c.QueryParam("limit")
 	return nil
+}
+
+// putUserFollow godoc
+// @Summary      Follow/Unfollow a User
+// @Description  This endpoint is used to follow/unfollow a user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        username  path  string  true  "username"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /users/{username}/follow [put]
+func (u *usersController) putUserFollow(c echo.Context) error {
+	_ = c.Param("username")
+	return c.NoContent(http.StatusNoContent)
 }
 
 // profileResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
