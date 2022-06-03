@@ -1,6 +1,10 @@
 package controller
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+
+	"github.com/labstack/echo/v4"
+)
 
 type categoriesController struct{}
 
@@ -10,8 +14,29 @@ func NewCategoriesController() *categoriesController {
 
 func (c *categoriesController) Route(g *echo.Group) {
 	group := g.Group("/categories")
+	group.POST("", c.postCreateCategory)
 	group.GET("", c.getCategories)
+	group.PUT("/:id", c.putUpdateCategory)
+	group.DELETE("/:id", c.deleteCategory)
 	group.GET("/:id/threads", c.getCategoryThreads)
+}
+
+// postCreateCategory godoc
+// @Summary      Create a Category
+// @Description  This endpoint is used to create a category
+// @Tags         categories
+// @Accept       json
+// @Produce      json
+// @Param        default  body  payload.CreateCategory  true  "request body"
+// @Security     ApiKeyAuth
+// @Success      201  {object}  createThreadResponse
+// @Failure      400  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500    {object}  echo.HTTPError
+// @Router       /categories [post]
+func (c *categoriesController) postCreateCategory(e echo.Context) error {
+	return nil
 }
 
 // getCategories     godoc
@@ -20,10 +45,47 @@ func (c *categoriesController) Route(g *echo.Group) {
 // @Tags         categories
 // @Produce      json
 // @Success      200  {object}  categoriesResponse
-// @Failure      500    {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [get]
 func (c *categoriesController) getCategories(e echo.Context) error {
 	return nil
+}
+
+// putUpdateCategory godoc
+// @Summary      Update a Category
+// @Description  This endpoint is used to update a category
+// @Tags         categories
+// @Accept       json
+// @Produce      json
+// @Param        default  body  payload.UpdateCategory  true  "request body"
+// @Param        id       path  string                  true  "category ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      400  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /categories/{id} [put]
+func (c *categoriesController) putUpdateCategory(e echo.Context) error {
+	_ = e.Param("id")
+	return e.NoContent(http.StatusNoContent)
+}
+
+// deleteCategory godoc
+// @Summary      Delete Category by ID
+// @Description  This endpoint is used to delete a category by ID
+// @Tags         categories
+// @Produce      json
+// @Param        id  path  string  true  "category ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /categories/{id} [delete]
+func (c *categoriesController) deleteCategory(e echo.Context) error {
+	_ = e.Param("id")
+	return e.NoContent(http.StatusNoContent)
 }
 
 // getCategoryThreads godoc
