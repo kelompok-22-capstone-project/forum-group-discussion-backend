@@ -340,6 +340,14 @@ definitions:
     properties:
       message: {}
     type: object
+  payload.AddRemoveModerator:
+    properties:
+      username:
+        maxLength: 20
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
   payload.CreateThread:
     properties:
       categoryID:
@@ -833,6 +841,92 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Like/Unlike a Thread
+      tags:
+      - threads
+  /threads/{id}/moderators/add:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to add a moderator to thread
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.AddRemoveModerator'
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Add a Moderator to Thread
+      tags:
+      - threads
+  /threads/{id}/moderators/remove:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to remove a moderator from thread
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.AddRemoveModerator'
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Remove a Moderator from Thread
       tags:
       - threads
   /users:

@@ -657,6 +657,140 @@ const docTemplate = `{
                 }
             }
         },
+        "/threads/{id}/moderators/add": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to add a moderator to thread",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Add a Moderator to Thread",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payload.AddRemoveModerator"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/threads/{id}/moderators/remove": {
+            "put": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to remove a moderator from thread",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Remove a Moderator from Thread",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payload.AddRemoveModerator"
+                        }
+                    },
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": ""
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/users": {
             "get": {
                 "description": "This endpoint is used to get all users",
@@ -1376,6 +1510,17 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "message": {}
+            }
+        },
+        "payload.AddRemoveModerator": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "maxLength": 20,
+                    "minLength": 2,
+                    "x-order": "0"
+                }
             }
         },
         "payload.CreateThread": {
