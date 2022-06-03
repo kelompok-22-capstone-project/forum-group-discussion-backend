@@ -348,6 +348,18 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  payload.CreateCategory:
+    properties:
+      description:
+        minLength: 2
+        type: string
+        x-order: "1"
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
   payload.CreateThread:
     properties:
       categoryID:
@@ -401,6 +413,18 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  payload.UpdateCategory:
+    properties:
+      description:
+        minLength: 2
+        type: string
+        x-order: "1"
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
   payload.UpdateThread:
     properties:
       categoryID:
@@ -447,6 +471,118 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       summary: Get Categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a category
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a Category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: This endpoint is used to delete a category by ID
+      parameters:
+      - description: category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Delete Category by ID
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to update a category
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UpdateCategory'
+      - description: category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Update a Category
       tags:
       - categories
   /categories/{id}/threads:
