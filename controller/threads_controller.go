@@ -22,6 +22,8 @@ func (t *threadsController) Route(g *echo.Group) {
 	group.GET("/:id/comments", t.getThreadComments)
 	group.PUT("/:id/like", t.putThreadLike)
 	group.PUT("/:id/follow", t.putThreadFollow)
+	group.PUT("/:id/moderators/add", t.putThreadAddModerator)
+	group.PUT("/:id/moderators/remove", t.putThreadRemoveModerator)
 }
 
 // getThreads     godoc
@@ -83,7 +85,7 @@ func (t *threadsController) getThread(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        default  body  payload.UpdateThread  true  "request body"
-// @Param        id  path  string  true  "thread ID"
+// @Param        id       path  string                      true  "thread ID"
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
@@ -101,7 +103,7 @@ func (t *threadsController) putUpdateThread(c echo.Context) error {
 // @Description  This endpoint is used to delete a thread by ID
 // @Tags         threads
 // @Produce      json
-// @Param        id  path  string  true  "thread ID"
+// @Param        id       path  string                      true  "thread ID"
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      404  {object}  echo.HTTPError
@@ -164,6 +166,46 @@ func (t *threadsController) putThreadLike(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/follow [put]
 func (t *threadsController) putThreadFollow(c echo.Context) error {
+	_ = c.Param("id")
+	return c.NoContent(http.StatusNoContent)
+}
+
+// putThreadAddModerator godoc
+// @Summary      Add a Moderator to Thread
+// @Description  This endpoint is used to add a moderator to thread
+// @Tags         threads
+// @Accept       json
+// @Produce      json
+// @Param        default  body  payload.AddRemoveModerator  true  "request body"
+// @Param        id  path  string  true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      400  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id}/moderators/add [put]
+func (t *threadsController) putThreadAddModerator(c echo.Context) error {
+	_ = c.Param("id")
+	return c.NoContent(http.StatusNoContent)
+}
+
+// putThreadRemoveModerator godoc
+// @Summary      Remove a Moderator from Thread
+// @Description  This endpoint is used to remove a moderator from thread
+// @Tags         threads
+// @Accept       json
+// @Produce      json
+// @Param        default  body  payload.AddRemoveModerator  true  "request body"
+// @Param        id  path  string  true  "thread ID"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      400  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id}/moderators/remove [put]
+func (t *threadsController) putThreadRemoveModerator(c echo.Context) error {
 	_ = c.Param("id")
 	return c.NoContent(http.StatusNoContent)
 }
