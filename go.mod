@@ -1,5 +1,6 @@
 module github.com/kelompok-22-capstone-project/forum-group-discussion-backend
 
+// +heroku goVersion go1.18
 go 1.18
 
 require (
