@@ -19,6 +19,7 @@ func (u *usersController) Route(g *echo.Group) {
 	group.GET("/:username", u.getUserByUsername)
 	group.GET("/:username/threads", u.getUserThreads)
 	group.PUT("/:username/follow", u.putUserFollow)
+	group.PUT("/:username/banned", u.putUserBanned)
 }
 
 // getUsers     godoc
@@ -104,6 +105,24 @@ func (u *usersController) getUserThreads(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/follow [put]
 func (u *usersController) putUserFollow(c echo.Context) error {
+	_ = c.Param("username")
+	return c.NoContent(http.StatusNoContent)
+}
+
+// putUserBanned godoc
+// @Summary      Banned/Unbanned a User
+// @Description  This endpoint is used to banned/unbanned a user
+// @Tags         users
+// @Accept       json
+// @Produce      json
+// @Param        username  path  string  true  "username"
+// @Security     ApiKeyAuth
+// @Success      204
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /users/{username}/banned [put]
+func (u *usersController) putUserBanned(c echo.Context) error {
 	_ = c.Param("username")
 	return c.NoContent(http.StatusNoContent)
 }
