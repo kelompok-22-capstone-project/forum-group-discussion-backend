@@ -990,6 +990,39 @@ paths:
       summary: Get User by Username
       tags:
       - users
+  /users/{username}/banned:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to banned/unbanned a user
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Banned/Unbanned a User
+      tags:
+      - users
   /users/{username}/follow:
     put:
       consumes:
