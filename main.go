@@ -29,7 +29,7 @@ import (
 // @in                          header
 // @name                        Authorization
 
-// @host      localhost:3000
+// @host      https://moot-rest-api.herokuapp.com
 // @BasePath  /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
