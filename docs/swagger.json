@@ -403,6 +403,55 @@
             }
         },
         "/reports": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to get all report",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Get Reports",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "options: all, review, rejected, accepted, default all",
+                        "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 20",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.reportsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            },
             "post": {
                 "security": [
                     {
@@ -1642,6 +1691,85 @@
                 "data": {
                     "x-order": "2",
                     "$ref": "#/definitions/controller.userIDData"
+                }
+            }
+        },
+        "controller.reportData": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "moderatorID": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "moderatorUsername": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "moderatorName": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "5"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "6"
+                },
+                "reason": {
+                    "type": "string",
+                    "x-order": "7"
+                },
+                "status": {
+                    "type": "string",
+                    "x-order": "8"
+                },
+                "reportedOn": {
+                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "9"
+                }
+            }
+        },
+        "controller.reportsData": {
+            "type": "object",
+            "properties": {
+                "reports": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/controller.reportData"
+                    },
+                    "x-order": "0"
+                },
+                "pageInfo": {
+                    "x-order": "1",
+                    "$ref": "#/definitions/controller.pageInfoData"
+                }
+            }
+        },
+        "controller.reportsResponse": {
+            "type": "object",
+            "properties": {
+                "status": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "message": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "data": {
+                    "x-order": "2",
+                    "$ref": "#/definitions/controller.reportsData"
                 }
             }
         },
