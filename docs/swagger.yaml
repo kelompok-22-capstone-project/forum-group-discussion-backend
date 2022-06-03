@@ -360,6 +360,18 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  payload.CreateReport:
+    properties:
+      reason:
+        minLength: 2
+        type: string
+        x-order: "1"
+      userID:
+        maxLength: 10
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
   payload.CreateThread:
     properties:
       categoryID:
@@ -706,6 +718,46 @@ paths:
       summary: User Register
       tags:
       - register
+  /reports:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a report
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateReport'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Create a Report
+      tags:
+      - reports
   /threads:
     get:
       description: This endpoint is used to get all threads

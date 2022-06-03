@@ -409,6 +409,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/reports": {
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to create a report",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "reports"
+                ],
+                "summary": "Create a Report",
+                "parameters": [
+                    {
+                        "description": "request body",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payload.CreateReport"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.createThreadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/threads": {
             "get": {
                 "description": "This endpoint is used to get all threads",
@@ -1760,6 +1823,22 @@ const docTemplate = `{
                     "x-order": "0"
                 },
                 "description": {
+                    "type": "string",
+                    "minLength": 2,
+                    "x-order": "1"
+                }
+            }
+        },
+        "payload.CreateReport": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 2,
+                    "x-order": "0"
+                },
+                "reason": {
                     "type": "string",
                     "minLength": 2,
                     "x-order": "1"
