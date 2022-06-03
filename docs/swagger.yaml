@@ -769,6 +769,72 @@ paths:
       summary: Get Thread Comments
       tags:
       - threads
+  /threads/{id}/follow:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to follow/unfollow a thread
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Like/Unlike a Thread
+      tags:
+      - threads
+  /threads/{id}/like:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to like/unlike a thread
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKeyAuth: []
+      summary: Like/Unlike a Thread
+      tags:
+      - threads
   /users:
     get:
       description: This endpoint is used to get all users
