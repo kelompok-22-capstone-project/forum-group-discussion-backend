@@ -91,7 +91,14 @@ func (u *userServiceImpl) Login(ctx context.Context, p payload.Login) (r respons
 		return
 	}
 
-	token, genErr := u.tokenGenerator.GenerateToken(user.ID, user.Username, user.Role, user.IsActive)
+	tokenPayload := generator.TokenPayload{
+		ID:       user.ID,
+		Username: user.Username,
+		Role:     user.Role,
+		IsActive: user.IsActive,
+	}
+
+	token, genErr := u.tokenGenerator.GenerateToken(tokenPayload)
 	if genErr != nil {
 		err = service.MapError(repoErr)
 		return
