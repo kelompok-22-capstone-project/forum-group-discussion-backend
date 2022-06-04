@@ -5,13 +5,17 @@ import (
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
 	"github.com/labstack/echo/v4"
 )
 
-type registerController struct{}
+type registerController struct {
+	userService user.UserService
+}
 
-func NewRegisterController() *registerController {
-	return &registerController{}
+func NewRegisterController(userService user.UserService) *registerController {
+	return &registerController{userService: userService}
 }
 
 func (r *registerController) Route(g *echo.Group) {
@@ -30,13 +34,16 @@ func (r *registerController) Route(g *echo.Group) {
 // @Failure      400      {object}  echo.HTTPError
 // @Failure      500      {object}  echo.HTTPError
 // @Router       /register [post]
-func (p *registerController) postRegister(c echo.Context) error {
+func (r *registerController) postRegister(c echo.Context) error {
 	registerPayload := new(payload.Register)
 	if err := c.Bind(registerPayload); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payload. Please check the payload schema in the API Documentation.")
+		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	id := "u-xy4Zia"
+	id, err := r.userService.Register(c.Request().Context(), *registerPayload)
+	if err != nil {
+		return newErrorResponse(err)
+	}
 
 	idResponse := map[string]any{"userID": id}
 	response := model.NewResponse("success", "Register successful.", idResponse)

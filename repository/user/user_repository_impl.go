@@ -3,9 +3,11 @@ package user
 import (
 	"context"
 	"database/sql"
+	"log"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	"github.com/lib/pq"
 )
 
 type userRepositoryImpl struct {
@@ -21,12 +23,30 @@ func (u *userRepositoryImpl) Insert(ctx context.Context, user entity.User) (err 
 
 	result, dbErr := u.db.ExecContext(ctx, statement, user.ID, user.Username, user.Email, user.Name, user.Password, user.Role)
 	if dbErr != nil {
-		err = repository.ErrDatabase
-		return
+		switch e := dbErr.(type) {
+		case *pq.Error:
+			{
+				if e.Code == "23505" {
+					err = repository.ErrRecordAlreadyExists
+					return
+				}
+				err = repository.ErrDatabase
+				return
+			}
+		default:
+			{
+				log.Println(dbErr)
+				err = repository.ErrDatabase
+				return
+			}
+		}
 	}
 
 	count, dbErr := result.RowsAffected()
-	if dbErr != nil || count < 1 {
+	if dbErr != nil {
+	}
+
+	if count < 1 {
 		err = repository.ErrDatabase
 		return
 	}
@@ -71,6 +91,7 @@ func (u *userRepositoryImpl) FindByUsername(ctx context.Context, username string
 		}
 	default:
 		{
+			log.Println(dbErr)
 			err = repository.ErrDatabase
 			return
 		}

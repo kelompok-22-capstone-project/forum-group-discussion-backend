@@ -1635,7 +1635,7 @@ const docTemplate = `{
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.tokenData"
+                    "$ref": "#/definitions/response.Login"
                 }
             }
         },
@@ -1975,19 +1975,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.tokenData": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "role": {
-                    "type": "string",
-                    "x-order": "1"
-                }
-            }
-        },
         "controller.userIDData": {
             "type": "object",
             "properties": {
@@ -2162,6 +2149,19 @@ const docTemplate = `{
                     "x-order": "2"
                 }
             }
+        },
+        "response.Login": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "1"
+                }
+            }
         }
     },
     "securityDefinitions": {
@@ -2176,7 +2176,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "localhost:3000",
+	Host:             "https://moot-rest-api.herokuapp.com",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Forum Group Discussion API",

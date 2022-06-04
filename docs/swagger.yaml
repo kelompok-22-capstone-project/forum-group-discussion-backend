@@ -128,7 +128,7 @@ definitions:
   controller.loginResponse:
     properties:
       data:
-        $ref: '#/definitions/controller.tokenData'
+        $ref: '#/definitions/response.Login'
         x-order: "2"
       message:
         type: string
@@ -379,15 +379,6 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.tokenData:
-    properties:
-      role:
-        type: string
-        x-order: "1"
-      token:
-        type: string
-        x-order: "0"
-    type: object
   controller.userIDData:
     properties:
       userID:
@@ -520,7 +511,16 @@ definitions:
         type: string
         x-order: "0"
     type: object
-host: localhost:3000
+  response.Login:
+    properties:
+      role:
+        type: string
+        x-order: "1"
+      token:
+        type: string
+        x-order: "0"
+    type: object
+host: https://moot-rest-api.herokuapp.com
 info:
   contact:
     email: erikriosetiawan15@gmail.com
