@@ -5,6 +5,7 @@ import (
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -48,12 +49,7 @@ func (l *loginController) postLogin(c echo.Context) error {
 
 // loginResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type loginResponse struct {
-	Status  string    `json:"status" extensions:"x-order=0"`
-	Message string    `json:"message" extensions:"x-order=1"`
-	Data    tokenData `json:"data" extensions:"x-order=2"`
-}
-
-type tokenData struct {
-	Token string `json:"token" extensions:"x-order=0"`
-	Role  string `json:"role" extensions:"x-order=1"`
+	Status  string         `json:"status" extensions:"x-order=0"`
+	Message string         `json:"message" extensions:"x-order=1"`
+	Data    response.Login `json:"data" extensions:"x-order=2"`
 }

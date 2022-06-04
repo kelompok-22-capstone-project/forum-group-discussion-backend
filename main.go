@@ -9,6 +9,7 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/controller"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/validation"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
 )
