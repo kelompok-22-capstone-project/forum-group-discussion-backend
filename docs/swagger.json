@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "localhost:3000",
+    "host": "https://moot-rest-api.herokuapp.com",
     "basePath": "/api/v1",
     "paths": {
         "/admin/dashboard": {
@@ -1628,7 +1628,7 @@
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.tokenData"
+                    "$ref": "#/definitions/response.Login"
                 }
             }
         },
@@ -1968,19 +1968,6 @@
                 }
             }
         },
-        "controller.tokenData": {
-            "type": "object",
-            "properties": {
-                "token": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "role": {
-                    "type": "string",
-                    "x-order": "1"
-                }
-            }
-        },
         "controller.userIDData": {
             "type": "object",
             "properties": {
@@ -2153,6 +2140,19 @@
                     "maxLength": 6,
                     "minLength": 4,
                     "x-order": "2"
+                }
+            }
+        },
+        "response.Login": {
+            "type": "object",
+            "properties": {
+                "token": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "1"
                 }
             }
         }
