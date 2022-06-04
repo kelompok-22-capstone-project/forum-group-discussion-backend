@@ -6,13 +6,17 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
 	"github.com/labstack/echo/v4"
 )
 
-type loginController struct{}
+type loginController struct {
+	userService user.UserService
+}
 
-func NewLoginController() *loginController {
-	return &loginController{}
+func NewLoginController(userService user.UserService) *loginController {
+	return &loginController{userService: userService}
 }
 
 func (l *loginController) Route(g *echo.Group) {
@@ -36,13 +40,14 @@ func (l *loginController) Route(g *echo.Group) {
 func (l *loginController) postLogin(c echo.Context) error {
 	credential := new(payload.Login)
 	if err := c.Bind(credential); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid payload. Please check the payload schema in the API Documentation.")
+		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	token := "random.jwt.token"
-	role := "admin"
+	tokenResponse, err := l.userService.Login(c.Request().Context(), *credential)
+	if err != nil {
+		return newErrorResponse(err)
+	}
 
-	tokenResponse := map[string]any{"token": token, "role": role}
 	response := model.NewResponse("success", "Login successful.", tokenResponse)
 	return c.JSON(http.StatusOK, response)
 }
