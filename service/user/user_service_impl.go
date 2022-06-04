@@ -86,6 +86,11 @@ func (u *userServiceImpl) Login(ctx context.Context, p payload.Login) (r respons
 		return
 	}
 
+	if !user.IsActive {
+		err = service.ErrUsernameNotFound
+		return
+	}
+
 	if compareErr := u.passwordGenerator.CompareHashAndPassword([]byte(user.Password), []byte(p.Password)); compareErr != nil {
 		err = service.ErrCredentialNotMatch
 		return
