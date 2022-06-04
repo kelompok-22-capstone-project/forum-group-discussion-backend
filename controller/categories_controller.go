@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -115,13 +116,5 @@ type categoriesResponse struct {
 }
 
 type categoriesData struct {
-	Categories []categoryData `json:"categories" extensions:"x-order=0"`
-}
-
-type categoryData struct {
-	ID          string `json:"ID" extensions:"x-order=0"`
-	Name        string `json:"name" extensions:"x-order=1"`
-	Description string `json:"description" extensions:"x-order=2"`
-	// CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	CreatedOn string `json:"createdOn" extensions:"x-order=3"`
+	Categories []response.Category `json:"categories" extensions:"x-order=0"`
 }
