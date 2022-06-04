@@ -9,6 +9,9 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/controller"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
+	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/validation"
 	"github.com/labstack/echo/v4"
 	echoSwagger "github.com/swaggo/echo-swagger"
@@ -47,8 +50,16 @@ func main() {
 
 	port := ":" + os.Getenv("PORT")
 
-	registerController := controller.NewRegisterController()
-	loginController := controller.NewLoginController()
+	idGenerator := generator.NewNanoidIDGenerator()
+	passwordGenerator := generator.NewBcryptPasswordGenerator()
+	tokenGenerator := generator.NewJWTTokenGenerator()
+
+	userRepository := ur.NewUserRepositoryImpl(db)
+
+	userService := us.NewUserServiceImpl(userRepository, idGenerator, passwordGenerator, tokenGenerator)
+
+	registerController := controller.NewRegisterController(userService)
+	loginController := controller.NewLoginController(userService)
 	usersController := controller.NewUsersController()
 	categoriesController := controller.NewCategoriesController()
 	threadsController := controller.NewThreadsController()
