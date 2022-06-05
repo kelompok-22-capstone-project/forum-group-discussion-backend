@@ -13,6 +13,7 @@ var (
 	ErrInvalidPayload     = errors.New("service: invalid payload")
 	ErrCredentialNotMatch = errors.New("service: credential not match")
 	ErrUsernameNotFound   = errors.New("service: username not found")
+	ErrAccessForbidden    = errors.New("service: access for this resource is forbidden")
 )
 
 func MapError(from error) error {
