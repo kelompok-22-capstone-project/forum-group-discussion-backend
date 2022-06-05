@@ -126,7 +126,6 @@ func (c *categoryRepositoryImpl) Delete(ctx context.Context, ID string) (err err
 	}
 
 	if count < 1 {
-		log.Println(dbErr)
 		err = repository.ErrRecordNotFound
 		return
 	}
