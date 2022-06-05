@@ -33,6 +33,7 @@ func (c *categoriesController) Route(g *echo.Group) {
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
+// @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500    {object}  echo.HTTPError
 // @Router       /categories [post]
@@ -64,6 +65,7 @@ func (c *categoriesController) getCategories(e echo.Context) error {
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
+// @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id} [put]
@@ -98,6 +100,7 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 // @Param        page   query     int     false  "page, default 1"
 // @Param        limit  query     int     false  "limit, default 10"
 // @Success      200    {object}  threadsResponse
+// @Failure      403  {object}  echo.HTTPError
 // @Failure      404    {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id}/threads [get]
