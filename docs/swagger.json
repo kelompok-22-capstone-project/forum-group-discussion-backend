@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "https://moot-rest-api.herokuapp.com",
+    "host": "moot-rest-api.herokuapp.com",
     "basePath": "/api/v1",
     "paths": {
         "/admin/dashboard": {

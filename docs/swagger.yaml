@@ -520,7 +520,7 @@ definitions:
         type: string
         x-order: "0"
     type: object
-host: https://moot-rest-api.herokuapp.com
+host: moot-rest-api.herokuapp.com
 info:
   contact:
     email: erikriosetiawan15@gmail.com
