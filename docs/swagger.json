@@ -305,6 +305,11 @@
         },
         "/login": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user login",
                 "consumes": [
                     "application/json"
@@ -363,6 +368,11 @@
         },
         "/register": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user register.",
                 "consumes": [
                     "application/json"
@@ -2158,6 +2168,11 @@
         }
     },
     "securityDefinitions": {
+        "ApiKey": {
+            "type": "apiKey",
+            "name": "API-Key",
+            "in": "header"
+        },
         "ApiKeyAuth": {
             "type": "apiKey",
             "name": "Authorization",

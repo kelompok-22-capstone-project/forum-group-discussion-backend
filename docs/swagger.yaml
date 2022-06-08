@@ -753,6 +753,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: User Login
       tags:
       - login
@@ -783,6 +785,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: User Register
       tags:
       - register
@@ -1449,6 +1453,10 @@ paths:
       tags:
       - users
 securityDefinitions:
+  ApiKey:
+    in: header
+    name: API-Key
+    type: apiKey
   ApiKeyAuth:
     in: header
     name: Authorization

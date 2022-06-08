@@ -312,6 +312,11 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user login",
                 "consumes": [
                     "application/json"
@@ -370,6 +375,11 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user register.",
                 "consumes": [
                     "application/json"
@@ -2165,6 +2175,11 @@ const docTemplate = `{
         }
     },
     "securityDefinitions": {
+        "ApiKey": {
+            "type": "apiKey",
+            "name": "API-Key",
+            "in": "header"
+        },
         "ApiKeyAuth": {
             "type": "apiKey",
             "name": "Authorization",
