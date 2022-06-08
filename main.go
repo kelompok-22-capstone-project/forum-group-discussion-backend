@@ -31,7 +31,7 @@ import (
 
 // @securityDefinitions.apikey  ApiKey
 // @in                          header
-// @name												API-Key
+// @name                                                API-Key
 
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in                          header
