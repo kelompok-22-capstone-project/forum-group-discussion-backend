@@ -10,7 +10,7 @@ import (
 func KeyAuth(e *echo.Echo) {
 	e.Use(middleware.KeyAuthWithConfig(
 		middleware.KeyAuthConfig{
-			KeyLookup: "query:api-key",
+			KeyLookup: "header:api-key",
 			Validator: func(auth string, c echo.Context) (bool, error) { return auth == os.Getenv("API_KEY"), nil },
 		},
 	))
