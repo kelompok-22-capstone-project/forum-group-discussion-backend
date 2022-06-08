@@ -69,6 +69,7 @@ func main() {
 	e := echo.New()
 
 	if os.Getenv("ENV") == "production" {
+		middleware.KeyAuth(e)
 		middleware.BodyLimit(e)
 		middleware.Gzip(e)
 		middleware.RateLimiter(e)
@@ -76,6 +77,7 @@ func main() {
 		middleware.Secure(e)
 		middleware.RemoveTrailingSlash(e)
 	} else {
+		middleware.KeyAuth(e)
 		middleware.Logger(e)
 		middleware.RemoveTrailingSlash(e)
 	}
