@@ -9,7 +9,9 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/controller"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	cr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
 	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
+	cs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
 	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/validation"
@@ -55,13 +57,15 @@ func main() {
 	tokenGenerator := generator.NewJWTTokenGenerator()
 
 	userRepository := ur.NewUserRepositoryImpl(db)
+	categoryRepository := cr.NewCategoryRepositoryImpl(db)
 
 	userService := us.NewUserServiceImpl(userRepository, idGenerator, passwordGenerator, tokenGenerator)
+	categoryService := cs.NewCategoryServiceImpl(categoryRepository, idGenerator)
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)
 	usersController := controller.NewUsersController()
-	categoriesController := controller.NewCategoriesController()
+	categoriesController := controller.NewCategoriesController(categoryService, tokenGenerator)
 	threadsController := controller.NewThreadsController()
 	adminController := controller.NewAdminController()
 	reportsController := controller.NewReportsController()
@@ -69,6 +73,7 @@ func main() {
 	e := echo.New()
 
 	if os.Getenv("ENV") == "production" {
+		middleware.CORS(e)
 		middleware.BodyLimit(e)
 		middleware.Gzip(e)
 		middleware.RateLimiter(e)

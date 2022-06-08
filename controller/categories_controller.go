@@ -3,21 +3,37 @@ package controller
 import (
 	"net/http"
 
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"github.com/labstack/echo/v4"
 )
 
-type categoriesController struct{}
+type categoriesController struct {
+	categoryService category.CategoryService
+	tokenGenerator  generator.TokenGenerator
+}
 
-func NewCategoriesController() *categoriesController {
-	return &categoriesController{}
+func NewCategoriesController(
+	categoryService category.CategoryService,
+	tokenGenerator generator.TokenGenerator,
+) *categoriesController {
+	return &categoriesController{
+		categoryService: categoryService,
+		tokenGenerator:  tokenGenerator,
+	}
 }
 
 func (c *categoriesController) Route(g *echo.Group) {
 	group := g.Group("/categories")
-	group.POST("", c.postCreateCategory)
+	group.POST("", c.postCreateCategory, middleware.JWTMiddleware())
 	group.GET("", c.getCategories)
-	group.PUT("/:id", c.putUpdateCategory)
-	group.DELETE("/:id", c.deleteCategory)
+	group.PUT("/:id", c.putUpdateCategory, middleware.JWTMiddleware())
+	group.DELETE("/:id", c.deleteCategory, middleware.JWTMiddleware())
 	group.GET("/:id/threads", c.getCategoryThreads)
 }
 
@@ -32,11 +48,26 @@ func (c *categoriesController) Route(g *echo.Group) {
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
+// @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500    {object}  echo.HTTPError
 // @Router       /categories [post]
 func (c *categoriesController) postCreateCategory(e echo.Context) error {
-	return nil
+	tp := c.tokenGenerator.ExtractToken(e)
+
+	p := new(payload.CreateCategory)
+	if err := e.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	id, err := c.categoryService.Create(e.Request().Context(), tp, *p)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	idResponse := map[string]any{"ID": id}
+	response := model.NewResponse("success", "Create category successful.", idResponse)
+	return e.JSON(http.StatusCreated, response)
 }
 
 // getCategories     godoc
@@ -48,7 +79,14 @@ func (c *categoriesController) postCreateCategory(e echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [get]
 func (c *categoriesController) getCategories(e echo.Context) error {
-	return nil
+	categories, err := c.categoryService.GetAll(e.Request().Context())
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	categoriesResponse := map[string]any{"categories": categories}
+	response := model.NewResponse("success", "Get categories successful.", categoriesResponse)
+	return e.JSON(http.StatusOK, response)
 }
 
 // putUpdateCategory godoc
@@ -63,11 +101,24 @@ func (c *categoriesController) getCategories(e echo.Context) error {
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
+// @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id} [put]
 func (c *categoriesController) putUpdateCategory(e echo.Context) error {
-	_ = e.Param("id")
+	id := e.Param("id")
+
+	tp := c.tokenGenerator.ExtractToken(e)
+
+	p := new(payload.UpdateCategory)
+	if err := e.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	if err := c.categoryService.Update(e.Request().Context(), tp, id, *p); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return e.NoContent(http.StatusNoContent)
 }
 
@@ -84,7 +135,14 @@ func (c *categoriesController) putUpdateCategory(e echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id} [delete]
 func (c *categoriesController) deleteCategory(e echo.Context) error {
-	_ = e.Param("id")
+	id := e.Param("id")
+
+	tp := c.tokenGenerator.ExtractToken(e)
+
+	if err := c.categoryService.Delete(e.Request().Context(), tp, id); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return e.NoContent(http.StatusNoContent)
 }
 
@@ -115,13 +173,5 @@ type categoriesResponse struct {
 }
 
 type categoriesData struct {
-	Categories []categoryData `json:"categories" extensions:"x-order=0"`
-}
-
-type categoryData struct {
-	ID          string `json:"ID" extensions:"x-order=0"`
-	Name        string `json:"name" extensions:"x-order=1"`
-	Description string `json:"description" extensions:"x-order=2"`
-	// CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	CreatedOn string `json:"createdOn" extensions:"x-order=3"`
+	Categories []response.Category `json:"categories" extensions:"x-order=0"`
 }
