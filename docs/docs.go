@@ -128,6 +128,12 @@ const docTemplate = `{
                             "$ref": "#/definitions/echo.HTTPError"
                         }
                     },
+                    "403": {
+                        "description": "Forbidden",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
                     "404": {
                         "description": "Not Found",
                         "schema": {
@@ -191,6 +197,12 @@ const docTemplate = `{
                     },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1451,7 +1463,7 @@ const docTemplate = `{
                 "categories": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.categoryData"
+                        "$ref": "#/definitions/response.Category"
                     },
                     "x-order": "0"
                 }
@@ -1471,28 +1483,6 @@ const docTemplate = `{
                 "data": {
                     "x-order": "2",
                     "$ref": "#/definitions/controller.categoriesData"
-                }
-            }
-        },
-        "controller.categoryData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "description": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "createdOn": {
-                    "description": "CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "3"
                 }
             }
         },
@@ -2147,6 +2137,28 @@ const docTemplate = `{
                     "maxLength": 6,
                     "minLength": 4,
                     "x-order": "2"
+                }
+            }
+        },
+        "response.Category": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "description": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "createdOn": {
+                    "description": "CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "3"
                 }
             }
         },

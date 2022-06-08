@@ -28,6 +28,9 @@ func newErrorResponse(err error) *echo.HTTPError {
 	} else if errors.Is(err, service.ErrUsernameNotFound) {
 		statusCode = http.StatusNotFound
 		message = "User with given username not found."
+	} else if errors.Is(err, service.ErrAccessForbidden) {
+		statusCode = http.StatusForbidden
+		message = "Access to this resource is forbidden for current role."
 	} else if errors.Is(err, service.ErrRepository) {
 		statusCode = http.StatusInternalServerError
 		message = "Something went wrong."
