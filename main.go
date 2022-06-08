@@ -73,6 +73,7 @@ func main() {
 	e := echo.New()
 
 	if os.Getenv("ENV") == "production" {
+		middleware.CORS(e)
 		middleware.BodyLimit(e)
 		middleware.Gzip(e)
 		middleware.RateLimiter(e)
