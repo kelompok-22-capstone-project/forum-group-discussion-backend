@@ -31,13 +31,13 @@ import (
 
 // @securityDefinitions.apikey  ApiKey
 // @in                          header
-// @name                                                API-Key
+// @name                        API-Key
 
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in                          header
 // @name                        Authorization
 
-// @host      https://moot-rest-api.herokuapp.com
+// @host      moot-rest-api.herokuapp.com
 // @BasePath  /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -73,7 +73,6 @@ func main() {
 	e := echo.New()
 
 	if os.Getenv("ENV") == "production" {
-		middleware.KeyAuth(e)
 		middleware.BodyLimit(e)
 		middleware.Gzip(e)
 		middleware.RateLimiter(e)
@@ -81,14 +80,13 @@ func main() {
 		middleware.Secure(e)
 		middleware.RemoveTrailingSlash(e)
 	} else {
-		middleware.KeyAuth(e)
 		middleware.Logger(e)
 		middleware.RemoveTrailingSlash(e)
 	}
 
 	e.GET("/*", echoSwagger.WrapHandler)
 
-	g := e.Group("/api/v1")
+	g := e.Group("/api/v1", middleware.KeyAuth())
 
 	registerController.Route(g)
 	loginController.Route(g)
