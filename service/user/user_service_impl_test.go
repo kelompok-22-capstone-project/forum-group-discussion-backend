@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
@@ -249,6 +250,214 @@ func TestLogin(t *testing.T) {
 			expectedResponse: response.Login{},
 			expectedError:    service.ErrInvalidPayload,
 			mockBehaviours:   func() {},
+		},
+		{
+			name: "it should return service.ErrUsernameNotFound error, when repository return an ErrRecordNotFound error",
+			inputPayload: payload.Login{
+				Username: "erikrios",
+				Password: "erikriosetiawan",
+			},
+			expectedResponse: response.Login{},
+			expectedError:    service.ErrUsernameNotFound,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{}
+					},
+					func(ctx context.Context, username string) error {
+						return repository.ErrRecordNotFound
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return service.ErrUsernameNotFound error, when repository return an ErrDatabase error",
+			inputPayload: payload.Login{
+				Username: "erikrios",
+				Password: "erikriosetiawan",
+			},
+			expectedResponse: response.Login{},
+			expectedError:    service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{}
+					},
+					func(ctx context.Context, username string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return service.ErrCredentialNotMatch error, when comparing password is return an error",
+			inputPayload: payload.Login{
+				Username: "erikrios",
+				Password: "erikriosetiawan",
+			},
+			expectedResponse: response.Login{},
+			expectedError:    service.ErrCredentialNotMatch,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  true,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockPwdGen.On(
+					"CompareHashAndPassword",
+					mock.AnythingOfType(fmt.Sprintf("%T", []byte{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", []byte{})),
+				).Return(
+					func(hashedPassword []byte, password []byte) error {
+						return errors.New("password not match")
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return service.ErrRepository error, when generate token return an error",
+			inputPayload: payload.Login{
+				Username: "erikrios",
+				Password: "erikriosetiawan",
+			},
+			expectedResponse: response.Login{},
+			expectedError:    service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  true,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockPwdGen.On(
+					"CompareHashAndPassword",
+					mock.AnythingOfType(fmt.Sprintf("%T", []byte{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", []byte{})),
+				).Return(
+					func(hashedPassword []byte, password []byte) error {
+						return nil
+					},
+				).Once()
+
+				mockTokenGen.On(
+					"GenerateToken",
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", true)),
+				).Return(
+					func(ID, username, role string, isActive bool) string {
+						return ""
+					},
+					func(ID, username, role string, isActive bool) error {
+						return errors.New("failed to generate token")
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return valid response, when no error is returned",
+			inputPayload: payload.Login{
+				Username: "erikrios",
+				Password: "erikriosetiawan",
+			},
+			expectedResponse: response.Login{
+				Token: "generatedtoken",
+				Role:  "user",
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  true,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockPwdGen.On(
+					"CompareHashAndPassword",
+					mock.AnythingOfType(fmt.Sprintf("%T", []byte{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", []byte{})),
+				).Return(
+					func(hashedPassword []byte, password []byte) error {
+						return nil
+					},
+				).Once()
+
+				mockTokenGen.On(
+					"GenerateToken",
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", true)),
+				).Return(
+					func(ID, username, role string, isActive bool) string {
+						return "generatedtoken"
+					},
+					func(ID, username, role string, isActive bool) error {
+						return nil
+					},
+				).Once()
+			},
 		},
 	}
 
