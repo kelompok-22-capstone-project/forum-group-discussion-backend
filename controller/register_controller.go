@@ -29,6 +29,7 @@ func (r *registerController) Route(g *echo.Group) {
 // @Tags         register
 // @Accept       json
 // @Produce      json
+// @Security     ApiKey
 // @Param        default  body      payload.Register  true  "register payload"
 // @Success      201      {object}  registerResponse
 // @Failure      400      {object}  echo.HTTPError
