@@ -7,6 +7,6 @@ CREATE TABLE moderators
     updated_at timestamp NOT NULL DEFAULT current_timestamp,
     primary key (id),
     constraint fk_moderators_users foreign key (user_id) references users (id) on delete cascade,
-    constraint fk_moderators_id foreign key (thread_id) references threads (id) on delete cascade,
+    constraint fk_moderators_threads foreign key (thread_id) references threads (id) on delete cascade,
     unique (user_id, thread_id)
 );
