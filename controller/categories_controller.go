@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"log"
 	"net/http"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
@@ -79,6 +80,8 @@ func (c *categoriesController) postCreateCategory(e echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [get]
 func (c *categoriesController) getCategories(e echo.Context) error {
+	tp := c.tokenGenerator.ExtractToken(e)
+	log.Printf("%+v", tp)
 	categories, err := c.categoryService.GetAll(e.Request().Context())
 	if err != nil {
 		return newErrorResponse(err)
