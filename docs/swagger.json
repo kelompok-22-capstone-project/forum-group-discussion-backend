@@ -15,7 +15,7 @@
         },
         "version": "1.0"
     },
-    "host": "https://moot-rest-api.herokuapp.com",
+    "host": "moot-rest-api.herokuapp.com",
     "basePath": "/api/v1",
     "paths": {
         "/admin/dashboard": {
@@ -317,6 +317,11 @@
         },
         "/login": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user login",
                 "consumes": [
                     "application/json"
@@ -375,6 +380,11 @@
         },
         "/register": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user register.",
                 "consumes": [
                     "application/json"
@@ -2170,6 +2180,11 @@
         }
     },
     "securityDefinitions": {
+        "ApiKey": {
+            "type": "apiKey",
+            "name": "API-Key",
+            "in": "header"
+        },
         "ApiKeyAuth": {
             "type": "apiKey",
             "name": "Authorization",

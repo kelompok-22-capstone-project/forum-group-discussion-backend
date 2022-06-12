@@ -31,11 +31,15 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
+// @securityDefinitions.apikey  ApiKey
+// @in                          header
+// @name                        API-Key
+
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in                          header
 // @name                        Authorization
 
-// @host      https://moot-rest-api.herokuapp.com
+// @host      moot-rest-api.herokuapp.com
 // @BasePath  /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -87,7 +91,7 @@ func main() {
 
 	e.GET("/*", echoSwagger.WrapHandler)
 
-	g := e.Group("/api/v1")
+	g := e.Group("/api/v1", middleware.KeyAuth())
 
 	registerController.Route(g)
 	loginController.Route(g)
