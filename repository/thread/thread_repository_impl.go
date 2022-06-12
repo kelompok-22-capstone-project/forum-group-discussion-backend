@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"log"
+	"math"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
@@ -41,4 +42,131 @@ func (t *threadRepositoryImpl) Insert(ctx context.Context, thread entity.Thread)
 	}
 
 	return
+}
+
+func (t *threadRepositoryImpl) FindAllWithPagination(
+	ctx context.Context,
+	accessorUserID string,
+	pageInfo entity.PageInfo,
+) (pagination entity.Pagination[entity.Thread], err error) {
+	statement := `SELECT t.id                                                                        as thread_id,
+       t.title                                                                                     as thread_title,
+       t.description                                                                               as thread_description,
+       t.total_viewer,
+       t.creator_id,
+       u.username                                                                                  as creator_username,
+       u.email                                                                                     as creator_email,
+       u.name                                                                                      as creator_name,
+       u.password                                                                                  as creator_password,
+       u.role                                                                                      as creator_rule,
+       u.is_active                                                                                 as creator_is_active,
+       u.created_at                                                                                as creator_created_at,
+       u.updated_at                                                                                as creator_updated_at,
+       t.category_id,
+       c.name                                                                                      as category_name,
+       c.description                                                                               as category_description,
+       c.created_at                                                                                as category_created_at,
+       c.updated_at                                                                                as category_updated_at,
+       t.created_at                                                                                as thread_created_at,
+       t.updated_at                                                                                as thread_updated_at,
+       (SELECT CASE WHEN count(likes.id) > 0 THEN true ELSE false END
+        FROM likes
+        WHERE likes.user_id = $1
+          AND likes.thread_id = t.id)                                                              as is_liked,
+       (SELECT CASE WHEN count(thread_follows.id) > 0 THEN true ELSE false END
+        FROM thread_follows
+        WHERE thread_follows.user_id = $1
+          AND thread_follows.thread_id = t.id)                                                     as is_followed,
+       (SELECT count(thread_follows.id) FROM thread_follows WHERE thread_follows.thread_id = t.id) as total_follower,
+       (SELECT count(likes.id) FROM likes WHERE likes.thread_id = t.id)                            as total_like,
+       (SELECT count(comments.id) FROM comments WHERE comments.thread_id = t.id)                   as total_comment
+FROM threads as t
+         INNER JOIN categories c
+                    on c.id = t.category_id
+         INNER JOIN users u on t.creator_id = u.id
+ORDER BY t.created_at DESC
+OFFSET $2 LIMIT $3;`
+
+	rows, dbErr := t.db.QueryContext(ctx, statement, accessorUserID, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	defer func(rows *sql.Rows) {
+		if dbErr := rows.Close(); dbErr != nil {
+			log.Println(dbErr)
+		}
+	}(rows)
+
+	pagination.List = make([]entity.Thread, 0)
+	for rows.Next() {
+		var thread entity.Thread
+		if dbErr := rows.Scan(
+			&thread.ID,
+			&thread.Title,
+			&thread.Description,
+			&thread.TotalViewer,
+			&thread.Creator.ID,
+			&thread.Creator.Username,
+			&thread.Creator.Email,
+			&thread.Creator.Name,
+			&thread.Creator.Password,
+			&thread.Creator.Role,
+			&thread.Creator.IsActive,
+			&thread.Creator.CreatedAt,
+			&thread.Creator.UpdatedAt,
+			&thread.Category.ID,
+			&thread.Category.Name,
+			&thread.Category.Description,
+			&thread.Category.CreatedAt,
+			&thread.Category.UpdatedAt,
+			&thread.CreatedAt,
+			&thread.UpdatedAt,
+			&thread.IsLiked,
+			&thread.IsFollowed,
+			&thread.TotalFollower,
+			&thread.TotalLike,
+			&thread.TotalComment,
+		); dbErr != nil {
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+		pagination.List = append(pagination.List, thread)
+	}
+
+	if dbErr := rows.Err(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	countStatement := "SELECT count(threads.id) FROM threads;"
+
+	row := t.db.QueryRowContext(ctx, countStatement)
+
+	var count uint
+	switch dbErr := row.Scan(&count); dbErr {
+	case sql.ErrNoRows:
+		{
+			err = repository.ErrRecordNotFound
+			return
+		}
+	case nil:
+		{
+			pagination.PageInfo.Limit = pageInfo.Limit
+			pagination.PageInfo.Page = pageInfo.Page
+			pagination.PageInfo.PageTotal = uint(math.Ceil(float64(count) / float64(pageInfo.Limit)))
+			pagination.PageInfo.Total = count
+			return
+		}
+	default:
+		{
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+	}
 }
