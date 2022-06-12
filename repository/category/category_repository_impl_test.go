@@ -31,6 +31,16 @@ func TestFindAll(t *testing.T) {
 	}
 }
 
+func TestFindByID(t *testing.T) {
+	var repo CategoryRepository = NewCategoryRepositoryImpl(db)
+
+	if category, err := repo.FindByID(context.Background(), "c-abc"); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Categories: %+v", category)
+	}
+}
+
 func TestInsert(t *testing.T) {
 	var repo CategoryRepository = NewCategoryRepositoryImpl(db)
 
