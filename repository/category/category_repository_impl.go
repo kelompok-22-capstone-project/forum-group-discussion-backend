@@ -62,7 +62,7 @@ func (c *categoryRepositoryImpl) FindAll(ctx context.Context) (categories []enti
 func (c *categoryRepositoryImpl) FindByID(ctx context.Context, ID string) (category entity.Category, err error) {
 	statement := "SELECT id, name, description, created_at, updated_at FROM categories WHERE id = $1;"
 
-	row := c.db.QueryRow(statement, ID)
+	row := c.db.QueryRowContext(ctx, statement, ID)
 
 	switch dbErr := row.Scan(&category.ID, &category.Name, &category.Description, &category.CreatedAt, &category.UpdatedAt); dbErr {
 	case sql.ErrNoRows:
