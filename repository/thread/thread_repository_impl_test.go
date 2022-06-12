@@ -40,7 +40,7 @@ func TestInsert(t *testing.T) {
 	}
 
 	if err := repo.Insert(context.Background(), thread); err != nil {
-		t.Logf("Error happened: %+v", err)
+		t.Fatalf("Error happened: %+v", err)
 	} else {
 		t.Logf("Thread with id %s successfully inserted", thread.ID)
 	}
