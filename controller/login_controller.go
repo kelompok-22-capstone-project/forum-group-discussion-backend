@@ -30,6 +30,7 @@ func (l *loginController) Route(g *echo.Group) {
 // @Tags         login
 // @Accept       json
 // @Produce      json
+// @Security     ApiKey
 // @Param        default  body      payload.Login  true  "user credentials"
 // @Success      200      {object}  loginResponse
 // @Failure      400      {object}  echo.HTTPError

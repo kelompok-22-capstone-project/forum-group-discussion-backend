@@ -44,6 +44,8 @@ func (u *userRepositoryImpl) Insert(ctx context.Context, user entity.User) (err 
 
 	count, dbErr := result.RowsAffected()
 	if dbErr != nil {
+		err = repository.ErrDatabase
+		return
 	}
 
 	if count < 1 {

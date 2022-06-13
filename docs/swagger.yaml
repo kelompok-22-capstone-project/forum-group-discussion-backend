@@ -569,7 +569,7 @@ definitions:
         type: string
         x-order: "0"
     type: object
-host: https://moot-rest-api.herokuapp.com
+host: moot-rest-api.herokuapp.com
 info:
   contact:
     email: erikriosetiawan15@gmail.com
@@ -810,6 +810,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: User Login
       tags:
       - login
@@ -840,6 +842,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: User Register
       tags:
       - register
