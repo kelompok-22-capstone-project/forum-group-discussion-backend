@@ -2,104 +2,97 @@ package category
 
 import (
 	"context"
-	"database/sql"
-	"log"
+	"fmt"
 	"testing"
+	"time"
 
-	"github.com/joho/godotenv"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	mcr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category/mocks"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	mig "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator/mocks"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-var db *sql.DB
-var repo category.CategoryRepository
-var idGenerator generator.IDGenerator
-
-func init() {
-	godotenv.Load("./../../.env.example")
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	var err error
-	if db, err = config.NewPostgreSQLDatabase(); err != nil {
-		panic(err)
-	}
-
-	repo = category.NewCategoryRepositoryImpl(db)
-	idGenerator = generator.NewNanoidIDGenerator()
-}
-
 func TestGetAll(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
+	mockRepo := &mcr.CategoryRepository{}
+	mockIDGen := &mig.IDGenerator{}
 
-	if categories, err := service.GetAll(context.Background()); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Categories: %+v", categories)
-	}
-}
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+	now := time.Now()
 
-func TestCreate(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
-
-	tp := generator.TokenPayload{
-		ID:       "u-Er5Spz",
-		Username: "admin",
-		Role:     "admin",
-		IsActive: true,
-	}
-
-	p := payload.CreateCategory{
-		Name:        "Technology",
-		Description: "This is a technology category description.",
-	}
-
-	if id, err := service.Create(context.Background(), tp, p); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully created a category with id %s", id)
-	}
-}
-
-func TestUpdate(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
-
-	id := "c-T4m"
-
-	tp := generator.TokenPayload{
-		ID:       "u-Er5Spz",
-		Username: "admin",
-		Role:     "admin",
-		IsActive: true,
-	}
-
-	p := payload.UpdateCategory{
-		Name:        "Tech",
-		Description: "This is a tech category description.",
-	}
-
-	if err := service.Update(context.Background(), tp, id, p); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully updated a category with id %s", id)
-	}
-}
-
-func TestDelete(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
-
-	id := "c-T4m"
-
-	tp := generator.TokenPayload{
-		ID:       "u-Er5Spz",
-		Username: "admin",
-		Role:     "admin",
-		IsActive: true,
+	testCases := []struct {
+		name               string
+		expectedError      error
+		expectedCategories []response.Category
+		mockBehaviour      func()
+	}{
+		{
+			name:               "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+			expectedError:      service.ErrRepository,
+			expectedCategories: []response.Category{},
+			mockBehaviour: func() {
+				mockRepo.On(
+					"FindAll",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+				).Return(
+					func(ctx context.Context) []entity.Category {
+						return []entity.Category{}
+					},
+					func(ctx context.Context) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:          "it should return valid categories, when repository return nil error",
+			expectedError: nil,
+			expectedCategories: []response.Category{
+				{
+					ID:          "c-abc",
+					Name:        "Tech",
+					Description: "This is tech category.",
+					CreatedOn:   now.Format(time.RFC822),
+				},
+			},
+			mockBehaviour: func() {
+				mockRepo.On(
+					"FindAll",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+				).Return(
+					func(ctx context.Context) []entity.Category {
+						return []entity.Category{
+							{
+								ID:          "c-abc",
+								Name:        "Tech",
+								Description: "This is tech category.",
+								CreatedAt:   now,
+								UpdatedAt:   now,
+							},
+						}
+					},
+					func(ctx context.Context) error {
+						return nil
+					},
+				).Once()
+			},
+		},
 	}
 
-	if err := service.Delete(context.Background(), tp, id); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully deleted a category with id %s", id)
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviour()
+
+			gotCategories, gotError := categoryService.GetAll(context.Background())
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.ElementsMatch(t, gotCategories, testCase.expectedCategories)
+			}
+		})
 	}
 }
