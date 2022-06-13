@@ -2,76 +2,69 @@ package category
 
 import (
 	"context"
-	"database/sql"
+	"errors"
 	"testing"
+	"time"
 
-	"github.com/joho/godotenv"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	"github.com/stretchr/testify/assert"
 )
 
-var db *sql.DB
-
-func init() {
-	godotenv.Load("../../.env.example")
-	var err error
-	db, err = config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
-}
-
 func TestFindAll(t *testing.T) {
+	db, dbMock, err := sqlmock.New()
+	if err != nil {
+		t.Fatal(err)
+	}
 	var repo CategoryRepository = NewCategoryRepositoryImpl(db)
 
-	if categories, err := repo.FindAll(context.Background()); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Categories: %+v", categories)
+	now := time.Now()
+
+	testCases := []struct {
+		name               string
+		expectedError      error
+		expectedCategories []entity.Category
+		mockBehaviour      func()
+	}{
+		{
+			name:               "it should return repository.ErrDatabase, when database return an error",
+			expectedError:      repository.ErrDatabase,
+			expectedCategories: []entity.Category{},
+			mockBehaviour: func() {
+				dbMock.ExpectQuery(".*").WillReturnError(errors.New("something went wrong with the databases."))
+			},
+		},
+		{
+			name:          "it should return valid categories, when database return nil error",
+			expectedError: nil,
+			expectedCategories: []entity.Category{
+				{
+					ID:          "c-xyz",
+					Name:        "Tech",
+					Description: "This is tech description.",
+					CreatedAt:   now,
+					UpdatedAt:   now,
+				},
+			},
+			mockBehaviour: func() {
+				returnedRows := sqlmock.NewRows([]string{"id", "name", "description", "created_at", "updated_at"})
+				returnedRows.AddRow("c-xyz", "Tech", "This is tech description.", now, now)
+				dbMock.ExpectQuery(".*").WillReturnRows(returnedRows)
+			},
+		},
 	}
-}
 
-func TestInsert(t *testing.T) {
-	var repo CategoryRepository = NewCategoryRepositoryImpl(db)
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviour()
 
-	category := entity.Category{
-		ID:          "c-xyz",
-		Name:        "Technology",
-		Description: "This is technology category",
-	}
-
-	if err := repo.Insert(context.Background(), category); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully inserted category with id %s", category.ID)
-	}
-}
-
-func TestUpdate(t *testing.T) {
-	var repo CategoryRepository = NewCategoryRepositoryImpl(db)
-
-	id := "c-xyz"
-	category := entity.Category{
-		Name:        "Tech",
-		Description: "This is tech category",
-	}
-
-	if err := repo.Update(context.Background(), id, category); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully updated category with id %s", id)
-	}
-}
-
-func TestDelete(t *testing.T) {
-
-	var repo CategoryRepository = NewCategoryRepositoryImpl(db)
-
-	id := "c-xyz"
-
-	if err := repo.Delete(context.Background(), id); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully deleted category with id %s", id)
+			gotCategories, gotErr := repo.FindAll(context.Background())
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotErr, testCase.expectedError)
+			} else {
+				assert.ElementsMatch(t, gotCategories, testCase.expectedCategories)
+			}
+		})
 	}
 }
