@@ -186,10 +186,10 @@ type threadData struct {
 	CategoryID      string `json:"categoryID" extensions:"x-order=10"`
 	CategoryName    string `json:"categoryName" extensions:"x-order=11"`
 	// PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	PublishedOn string        `json:"publishedOn" extensions:"x-order=12"`
-	IsLiked     bool          `json:"isLiked" extensions:"x-order=13"`
-	IsFollowed  bool          `json:"isFollowed" extensions:"x-order=14"`
-	Moderators  []profileData `json:"moderators" extensions:"x-order=15"`
+	PublishedOn string          `json:"publishedOn" extensions:"x-order=12"`
+	IsLiked     bool            `json:"isLiked" extensions:"x-order=13"`
+	IsFollowed  bool            `json:"isFollowed" extensions:"x-order=14"`
+	Moderators  []moderatorData `json:"moderators" extensions:"x-order=15"`
 }
 
 type threadsData struct {
@@ -209,6 +209,18 @@ type threadsData struct {
 	PublishedOn string `json:"publishedOn" extensions:"x-order=12"`
 	IsLiked     bool   `json:"isLiked" extensions:"x-order=13"`
 	IsFollowed  bool   `json:"isFollowed" extensions:"x-order=14"`
+}
+
+type moderatorData struct {
+	ModeratorID string `json:"moderatorID" extensions:"x-order=0"`
+	UserID      string `json:"userID" extensions:"x-order=1"`
+	Username    string `json:"username" extensions:"x-order=2"`
+	Email       string `json:"email" extensions:"x-order=3"`
+	Name        string `json:"name" extensions:"x-order=4"`
+	Role        string `json:"role" extensions:"x-order=5"`
+	IsActive    bool   `json:"isActive" extensions:"x-order=6"`
+	// RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
+	RegisteredOn string `json:"registeredOn" extensions:"x-order=7"`
 }
 
 type pageInfoData struct {
