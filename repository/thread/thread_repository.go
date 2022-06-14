@@ -62,4 +62,14 @@ type ThreadRepository interface {
 		ctx context.Context,
 		like entity.Like,
 	) (err error)
+
+	InsertModerator(
+		ctx context.Context,
+		moderator entity.Moderator,
+	) (err error)
+
+	DeleteModerator(
+		ctx context.Context,
+		moderator entity.Moderator,
+	) (err error)
 }
