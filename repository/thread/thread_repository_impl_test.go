@@ -125,3 +125,23 @@ func TestFindAllCommentByThreadID(t *testing.T) {
 		t.Logf("Paginations: %+v", paginations)
 	}
 }
+
+func TestInsertFollowThread(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	threadFollow := entity.ThreadFollow{
+		ID: "f-1234567",
+		User: entity.User{
+			ID: "u-ZrxmQS",
+		},
+		Thread: entity.Thread{
+			ID: "t-abcdefg",
+		},
+	}
+
+	if err := repo.InsertFollowThread(context.Background(), threadFollow); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Succssfully follow thread with ID %s", threadFollow.Thread.ID)
+	}
+}
