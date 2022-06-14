@@ -195,3 +195,32 @@ func TestDeleteLike(t *testing.T) {
 		t.Logf("Succssfully unlike thread with ID %s", like.Thread.ID)
 	}
 }
+
+func TestInsertModerator(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	moderator := entity.Moderator{}
+	moderator.ID = "m-1234"
+	moderator.User.ID = "u-ZrxmQS"
+	moderator.ThreadID = "t-abcdefg"
+
+	if err := repo.InsertModerator(context.Background(), moderator); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Succssfully add moderator for thread with ID %s", moderator.ThreadID)
+	}
+}
+
+func TestDeleteModerator(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	moderator := entity.Moderator{}
+	moderator.User.ID = "u-ZrxmQS"
+	moderator.ThreadID = "t-abcdefg"
+
+	if err := repo.DeleteModerator(context.Background(), moderator); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Succssfully delete moderator for thread with ID %s", moderator.ThreadID)
+	}
+}
