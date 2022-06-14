@@ -109,3 +109,19 @@ func TestFindAllModeratorByThreadID(t *testing.T) {
 		t.Logf("Moderators: %+v", moderators)
 	}
 }
+
+func TestFindAllCommentByThreadID(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	threadID := "t-abcdefg"
+	pageInfo := entity.PageInfo{
+		Limit: 20,
+		Page:  1,
+	}
+
+	if paginations, err := repo.FindAllCommentByThreadID(context.Background(), threadID, pageInfo); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Paginations: %+v", paginations)
+	}
+}
