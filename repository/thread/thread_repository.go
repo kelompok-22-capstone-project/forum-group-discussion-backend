@@ -20,4 +20,9 @@ type ThreadRepository interface {
 		accessorUserID string,
 		ID string,
 	) (thread entity.Thread, err error)
+
+	FindAllModeratorByThreadID(
+		ctx context.Context,
+		threadID string,
+	) (moderators []entity.Moderator, err error)
 }
