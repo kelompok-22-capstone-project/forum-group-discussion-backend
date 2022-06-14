@@ -60,3 +60,13 @@ func TestFindAllWithPagination(t *testing.T) {
 		t.Logf("Pagination: %+v", pagination)
 	}
 }
+
+func TestFindByID(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	if thread, err := repo.FindByID(context.Background(), "u-ZrxmQS", "t-abcdefg"); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Thread: %+v", thread)
+	}
+}
