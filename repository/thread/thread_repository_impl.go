@@ -508,3 +508,31 @@ func (t *threadRepositoryImpl) InsertFollowThread(
 
 	return
 }
+
+func (t *threadRepositoryImpl) DeleteFollowThread(
+	ctx context.Context,
+	threadFollow entity.ThreadFollow,
+) (err error) {
+	statement := "DELETE FROM thread_follows WHERE user_id = $1  AND thread_id = $2;"
+
+	result, dbErr := t.db.ExecContext(ctx, statement, threadFollow.User.ID, threadFollow.Thread.ID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrRecordNotFound
+		return
+	}
+
+	return
+}
