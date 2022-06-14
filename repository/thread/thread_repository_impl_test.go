@@ -88,6 +88,18 @@ func TestUpdate(t *testing.T) {
 	}
 }
 
+func TestDelete(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	threadID := "t-abcdefg"
+
+	if err := repo.Delete(context.Background(), threadID); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Thread with ID %s successfully deleted", threadID)
+	}
+}
+
 func TestFindAllModeratorByThreadID(t *testing.T) {
 	var repo ThreadRepository = NewThreadRepositoryImpl(db)
 
