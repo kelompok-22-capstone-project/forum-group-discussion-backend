@@ -259,3 +259,69 @@ WHERE t.id = $2;`
 		}
 	}
 }
+
+func (t *threadRepositoryImpl) FindAllModeratorByThreadID(
+	ctx context.Context,
+	threadID string,
+) (moderators []entity.Moderator, err error) {
+	statement := `SELECT m.id as moderator_id,
+       u.id         as user_id,
+       m.thread_id  as thread_id,
+       m.created_at as moderator_created_at,
+       m.updated_at as moderator_updated_at,
+       u.username   as user_username,
+       u.email      as user_email,
+       u.name       as user_name,
+       u.role       as user_role,
+       u.is_active  as user_is_active,
+       u.created_at as user_created_at,
+       u.updated_at as user_updated_at
+FROM moderators as m
+         INNER JOIN users u on u.id = m.user_id
+WHERE m.thread_id = $1;`
+
+	rows, dbErr := t.db.QueryContext(ctx, statement, threadID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	defer func(rows *sql.Rows) {
+		if dbErr := rows.Close(); dbErr != nil {
+			log.Println(dbErr)
+		}
+	}(rows)
+
+	moderators = make([]entity.Moderator, 0)
+	for rows.Next() {
+		var moderator entity.Moderator
+		if dbErr := rows.Scan(
+			&moderator.ID,
+			&moderator.User.ID,
+			&moderator.ThreadID,
+			&moderator.CreatedAt,
+			&moderator.UpdatedAt,
+			&moderator.User.Username,
+			&moderator.User.Email,
+			&moderator.User.Name,
+			&moderator.User.Role,
+			&moderator.User.IsActive,
+			&moderator.User.CreatedAt,
+			&moderator.User.UpdatedAt,
+		); dbErr != nil {
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+		moderators = append(moderators, moderator)
+	}
+
+	if dbErr := rows.Err(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	return
+}
