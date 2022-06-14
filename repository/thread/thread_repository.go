@@ -27,6 +27,11 @@ type ThreadRepository interface {
 		thread entity.Thread,
 	) (err error)
 
+	Delete(
+		ctx context.Context,
+		ID string,
+	) (err error)
+
 	FindAllModeratorByThreadID(
 		ctx context.Context,
 		threadID string,
