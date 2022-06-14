@@ -36,4 +36,10 @@ type ThreadRepository interface {
 		ctx context.Context,
 		threadID string,
 	) (moderators []entity.Moderator, err error)
+
+	FindAllCommentByThreadID(
+		ctx context.Context,
+		threadID string,
+		pageInfo entity.PageInfo,
+	) (pagination entity.Pagination[entity.Comment], err error)
 }
