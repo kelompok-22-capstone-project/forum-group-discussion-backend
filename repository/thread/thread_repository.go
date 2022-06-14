@@ -21,6 +21,12 @@ type ThreadRepository interface {
 		ID string,
 	) (thread entity.Thread, err error)
 
+	Update(
+		ctx context.Context,
+		ID string,
+		thread entity.Thread,
+	) (err error)
+
 	FindAllModeratorByThreadID(
 		ctx context.Context,
 		threadID string,
