@@ -536,3 +536,59 @@ func (t *threadRepositoryImpl) DeleteFollowThread(
 
 	return
 }
+
+func (t *threadRepositoryImpl) InsertLike(
+	ctx context.Context,
+	like entity.Like,
+) (err error) {
+	statement := "INSERT INTO likes(id, user_id, thread_id) VALUES ($1, $2, $3);"
+
+	result, dbErr := t.db.ExecContext(ctx, statement, like.ID, like.User.ID, like.Thread.ID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrDatabase
+		return
+	}
+
+	return
+}
+
+func (t *threadRepositoryImpl) DeleteLike(
+	ctx context.Context,
+	like entity.Like,
+) (err error) {
+	statement := "DELETE FROM likes WHERE user_id = $1 AND thread_id = $2;"
+
+	result, dbErr := t.db.ExecContext(ctx, statement, like.User.ID, like.Thread.ID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrRecordNotFound
+		return
+	}
+
+	return
+}
