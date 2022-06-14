@@ -3,6 +3,7 @@ package thread
 import (
 	"context"
 	"database/sql"
+	"log"
 	"testing"
 
 	"github.com/joho/godotenv"
@@ -13,6 +14,7 @@ import (
 var db *sql.DB
 
 func init() {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	err := godotenv.Load("./../../.env.example")
 	if err != nil {
 		panic(err)
@@ -143,5 +145,24 @@ func TestInsertFollowThread(t *testing.T) {
 		t.Fatalf("Error happened: %+v", err)
 	} else {
 		t.Logf("Succssfully follow thread with ID %s", threadFollow.Thread.ID)
+	}
+}
+
+func TestDeleteFollowThread(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	threadFollow := entity.ThreadFollow{
+		User: entity.User{
+			ID: "u-ZrxmQS",
+		},
+		Thread: entity.Thread{
+			ID: "t-abcdefg",
+		},
+	}
+
+	if err := repo.DeleteFollowThread(context.Background(), threadFollow); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Succssfully unfollow thread with ID %s", threadFollow.Thread.ID)
 	}
 }
