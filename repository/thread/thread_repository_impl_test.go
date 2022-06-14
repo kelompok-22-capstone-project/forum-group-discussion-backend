@@ -166,3 +166,32 @@ func TestDeleteFollowThread(t *testing.T) {
 		t.Logf("Succssfully unfollow thread with ID %s", threadFollow.Thread.ID)
 	}
 }
+
+func TestInsertLike(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	like := entity.Like{}
+	like.ID = "l-1234567"
+	like.User.ID = "u-ZrxmQS"
+	like.Thread.ID = "t-abcdefg"
+
+	if err := repo.InsertLike(context.Background(), like); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Succssfully like thread with ID %s", like.Thread.ID)
+	}
+}
+
+func TestDeleteLike(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	like := entity.Like{}
+	like.User.ID = "u-ZrxmQS"
+	like.Thread.ID = "t-abcdefg"
+
+	if err := repo.DeleteLike(context.Background(), like); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Succssfully unlike thread with ID %s", like.Thread.ID)
+	}
+}
