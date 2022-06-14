@@ -387,3 +387,96 @@ WHERE m.thread_id = $1;`
 
 	return
 }
+
+func (t *threadRepositoryImpl) FindAllCommentByThreadID(
+	ctx context.Context,
+	threadID string,
+	pageInfo entity.PageInfo,
+) (pagination entity.Pagination[entity.Comment], err error) {
+	statement := `SELECT c.id as comment_id,
+       c.user_id   as user_id,
+       t.id        as thread_id,
+       c.comment,
+       c.created_at,
+       c.updated_at,
+       u.username  as user_username,
+       u.email     as user_email,
+       u.name      as user_name,
+       u.role      as user_role,
+       u.is_active as user_is_active
+FROM comments c
+         INNER JOIN users u on c.user_id = u.id
+         INNER JOIN threads t on t.id = c.thread_id
+WHERE c.thread_id = $1
+ORDER BY c.created_at DESC
+OFFSET $2 LIMIT $3;`
+
+	rows, dbErr := t.db.QueryContext(ctx, statement, threadID, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	defer func(rows *sql.Rows) {
+		if dbErr := rows.Close(); dbErr != nil {
+			log.Println(dbErr)
+		}
+	}(rows)
+
+	pagination.List = make([]entity.Comment, 0)
+	for rows.Next() {
+		var comment entity.Comment
+		if dbErr := rows.Scan(
+			&comment.ID,
+			&comment.User.ID,
+			&comment.Thread.ID,
+			&comment.Comment,
+			&comment.CreatedAt,
+			&comment.UpdatedAt,
+			&comment.User.Username,
+			&comment.User.Email,
+			&comment.User.Name,
+			&comment.User.Role,
+			&comment.User.IsActive,
+		); dbErr != nil {
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+		pagination.List = append(pagination.List, comment)
+	}
+
+	if dbErr := rows.Err(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	countStatement := "SELECT count(c.id) FROM comments c WHERE c.thread_id = $1;"
+
+	row := t.db.QueryRowContext(ctx, countStatement, threadID)
+
+	var count uint
+	switch dbErr := row.Scan(&count); dbErr {
+	case sql.ErrNoRows:
+		{
+			err = repository.ErrRecordNotFound
+			return
+		}
+	case nil:
+		{
+			pagination.PageInfo.Limit = pageInfo.Limit
+			pagination.PageInfo.Page = pageInfo.Page
+			pagination.PageInfo.PageTotal = uint(math.Ceil(float64(count) / float64(pageInfo.Limit)))
+			pagination.PageInfo.Total = count
+			return
+		}
+	default:
+		{
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+	}
+}
