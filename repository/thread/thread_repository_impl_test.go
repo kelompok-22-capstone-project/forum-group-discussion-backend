@@ -70,3 +70,13 @@ func TestFindByID(t *testing.T) {
 		t.Logf("Thread: %+v", thread)
 	}
 }
+
+func TestFindAllModeratorByThreadID(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	if moderators, err := repo.FindAllModeratorByThreadID(context.Background(), "t-abcdefg"); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Moderators: %+v", moderators)
+	}
+}
