@@ -42,4 +42,9 @@ type ThreadRepository interface {
 		threadID string,
 		pageInfo entity.PageInfo,
 	) (pagination entity.Pagination[entity.Comment], err error)
+
+	InsertFollowThread(
+		ctx context.Context,
+		threadFollow entity.ThreadFollow,
+	) (err error)
 }
