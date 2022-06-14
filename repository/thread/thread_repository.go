@@ -52,4 +52,14 @@ type ThreadRepository interface {
 		ctx context.Context,
 		threadFollow entity.ThreadFollow,
 	) (err error)
+
+	InsertLike(
+		ctx context.Context,
+		like entity.Like,
+	) (err error)
+
+	DeleteLike(
+		ctx context.Context,
+		like entity.Like,
+	) (err error)
 }
