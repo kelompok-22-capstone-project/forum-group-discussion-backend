@@ -480,3 +480,31 @@ OFFSET $2 LIMIT $3;`
 		}
 	}
 }
+
+func (t *threadRepositoryImpl) InsertFollowThread(
+	ctx context.Context,
+	threadFollow entity.ThreadFollow,
+) (err error) {
+	statement := "INSERT INTO thread_follows(id, user_id, thread_id) VALUES ($1, $2, $3);"
+
+	result, dbErr := t.db.ExecContext(ctx, statement, threadFollow.ID, threadFollow.User.ID, threadFollow.Thread.ID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrDatabase
+		return
+	}
+
+	return
+}
