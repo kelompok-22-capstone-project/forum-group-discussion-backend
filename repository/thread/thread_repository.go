@@ -47,4 +47,9 @@ type ThreadRepository interface {
 		ctx context.Context,
 		threadFollow entity.ThreadFollow,
 	) (err error)
+
+	DeleteFollowThread(
+		ctx context.Context,
+		threadFollow entity.ThreadFollow,
+	) (err error)
 }
