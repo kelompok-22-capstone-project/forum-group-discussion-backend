@@ -71,6 +71,23 @@ func TestFindByID(t *testing.T) {
 	}
 }
 
+func TestUpdate(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	threadID := "t-abcdefg"
+
+	thread := entity.Thread{}
+	thread.Title = "Go Programming Become Booming Recently"
+	thread.Description = "The Programming Language get a massive user recently."
+	thread.Category.ID = "c-abc"
+
+	if err := repo.Update(context.Background(), threadID, thread); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Thread with ID %s successfully updated", threadID)
+	}
+}
+
 func TestFindAllModeratorByThreadID(t *testing.T) {
 	var repo ThreadRepository = NewThreadRepositoryImpl(db)
 
