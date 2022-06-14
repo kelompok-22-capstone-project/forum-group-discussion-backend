@@ -260,6 +260,40 @@ WHERE t.id = $2;`
 	}
 }
 
+func (t *threadRepositoryImpl) Update(
+	ctx context.Context,
+	ID string,
+	thread entity.Thread,
+) (err error) {
+	statement := `UPDATE threads
+SET title       = $2,
+    description = $3,
+    category_id = $4,
+    updated_at  = current_timestamp
+WHERE id = $1;`
+
+	result, dbErr := t.db.ExecContext(ctx, statement, ID, thread.Title, thread.Description, thread.Category.ID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrDatabase
+		return
+	}
+
+	return
+}
+
 func (t *threadRepositoryImpl) FindAllModeratorByThreadID(
 	ctx context.Context,
 	threadID string,
