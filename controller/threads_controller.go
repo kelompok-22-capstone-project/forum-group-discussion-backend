@@ -31,11 +31,12 @@ func (t *threadsController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all threads
 // @Tags         threads
 // @Produce      json
-// @Param        page    query     int     false  "page, default 1"
-// @Param        limit   query     int     false  "limit, default 10"
-// @Param        search  query     string  false  "search by keyword, default empty string"
-// @Success      200     {object}  threadsResponse
-// @Failure      500     {object}  echo.HTTPError
+// @Param        page    query  int     false  "page, default 1"
+// @Param        limit   query  int     false  "limit, default 10"
+// @Param        search  query  string  false  "search by keyword, default empty string"
+// @Security     ApiKey
+// @Success      200  {object}  threadsResponse
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [get]
 func (t *threadsController) getThreads(c echo.Context) error {
 	_ = c.QueryParam("page")
@@ -50,12 +51,13 @@ func (t *threadsController) getThreads(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        default  body  payload.CreateThread  true  "request body"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
-// @Failure      404    {object}  echo.HTTPError
-// @Failure      500    {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [post]
 func (t *threadsController) postCreateThread(c echo.Context) error {
 	return nil
@@ -66,7 +68,8 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 // @Description  This endpoint is used to get thread by ID
 // @Tags         threads
 // @Produce      json
-// @Param        id   path      string  true  "thread ID"
+// @Param        id       path  string                      true  "thread ID"
+// @Security     ApiKey
 // @Success      200  {object}  threadResponse
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
@@ -86,6 +89,7 @@ func (t *threadsController) getThread(c echo.Context) error {
 // @Produce      json
 // @Param        default  body  payload.UpdateThread  true  "request body"
 // @Param        id       path  string                      true  "thread ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
@@ -103,7 +107,8 @@ func (t *threadsController) putUpdateThread(c echo.Context) error {
 // @Description  This endpoint is used to delete a thread by ID
 // @Tags         threads
 // @Produce      json
-// @Param        id       path  string                      true  "thread ID"
+// @Param        id  path  string  true  "thread ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      404  {object}  echo.HTTPError
@@ -120,10 +125,11 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 // @Description  This endpoint is used to get the thread comments
 // @Tags         threads
 // @Produce      json
-// @Param        id     path      string  true   "thread ID"
-// @Param        page   query     int     false  "page, default 1"
-// @Param        limit  query     int     false  "limit, default 20"
-// @Success      200    {object}  commentsResponse
+// @Param        id     path   string  true   "thread ID"
+// @Param        page   query  int     false  "page, default 1"
+// @Param        limit  query  int     false  "limit, default 20"
+// @Security     ApiKey
+// @Success      200  {object}  commentsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/comments [get]
@@ -141,6 +147,7 @@ func (t *threadsController) getThreadComments(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        id  path  string  true  "thread ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError
@@ -159,6 +166,7 @@ func (t *threadsController) putThreadLike(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        id       path  string                true  "thread ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError
@@ -178,6 +186,7 @@ func (t *threadsController) putThreadFollow(c echo.Context) error {
 // @Produce      json
 // @Param        default  body  payload.AddRemoveModerator  true  "request body"
 // @Param        id  path  string  true  "thread ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
@@ -198,6 +207,7 @@ func (t *threadsController) putThreadAddModerator(c echo.Context) error {
 // @Produce      json
 // @Param        default  body  payload.AddRemoveModerator  true  "request body"
 // @Param        id  path  string  true  "thread ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
@@ -236,7 +246,7 @@ type commentsResponse struct {
 }
 
 type commentsInfoWrapper struct {
-	Threads  []commentData `json:"comments" extensions:"x-order=0"`
+	Threads  []commentData `json:"list" extensions:"x-order=0"`
 	PageInfo pageInfoData  `json:"pageInfo" extensions:"x-order=1"`
 }
 

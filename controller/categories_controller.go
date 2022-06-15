@@ -1,7 +1,9 @@
 package controller
 
 import (
+	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
@@ -44,13 +46,14 @@ func (c *categoriesController) Route(g *echo.Group) {
 // @Accept       json
 // @Produce      json
 // @Param        default  body  payload.CreateCategory  true  "request body"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
-// @Failure      500    {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [post]
 func (c *categoriesController) postCreateCategory(e echo.Context) error {
 	tp := c.tokenGenerator.ExtractToken(e)
@@ -75,10 +78,13 @@ func (c *categoriesController) postCreateCategory(e echo.Context) error {
 // @Description  This endpoint is used to get all category
 // @Tags         categories
 // @Produce      json
+// @Security     ApiKey
 // @Success      200  {object}  categoriesResponse
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [get]
 func (c *categoriesController) getCategories(e echo.Context) error {
+	tp := c.tokenGenerator.ExtractToken(e)
+	log.Printf("%+v", tp)
 	categories, err := c.categoryService.GetAll(e.Request().Context())
 	if err != nil {
 		return newErrorResponse(err)
@@ -95,6 +101,7 @@ func (c *categoriesController) getCategories(e echo.Context) error {
 // @Tags         categories
 // @Accept       json
 // @Produce      json
+// @Security     ApiKey
 // @Param        default  body  payload.UpdateCategory  true  "request body"
 // @Param        id       path  string                  true  "category ID"
 // @Security     ApiKeyAuth
@@ -128,6 +135,7 @@ func (c *categoriesController) putUpdateCategory(e echo.Context) error {
 // @Tags         categories
 // @Produce      json
 // @Param        id  path  string  true  "category ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      404  {object}  echo.HTTPError
@@ -151,18 +159,38 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 // @Description  This endpoint is used to get the threads of particular category
 // @Tags         categories
 // @Produce      json
-// @Param        id     path      string  true   "category ID"
-// @Param        page   query     int     false  "page, default 1"
-// @Param        limit  query     int     false  "limit, default 10"
-// @Success      200    {object}  threadsResponse
-// @Failure      404    {object}  echo.HTTPError
+// @Param        id     path   string  true   "category ID"
+// @Param        page   query  int     false  "page, default 1"
+// @Param        limit  query  int     false  "limit, default 10"
+// @Security     ApiKey
+// @Success      200  {object}  threadsResponse
+// @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id}/threads [get]
 func (c *categoriesController) getCategoryThreads(e echo.Context) error {
-	_ = e.Param("id")
-	_ = e.QueryParam("page")
-	_ = e.QueryParam("limit")
-	return nil
+	id := e.Param("id")
+	pageStr := e.QueryParam("page")
+	limitStr := e.QueryParam("limit")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := c.tokenGenerator.ExtractToken(e)
+
+	threadsResponse, err := c.categoryService.GetAllByCategory(e.Request().Context(), tp, id, uint(page), uint(limit))
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get categories successful.", threadsResponse)
+	return e.JSON(http.StatusOK, response)
 }
 
 // categoriesResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.

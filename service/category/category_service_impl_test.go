@@ -10,11 +10,13 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 )
 
 var db *sql.DB
-var repo category.CategoryRepository
+var categoryRepo category.CategoryRepository
+var threadRepo thread.ThreadRepository
 var idGenerator generator.IDGenerator
 
 func init() {
@@ -25,12 +27,13 @@ func init() {
 		panic(err)
 	}
 
-	repo = category.NewCategoryRepositoryImpl(db)
+	categoryRepo = category.NewCategoryRepositoryImpl(db)
+	threadRepo = thread.NewThreadRepositoryImpl(db)
 	idGenerator = generator.NewNanoidIDGenerator()
 }
 
 func TestGetAll(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
+	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
 
 	if categories, err := service.GetAll(context.Background()); err != nil {
 		t.Fatalf("Error happened: %s", err)
@@ -40,7 +43,7 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
+	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
 
 	tp := generator.TokenPayload{
 		ID:       "u-Er5Spz",
@@ -62,7 +65,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
+	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
 
 	id := "c-T4m"
 
@@ -86,7 +89,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(repo, idGenerator)
+	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
 
 	id := "c-T4m"
 
@@ -101,5 +104,26 @@ func TestDelete(t *testing.T) {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Successfully deleted a category with id %s", id)
+	}
+}
+
+func TestGetAllByCategory(t *testing.T) {
+	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
+
+	categoryID := "c-abc"
+	var page uint = 1
+	var limit uint = 20
+
+	tp := generator.TokenPayload{
+		ID:       "u-ZrxmQS",
+		Username: "erikrios",
+		Role:     "user",
+		IsActive: true,
+	}
+
+	if pagination, err := service.GetAllByCategory(context.Background(), tp, categoryID, page, limit); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
 	}
 }

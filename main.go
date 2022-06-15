@@ -10,6 +10,7 @@ import (
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	cr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
+	tr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	cs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
 	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
@@ -62,9 +63,10 @@ func main() {
 
 	userRepository := ur.NewUserRepositoryImpl(db)
 	categoryRepository := cr.NewCategoryRepositoryImpl(db)
+	threadRepository := tr.NewThreadRepositoryImpl(db)
 
 	userService := us.NewUserServiceImpl(userRepository, idGenerator, passwordGenerator, tokenGenerator)
-	categoryService := cs.NewCategoryServiceImpl(categoryRepository, idGenerator)
+	categoryService := cs.NewCategoryServiceImpl(categoryRepository, threadRepository, idGenerator)
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)

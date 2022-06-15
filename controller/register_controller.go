@@ -28,6 +28,7 @@ func (r *registerController) Route(g *echo.Group) {
 // @Description  This endpoint is used for user register.
 // @Tags         register
 // @Accept       json
+// @Security     ApiKey
 // @Produce      json
 // @Security     ApiKey
 // @Param        default  body      payload.Register  true  "register payload"
