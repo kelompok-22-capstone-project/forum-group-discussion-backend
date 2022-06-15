@@ -246,7 +246,7 @@ type commentsResponse struct {
 }
 
 type commentsInfoWrapper struct {
-	Threads  []commentData `json:"comments" extensions:"x-order=0"`
+	Threads  []commentData `json:"list" extensions:"x-order=0"`
 	PageInfo pageInfoData  `json:"pageInfo" extensions:"x-order=1"`
 }
 

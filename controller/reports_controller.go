@@ -83,7 +83,7 @@ type reportsResponse struct {
 }
 
 type reportsData struct {
-	Reports  []reportData `json:"reports" extensions:"x-order=0"`
+	Reports  []reportData `json:"list" extensions:"x-order=0"`
 	PageInfo pageInfoData `json:"pageInfo" extensions:"x-order=1"`
 }
 
