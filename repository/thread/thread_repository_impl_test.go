@@ -63,6 +63,21 @@ func TestFindAllWithPagination(t *testing.T) {
 	}
 }
 
+func TestFindAllWithQueryAndPagination(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	pageInfo := entity.PageInfo{
+		Limit: 10,
+		Page:  1,
+	}
+
+	if pagination, err := repo.FindAllWithQueryAndPagination(context.Background(), "u-ZrxmQS", "Read", pageInfo); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
+	}
+}
+
 func TestFindByID(t *testing.T) {
 	var repo ThreadRepository = NewThreadRepositoryImpl(db)
 
