@@ -3,6 +3,7 @@ package controller
 import (
 	"log"
 	"net/http"
+	"strconv"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
@@ -167,10 +168,29 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id}/threads [get]
 func (c *categoriesController) getCategoryThreads(e echo.Context) error {
-	_ = e.Param("id")
-	_ = e.QueryParam("page")
-	_ = e.QueryParam("limit")
-	return nil
+	id := e.Param("id")
+	pageStr := e.QueryParam("page")
+	limitStr := e.QueryParam("limit")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := c.tokenGenerator.ExtractToken(e)
+
+	threadsResponse, err := c.categoryService.GetAllByCategory(e.Request().Context(), tp, id, uint(page), uint(limit))
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get categories successful.", threadsResponse)
+	return e.JSON(http.StatusOK, response)
 }
 
 // categoriesResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
