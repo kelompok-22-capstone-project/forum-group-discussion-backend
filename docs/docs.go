@@ -1623,7 +1623,7 @@ const docTemplate = `{
         "controller.commentsInfoWrapper": {
             "type": "object",
             "properties": {
-                "comments": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.commentData"
@@ -1858,7 +1858,7 @@ const docTemplate = `{
         "controller.profilesInfoWrapper": {
             "type": "object",
             "properties": {
-                "users": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.profileData"
@@ -1954,7 +1954,7 @@ const docTemplate = `{
         "controller.reportsData": {
             "type": "object",
             "properties": {
-                "reports": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.reportData"
@@ -2074,79 +2074,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.threadsData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "title": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "categoryID": {
-                    "type": "string",
-                    "x-order": "10"
-                },
-                "categoryName": {
-                    "type": "string",
-                    "x-order": "11"
-                },
-                "publishedOn": {
-                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "12"
-                },
-                "isLiked": {
-                    "type": "boolean",
-                    "x-order": "13"
-                },
-                "isFollowed": {
-                    "type": "boolean",
-                    "x-order": "14"
-                },
-                "description": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "totalViewer": {
-                    "type": "integer",
-                    "x-order": "3"
-                },
-                "totalLike": {
-                    "type": "integer",
-                    "x-order": "4"
-                },
-                "totalFollower": {
-                    "type": "integer",
-                    "x-order": "5"
-                },
-                "totalComment": {
-                    "type": "integer",
-                    "x-order": "6"
-                },
-                "creatorID": {
-                    "type": "string",
-                    "x-order": "7"
-                },
-                "creatorUsername": {
-                    "type": "string",
-                    "x-order": "8"
-                },
-                "creatorName": {
-                    "type": "string",
-                    "x-order": "9"
-                }
-            }
-        },
         "controller.threadsInfoWrapper": {
             "type": "object",
             "properties": {
-                "threads": {
+                "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.threadsData"
+                        "$ref": "#/definitions/response.ManyThread"
                     },
                     "x-order": "0"
                 },
@@ -2380,6 +2314,72 @@ const docTemplate = `{
                 "role": {
                     "type": "string",
                     "x-order": "1"
+                }
+            }
+        },
+        "response.ManyThread": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "title": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "10"
+                },
+                "totalComment": {
+                    "type": "integer",
+                    "x-order": "11"
+                },
+                "creatorID": {
+                    "type": "string",
+                    "x-order": "12"
+                },
+                "creatorUsername": {
+                    "type": "string",
+                    "x-order": "13"
+                },
+                "creatorName": {
+                    "type": "string",
+                    "x-order": "14"
+                },
+                "categoryID": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "categoryName": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "publishedOn": {
+                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "isLiked": {
+                    "type": "boolean",
+                    "x-order": "5"
+                },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "6"
+                },
+                "description": {
+                    "type": "string",
+                    "x-order": "7"
+                },
+                "totalViewer": {
+                    "type": "integer",
+                    "x-order": "8"
+                },
+                "totalLike": {
+                    "type": "integer",
+                    "x-order": "9"
                 }
             }
         }

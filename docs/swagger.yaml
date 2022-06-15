@@ -44,7 +44,7 @@ definitions:
     type: object
   controller.commentsInfoWrapper:
     properties:
-      comments:
+      list:
         items:
           $ref: '#/definitions/controller.commentData'
         type: array
@@ -212,14 +212,14 @@ definitions:
     type: object
   controller.profilesInfoWrapper:
     properties:
-      pageInfo:
-        $ref: '#/definitions/controller.pageInfoData'
-        x-order: "1"
-      users:
+      list:
         items:
           $ref: '#/definitions/controller.profileData'
         type: array
         x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
     type: object
   controller.profilesResponse:
     properties:
@@ -281,14 +281,14 @@ definitions:
     type: object
   controller.reportsData:
     properties:
-      pageInfo:
-        $ref: '#/definitions/controller.pageInfoData'
-        x-order: "1"
-      reports:
+      list:
         items:
           $ref: '#/definitions/controller.reportData'
         type: array
         x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
     type: object
   controller.reportsResponse:
     properties:
@@ -368,65 +368,16 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.threadsData:
-    properties:
-      ID:
-        type: string
-        x-order: "0"
-      categoryID:
-        type: string
-        x-order: "10"
-      categoryName:
-        type: string
-        x-order: "11"
-      creatorID:
-        type: string
-        x-order: "7"
-      creatorName:
-        type: string
-        x-order: "9"
-      creatorUsername:
-        type: string
-        x-order: "8"
-      description:
-        type: string
-        x-order: "2"
-      isFollowed:
-        type: boolean
-        x-order: "14"
-      isLiked:
-        type: boolean
-        x-order: "13"
-      publishedOn:
-        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "12"
-      title:
-        type: string
-        x-order: "1"
-      totalComment:
-        type: integer
-        x-order: "6"
-      totalFollower:
-        type: integer
-        x-order: "5"
-      totalLike:
-        type: integer
-        x-order: "4"
-      totalViewer:
-        type: integer
-        x-order: "3"
-    type: object
   controller.threadsInfoWrapper:
     properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ManyThread'
+        type: array
+        x-order: "0"
       pageInfo:
         $ref: '#/definitions/controller.pageInfoData'
         x-order: "1"
-      threads:
-        items:
-          $ref: '#/definitions/controller.threadsData'
-        type: array
-        x-order: "0"
     type: object
   controller.threadsResponse:
     properties:
@@ -596,6 +547,55 @@ definitions:
       token:
         type: string
         x-order: "0"
+    type: object
+  response.ManyThread:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      categoryID:
+        type: string
+        x-order: "2"
+      categoryName:
+        type: string
+        x-order: "3"
+      creatorID:
+        type: string
+        x-order: "12"
+      creatorName:
+        type: string
+        x-order: "14"
+      creatorUsername:
+        type: string
+        x-order: "13"
+      description:
+        type: string
+        x-order: "7"
+      isFollowed:
+        type: boolean
+        x-order: "6"
+      isLiked:
+        type: boolean
+        x-order: "5"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "4"
+      title:
+        type: string
+        x-order: "1"
+      totalComment:
+        type: integer
+        x-order: "11"
+      totalFollower:
+        type: integer
+        x-order: "10"
+      totalLike:
+        type: integer
+        x-order: "9"
+      totalViewer:
+        type: integer
+        x-order: "8"
     type: object
 host: moot-rest-api.herokuapp.com
 info:
