@@ -627,6 +627,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Info
       tags:
@@ -645,6 +646,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Categories
       tags:
       - categories
@@ -687,6 +690,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Category
       tags:
@@ -718,6 +722,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Delete Category by ID
       tags:
@@ -764,6 +769,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Update a Category
       tags:
@@ -800,6 +806,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Category Threads
       tags:
       - categories
@@ -872,6 +880,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKey: []
       summary: User Register
       tags:
       - register
@@ -903,6 +912,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Reports
       tags:
@@ -942,6 +952,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Report
       tags:
@@ -985,6 +996,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Update a Report Status
       tags:
@@ -1016,6 +1028,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Threads
       tags:
       - threads
@@ -1054,6 +1068,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Thread
       tags:
@@ -1085,6 +1100,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Delete Thread by ID
       tags:
@@ -1116,6 +1132,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Thread by ID
       tags:
       - threads
@@ -1157,6 +1175,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Update a Thread
       tags:
@@ -1193,6 +1212,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Thread Comments
       tags:
       - threads
@@ -1225,6 +1246,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Follow/Unfollow a Thread
       tags:
@@ -1258,6 +1280,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Like/Unlike a Thread
       tags:
@@ -1301,6 +1324,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Add a Moderator to Thread
       tags:
@@ -1344,6 +1368,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Remove a Moderator from Thread
       tags:
@@ -1379,6 +1404,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Users
       tags:
       - users
@@ -1406,6 +1433,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get User by Username
       tags:
       - users
@@ -1438,6 +1467,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Banned/Unbanned a User
       tags:
@@ -1471,6 +1501,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Follow/Unfollow a User
       tags:
@@ -1507,6 +1538,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get User Threads
       tags:
       - users
@@ -1533,6 +1566,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Own Profile
       tags:

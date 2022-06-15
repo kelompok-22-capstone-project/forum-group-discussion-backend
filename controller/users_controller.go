@@ -27,13 +27,13 @@ func (u *usersController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all users
 // @Tags         users
 // @Produce      json
-// @Param        page      query     int     false  "page, default 1"
-// @Param        limit     query     int     false  "limit, default 20"
-// @Param        order_by  query     string  false  "options: registered_date, ranking, default registered_date"
-// @Param        status    query     string  false  "options: active, banned, default active"
+// @Param        page      query  int     false  "page, default 1"
+// @Param        limit     query  int     false  "limit, default 20"
+// @Param        order_by  query  string  false  "options: registered_date, ranking, default registered_date"
+// @Param        status    query  string  false  "options: active, banned, default active"
 // @Security     ApiKey
-// @Success      200       {object}  profilesResponse
-// @Failure      500       {object}  echo.HTTPError
+// @Success      200  {object}  profilesResponse
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /users [get]
 func (u *usersController) getUsers(c echo.Context) error {
 	_ = c.QueryParam("page")
@@ -50,10 +50,10 @@ func (u *usersController) getUsers(c echo.Context) error {
 // @Produce      json
 // @Security     ApiKey
 // @Security     ApiKeyAuth
-// @Success      200       {object}  profileResponse
+// @Success      200  {object}  profileResponse
 // @Failure      401  {object}  echo.HTTPError
-// @Failure      404       {object}  echo.HTTPError
-// @Failure      500       {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /users/me [get]
 func (u *usersController) getMe(c echo.Context) error {
 	return nil
@@ -64,11 +64,11 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Description  This endpoint is used to get the another user by username
 // @Tags         users
 // @Produce      json
-// @Param        username  path      string  true  "username"
+// @Param        username  path  string  true  "username"
 // @Security     ApiKey
 // @Success      200  {object}  profileResponse
-// @Failure      404       {object}  echo.HTTPError
-// @Failure      500       {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username} [get]
 func (u *usersController) getUserByUsername(c echo.Context) error {
 	_ = c.Param("username")
@@ -80,11 +80,11 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Description  This endpoint is used to get the user threads
 // @Tags         users
 // @Produce      json
-// @Param        username  path      string  true   "username"
-// @Param        page      query     int     false  "page, default 1"
-// @Param        limit     query     int     false  "limit, default 10"
+// @Param        username  path   string  true   "username"
+// @Param        page      query  int     false  "page, default 1"
+// @Param        limit     query  int     false  "limit, default 10"
 // @Security     ApiKey
-// @Success      200       {object}  threadsResponse
+// @Success      200  {object}  threadsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/threads [get]

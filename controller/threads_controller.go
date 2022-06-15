@@ -31,12 +31,12 @@ func (t *threadsController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all threads
 // @Tags         threads
 // @Produce      json
-// @Param        page    query     int     false  "page, default 1"
-// @Param        limit   query     int     false  "limit, default 10"
-// @Param        search  query     string  false  "search by keyword, default empty string"
+// @Param        page    query  int     false  "page, default 1"
+// @Param        limit   query  int     false  "limit, default 10"
+// @Param        search  query  string  false  "search by keyword, default empty string"
 // @Security     ApiKey
-// @Success      200     {object}  threadsResponse
-// @Failure      500     {object}  echo.HTTPError
+// @Success      200  {object}  threadsResponse
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [get]
 func (t *threadsController) getThreads(c echo.Context) error {
 	_ = c.QueryParam("page")
@@ -56,8 +56,8 @@ func (t *threadsController) getThreads(c echo.Context) error {
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
-// @Failure      404    {object}  echo.HTTPError
-// @Failure      500    {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [post]
 func (t *threadsController) postCreateThread(c echo.Context) error {
 	return nil
@@ -68,7 +68,7 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 // @Description  This endpoint is used to get thread by ID
 // @Tags         threads
 // @Produce      json
-// @Param        id   path      string  true  "thread ID"
+// @Param        id       path  string                      true  "thread ID"
 // @Security     ApiKey
 // @Success      200  {object}  threadResponse
 // @Failure      401  {object}  echo.HTTPError
@@ -107,7 +107,7 @@ func (t *threadsController) putUpdateThread(c echo.Context) error {
 // @Description  This endpoint is used to delete a thread by ID
 // @Tags         threads
 // @Produce      json
-// @Param        id       path  string                      true  "thread ID"
+// @Param        id  path  string  true  "thread ID"
 // @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
@@ -125,11 +125,11 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 // @Description  This endpoint is used to get the thread comments
 // @Tags         threads
 // @Produce      json
-// @Param        id     path      string  true   "thread ID"
-// @Param        page   query     int     false  "page, default 1"
-// @Param        limit  query     int     false  "limit, default 20"
+// @Param        id     path   string  true   "thread ID"
+// @Param        page   query  int     false  "page, default 1"
+// @Param        limit  query  int     false  "limit, default 20"
 // @Security     ApiKey
-// @Success      200    {object}  commentsResponse
+// @Success      200  {object}  commentsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/comments [get]

@@ -52,7 +52,7 @@ func (c *categoriesController) Route(g *echo.Group) {
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
-// @Failure      500    {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [post]
 func (c *categoriesController) postCreateCategory(e echo.Context) error {
 	tp := c.tokenGenerator.ExtractToken(e)
@@ -158,12 +158,12 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 // @Description  This endpoint is used to get the threads of particular category
 // @Tags         categories
 // @Produce      json
-// @Param        id     path      string  true   "category ID"
-// @Param        page   query     int     false  "page, default 1"
-// @Param        limit  query     int     false  "limit, default 10"
+// @Param        id     path   string  true   "category ID"
+// @Param        page   query  int     false  "page, default 1"
+// @Param        limit  query  int     false  "limit, default 10"
 // @Security     ApiKey
-// @Success      200    {object}  threadsResponse
-// @Failure      404    {object}  echo.HTTPError
+// @Success      200  {object}  threadsResponse
+// @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories/{id}/threads [get]
 func (c *categoriesController) getCategoryThreads(e echo.Context) error {

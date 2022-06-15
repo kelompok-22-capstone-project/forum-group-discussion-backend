@@ -29,6 +29,9 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -58,6 +61,11 @@ const docTemplate = `{
         },
         "/categories": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get all category",
                 "produces": [
                     "application/json"
@@ -83,6 +91,9 @@ const docTemplate = `{
             },
             "post": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -152,6 +163,9 @@ const docTemplate = `{
         "/categories/{id}": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -224,6 +238,9 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -271,6 +288,11 @@ const docTemplate = `{
         },
         "/categories/{id}/threads": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the threads of particular category",
                 "produces": [
                     "application/json"
@@ -390,6 +412,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKey": []
                     }
                 ],
                 "description": "This endpoint is used for user register.",
@@ -440,6 +465,9 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -488,6 +516,9 @@ const docTemplate = `{
             },
             "post": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -551,6 +582,9 @@ const docTemplate = `{
         "/reports/{id}/status": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -617,6 +651,11 @@ const docTemplate = `{
         },
         "/threads": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get all threads",
                 "produces": [
                     "application/json"
@@ -662,6 +701,9 @@ const docTemplate = `{
             },
             "post": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -724,6 +766,11 @@ const docTemplate = `{
         },
         "/threads/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get thread by ID",
                 "produces": [
                     "application/json"
@@ -770,6 +817,9 @@ const docTemplate = `{
             },
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -836,6 +886,9 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -883,6 +936,11 @@ const docTemplate = `{
         },
         "/threads/{id}/comments": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the thread comments",
                 "produces": [
                     "application/json"
@@ -938,6 +996,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -990,6 +1051,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1041,6 +1105,9 @@ const docTemplate = `{
         "/threads/{id}/moderators/add": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -1109,6 +1176,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1174,6 +1244,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get all users",
                 "produces": [
                     "application/json"
@@ -1228,6 +1303,9 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1269,6 +1347,11 @@ const docTemplate = `{
         },
         "/users/{username}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the another user by username",
                 "produces": [
                     "application/json"
@@ -1311,6 +1394,9 @@ const docTemplate = `{
         "/users/{username}/banned": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -1364,6 +1450,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1414,6 +1503,11 @@ const docTemplate = `{
         },
         "/users/{username}/threads": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the user threads",
                 "produces": [
                     "application/json"
