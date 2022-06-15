@@ -18,6 +18,7 @@ func (i *adminController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all information for admin dashboard purpose
 // @Tags         admin
 // @Produce      json
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      200  {object}  infoResponse
 // @Failure      500  {object}  echo.HTTPError

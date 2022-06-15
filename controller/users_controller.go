@@ -31,6 +31,7 @@ func (u *usersController) Route(g *echo.Group) {
 // @Param        limit     query     int     false  "limit, default 20"
 // @Param        order_by  query     string  false  "options: registered_date, ranking, default registered_date"
 // @Param        status    query     string  false  "options: active, banned, default active"
+// @Security     ApiKey
 // @Success      200       {object}  profilesResponse
 // @Failure      500       {object}  echo.HTTPError
 // @Router       /users [get]
@@ -47,6 +48,7 @@ func (u *usersController) getUsers(c echo.Context) error {
 // @Description  This endpoint is used to get their own user profile
 // @Tags         users
 // @Produce      json
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      200       {object}  profileResponse
 // @Failure      401  {object}  echo.HTTPError
@@ -63,6 +65,7 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Tags         users
 // @Produce      json
 // @Param        username  path      string  true  "username"
+// @Security     ApiKey
 // @Success      200  {object}  profileResponse
 // @Failure      404       {object}  echo.HTTPError
 // @Failure      500       {object}  echo.HTTPError
@@ -80,6 +83,7 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Param        username  path      string  true   "username"
 // @Param        page      query     int     false  "page, default 1"
 // @Param        limit     query     int     false  "limit, default 10"
+// @Security     ApiKey
 // @Success      200       {object}  threadsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
@@ -98,6 +102,7 @@ func (u *usersController) getUserThreads(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        username  path  string  true  "username"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError
@@ -116,6 +121,7 @@ func (u *usersController) putUserFollow(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        username  path  string  true  "username"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError

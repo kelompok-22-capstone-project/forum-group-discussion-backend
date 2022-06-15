@@ -45,6 +45,7 @@ func (c *categoriesController) Route(g *echo.Group) {
 // @Accept       json
 // @Produce      json
 // @Param        default  body  payload.CreateCategory  true  "request body"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
@@ -76,6 +77,7 @@ func (c *categoriesController) postCreateCategory(e echo.Context) error {
 // @Description  This endpoint is used to get all category
 // @Tags         categories
 // @Produce      json
+// @Security     ApiKey
 // @Success      200  {object}  categoriesResponse
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /categories [get]
@@ -98,6 +100,7 @@ func (c *categoriesController) getCategories(e echo.Context) error {
 // @Tags         categories
 // @Accept       json
 // @Produce      json
+// @Security     ApiKey
 // @Param        default  body  payload.UpdateCategory  true  "request body"
 // @Param        id       path  string                  true  "category ID"
 // @Security     ApiKeyAuth
@@ -131,6 +134,7 @@ func (c *categoriesController) putUpdateCategory(e echo.Context) error {
 // @Tags         categories
 // @Produce      json
 // @Param        id  path  string  true  "category ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      404  {object}  echo.HTTPError
@@ -157,6 +161,7 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 // @Param        id     path      string  true   "category ID"
 // @Param        page   query     int     false  "page, default 1"
 // @Param        limit  query     int     false  "limit, default 10"
+// @Security     ApiKey
 // @Success      200    {object}  threadsResponse
 // @Failure      404    {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError

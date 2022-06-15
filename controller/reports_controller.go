@@ -22,6 +22,7 @@ func (r *reportsController) Route(g *echo.Group) {
 // @Accept       json
 // @Produce      json
 // @Param        default  body  payload.CreateReport  true  "request body"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      201  {object}  createThreadResponse
 // @Failure      400  {object}  echo.HTTPError
@@ -41,6 +42,7 @@ func (r *reportsController) postCreateReport(c echo.Context) error {
 // @Param        status  query  string  false  "options: all, review, rejected, accepted, default all"
 // @Param        page    query  int     false  "page, default 1"
 // @Param        limit   query  int     false  "limit, default 20"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      200  {object}  reportsResponse
 // @Failure      500  {object}  echo.HTTPError
@@ -60,6 +62,7 @@ func (r *reportsController) getReports(c echo.Context) error {
 // @Produce      json
 // @Param        default  body  payload.UpdateReportStatus  true  "request body"
 // @Param        id       path  string                      true  "report ID"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      400  {object}  echo.HTTPError
