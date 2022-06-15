@@ -22,6 +22,13 @@ type ThreadRepository interface {
 		pageInfo entity.PageInfo,
 	) (pagination entity.Pagination[entity.Thread], err error)
 
+	FindAllByCategoryIDWithPagination(
+		ctx context.Context,
+		accessorUserID string,
+		categoryID string,
+		pageInfo entity.PageInfo,
+	) (pagination entity.Pagination[entity.Thread], err error)
+
 	FindByID(
 		ctx context.Context,
 		accessorUserID string,
