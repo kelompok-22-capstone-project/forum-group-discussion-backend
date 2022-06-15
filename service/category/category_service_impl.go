@@ -9,6 +9,7 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"gopkg.in/validator.v2"
@@ -16,15 +17,18 @@ import (
 
 type categoryServiceImpl struct {
 	categoryRepository category.CategoryRepository
+	threadRepository   thread.ThreadRepository
 	idGenerator        generator.IDGenerator
 }
 
 func NewCategoryServiceImpl(
 	categoryRepository category.CategoryRepository,
+	threadRepository thread.ThreadRepository,
 	idGenerator generator.IDGenerator,
 ) *categoryServiceImpl {
 	return &categoryServiceImpl{
 		categoryRepository: categoryRepository,
+		threadRepository:   threadRepository,
 		idGenerator:        idGenerator,
 	}
 }
@@ -117,6 +121,72 @@ func (c *categoryServiceImpl) Delete(ctx context.Context, tp generator.TokenPayl
 	if repoErr := c.categoryRepository.Delete(ctx, id); repoErr != nil {
 		err = service.MapError(repoErr)
 		return
+	}
+
+	return
+}
+
+func (c *categoryServiceImpl) GetAllByCategory(
+	ctx context.Context,
+	tp generator.TokenPayload,
+	categoryID string,
+	page uint,
+	limit uint,
+) (rs response.Pagination[response.ManyThread], err error) {
+	if page == 0 {
+		page = 1
+	}
+
+	if limit == 0 {
+		limit = 10
+	}
+
+	if _, repoErr := c.categoryRepository.FindByID(ctx, categoryID); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	pagination, repoErr := c.threadRepository.FindAllByCategoryIDWithPagination(
+		ctx,
+		tp.ID,
+		categoryID,
+		entity.PageInfo{
+			Limit: limit,
+			Page:  page,
+		},
+	)
+
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	rs.PageInfo.Page = pagination.PageInfo.Page
+	rs.PageInfo.Limit = pagination.PageInfo.Limit
+	rs.PageInfo.PageTotal = pagination.PageInfo.PageTotal
+	rs.PageInfo.Total = pagination.PageInfo.Total
+
+	rs.List = make([]response.ManyThread, len(pagination.List))
+
+	for i, item := range pagination.List {
+		thread := response.ManyThread{
+			ID:              item.ID,
+			Title:           item.Title,
+			CategoryID:      item.Category.ID,
+			CategoryName:    item.Category.Name,
+			PublishedOn:     item.CreatedAt.Format(time.RFC822),
+			IsLiked:         item.IsLiked,
+			IsFollowed:      item.IsFollowed,
+			Description:     item.Description,
+			TotalViewer:     item.TotalViewer,
+			TotalLike:       item.TotalLike,
+			TotalFollower:   item.TotalFollower,
+			TotalComment:    item.TotalComment,
+			CreatorID:       item.Creator.ID,
+			CreatorUsername: item.Creator.Username,
+			CreatorName:     item.Creator.Name,
+		}
+		rs.List[i] = thread
 	}
 
 	return
