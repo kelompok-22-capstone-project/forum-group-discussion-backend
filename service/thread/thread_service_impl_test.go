@@ -75,3 +75,22 @@ func TestCreate(t *testing.T) {
 		t.Logf("Successfully create a thread with ID %s", id)
 	}
 }
+
+func TestGetByID(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+
+	tp := generator.TokenPayload{
+		ID:       "u-ZrxmQS",
+		Username: "erikrios",
+		Role:     "user",
+		IsActive: true,
+	}
+
+	id := "t-kxdoB7i"
+
+	if thread, err := service.GetByID(context.Background(), tp, id); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Thread: %+v", thread)
+	}
+}
