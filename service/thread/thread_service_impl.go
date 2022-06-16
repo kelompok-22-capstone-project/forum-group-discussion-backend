@@ -242,5 +242,29 @@ func (t *threadServiceImpl) Update(
 		return
 	}
 
-	return err
+	return
+}
+
+func (t *threadServiceImpl) Delete(
+	ctx context.Context,
+	tp generator.TokenPayload,
+	ID string,
+) (err error) {
+	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if tp.Role != "admin" && tp.ID != thread.Creator.ID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	if repoErr := t.threadRepository.Delete(ctx, ID); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	return
 }
