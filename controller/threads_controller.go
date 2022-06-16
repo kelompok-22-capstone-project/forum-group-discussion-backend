@@ -6,7 +6,9 @@ import (
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"github.com/labstack/echo/v4"
@@ -96,7 +98,21 @@ func (t *threadsController) getThreads(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [post]
 func (t *threadsController) postCreateThread(c echo.Context) error {
-	return nil
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.CreateThread)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	id, err := t.threadService.Create(c.Request().Context(), tp, *p)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	idResponse := map[string]any{"ID": id}
+	response := model.NewResponse("success", "Create thread successful.", idResponse)
+	return c.JSON(http.StatusCreated, response)
 }
 
 // getThread godoc
@@ -113,9 +129,17 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id} [get]
 func (t *threadsController) getThread(c echo.Context) error {
-	_ = c.Param("id")
+	id := c.Param("id")
 
-	return nil
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	threadResponse, err := t.threadService.GetByID(c.Request().Context(), tp, id)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get thread successful.", threadResponse)
+	return c.JSON(http.StatusOK, response)
 }
 
 // putUpdateThread godoc
@@ -135,7 +159,19 @@ func (t *threadsController) getThread(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id} [put]
 func (t *threadsController) putUpdateThread(c echo.Context) error {
-	_ = c.Param("id")
+	id := c.Param("id")
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.UpdateThread)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	if err := t.threadService.Update(c.Request().Context(), tp, id, *p); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -153,7 +189,14 @@ func (t *threadsController) putUpdateThread(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id} [delete]
 func (t *threadsController) deleteThread(c echo.Context) error {
-	_ = c.Param("id")
+	id := c.Param("id")
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	if err := t.threadService.Delete(c.Request().Context(), tp, id); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
