@@ -28,4 +28,11 @@ type ThreadService interface {
 		tp generator.TokenPayload,
 		ID string,
 	) (rs response.Thread, err error)
+
+	Update(
+		ctx context.Context,
+		tp generator.TokenPayload,
+		ID string,
+		p payload.UpdateThread,
+	) (err error)
 }
