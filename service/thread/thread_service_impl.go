@@ -151,3 +151,57 @@ func (t *threadServiceImpl) Create(
 
 	return
 }
+
+func (t *threadServiceImpl) GetByID(
+	ctx context.Context,
+	tp generator.TokenPayload,
+	ID string,
+) (rs response.Thread, err error) {
+	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	rs = response.Thread{
+		ID:              thread.ID,
+		Title:           thread.Title,
+		CategoryID:      thread.Category.ID,
+		CategoryName:    thread.Category.Name,
+		PublishedOn:     thread.CreatedAt.Format(time.RFC822),
+		IsLiked:         thread.IsLiked,
+		IsFollowed:      thread.IsFollowed,
+		Description:     thread.Description,
+		TotalViewer:     thread.TotalViewer,
+		TotalLike:       thread.TotalLike,
+		TotalFollower:   thread.TotalFollower,
+		TotalComment:    thread.TotalComment,
+		CreatorID:       thread.Creator.ID,
+		CreatorUsername: thread.Creator.Username,
+		CreatorName:     thread.Creator.Name,
+	}
+
+	moderators, repoErr := t.threadRepository.FindAllModeratorByThreadID(ctx, ID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	rs.Moderators = make([]response.Moderator, len(moderators))
+
+	for i, item := range moderators {
+		moderator := response.Moderator{
+			ID:           item.ID,
+			UserID:       item.User.ID,
+			Username:     item.User.Username,
+			Email:        item.User.Email,
+			Name:         item.User.Name,
+			Role:         item.User.Role,
+			IsActive:     item.User.IsActive,
+			RegisteredOn: item.CreatedAt.Format(time.RFC822),
+		}
+		rs.Moderators[i] = moderator
+	}
+
+	return
+}
