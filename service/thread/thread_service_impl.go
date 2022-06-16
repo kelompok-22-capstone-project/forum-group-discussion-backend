@@ -205,3 +205,42 @@ func (t *threadServiceImpl) GetByID(
 
 	return
 }
+
+func (t *threadServiceImpl) Update(
+	ctx context.Context,
+	tp generator.TokenPayload,
+	ID string,
+	p payload.UpdateThread,
+) (err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	if _, repoErr := t.categoryRepository.FindByID(ctx, p.CategoryID); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if tp.ID != thread.Creator.ID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	thread.Title = p.Title
+	thread.Description = p.Description
+	thread.Category.ID = p.CategoryID
+
+	if repoErr := t.threadRepository.Update(ctx, ID, thread); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	return err
+}
