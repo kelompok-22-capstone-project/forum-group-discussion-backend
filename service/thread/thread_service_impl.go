@@ -5,24 +5,30 @@ import (
 	"time"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
+	"gopkg.in/validator.v2"
 )
 
 type threadServiceImpl struct {
-	threadRepository thread.ThreadRepository
-	idGenerator      generator.IDGenerator
+	threadRepository   thread.ThreadRepository
+	categoryRepository category.CategoryRepository
+	idGenerator        generator.IDGenerator
 }
 
 func NewThreadServiceImpl(
 	threadRepository thread.ThreadRepository,
+	categoryRepository category.CategoryRepository,
 	idGenerator generator.IDGenerator,
 ) *threadServiceImpl {
 	return &threadServiceImpl{
-		threadRepository: threadRepository,
-		idGenerator:      idGenerator,
+		threadRepository:   threadRepository,
+		categoryRepository: categoryRepository,
+		idGenerator:        idGenerator,
 	}
 }
 
@@ -81,6 +87,66 @@ func (t *threadServiceImpl) GetAll(
 			CreatorName:     item.Creator.Name,
 		}
 		rs.List[i] = thread
+	}
+
+	return
+}
+
+func (t *threadServiceImpl) Create(
+	ctx context.Context,
+	tp generator.TokenPayload,
+	p payload.CreateThread,
+) (id string, err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	if _, repoErr := t.categoryRepository.FindByID(ctx, p.CategoryID); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	id, genErr := t.idGenerator.GenerateThreadID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	thread := entity.Thread{
+		ID:          id,
+		Title:       p.Title,
+		Description: p.Description,
+		Creator: entity.User{
+			ID: tp.ID,
+		},
+		Category: entity.Category{
+			ID: p.CategoryID,
+		},
+	}
+
+	if repoErr := t.threadRepository.Insert(ctx, thread); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	modID, genErr := t.idGenerator.GenerateModeratorID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	moderator := entity.Moderator{
+		ID: modID,
+		User: entity.User{
+			ID: tp.ID,
+		},
+		ThreadID: id,
+	}
+
+	if repoErr := t.threadRepository.InsertModerator(ctx, moderator); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
 	}
 
 	return
