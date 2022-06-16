@@ -35,4 +35,10 @@ type ThreadService interface {
 		ID string,
 		p payload.UpdateThread,
 	) (err error)
+
+	Delete(
+		ctx context.Context,
+		tp generator.TokenPayload,
+		ID string,
+	) (err error)
 }
