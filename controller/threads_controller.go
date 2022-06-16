@@ -2,28 +2,43 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"github.com/labstack/echo/v4"
 )
 
-type threadsController struct{}
+type threadsController struct {
+	threadService  thread.ThreadService
+	tokenGenerator generator.TokenGenerator
+}
 
-func NewThreadsController() *threadsController {
-	return &threadsController{}
+func NewThreadsController(
+	threadService thread.ThreadService,
+	tokenGenerator generator.TokenGenerator,
+) *threadsController {
+	return &threadsController{
+		threadService:  threadService,
+		tokenGenerator: tokenGenerator,
+	}
 }
 
 func (t *threadsController) Route(g *echo.Group) {
 	group := g.Group("/threads")
-	group.GET("", t.getThreads)
-	group.POST("", t.postCreateThread)
-	group.GET("/:id", t.getThread)
-	group.PUT("/:id", t.putUpdateThread)
-	group.DELETE("/:id", t.deleteThread)
-	group.GET("/:id/comments", t.getThreadComments)
-	group.PUT("/:id/like", t.putThreadLike)
-	group.PUT("/:id/follow", t.putThreadFollow)
-	group.PUT("/:id/moderators/add", t.putThreadAddModerator)
-	group.PUT("/:id/moderators/remove", t.putThreadRemoveModerator)
+	group.GET("", t.getThreads, middleware.JWTMiddleware())
+	group.POST("", t.postCreateThread, middleware.JWTMiddleware())
+	group.GET("/:id", t.getThread, middleware.JWTMiddleware())
+	group.PUT("/:id", t.putUpdateThread, middleware.JWTMiddleware())
+	group.DELETE("/:id", t.deleteThread, middleware.JWTMiddleware())
+	group.GET("/:id/comments", t.getThreadComments, middleware.JWTMiddleware())
+	group.PUT("/:id/like", t.putThreadLike, middleware.JWTMiddleware())
+	group.PUT("/:id/follow", t.putThreadFollow, middleware.JWTMiddleware())
+	group.PUT("/:id/moderators/add", t.putThreadAddModerator, middleware.JWTMiddleware())
+	group.PUT("/:id/moderators/remove", t.putThreadRemoveModerator, middleware.JWTMiddleware())
 }
 
 // getThreads     godoc
@@ -35,13 +50,34 @@ func (t *threadsController) Route(g *echo.Group) {
 // @Param        limit   query  int     false  "limit, default 10"
 // @Param        search  query  string  false  "search by keyword, default empty string"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  threadsResponse
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads [get]
 func (t *threadsController) getThreads(c echo.Context) error {
-	_ = c.QueryParam("page")
-	_ = c.QueryParam("limit")
-	return nil
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+	search := c.QueryParam("search")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	threadsResponse, err := t.threadService.GetAll(c.Request().Context(), tp, uint(page), uint(limit), search)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get threads successful.", threadsResponse)
+	return c.JSON(http.StatusOK, response)
 }
 
 // postCreateThread godoc
@@ -70,6 +106,7 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 // @Produce      json
 // @Param        id       path  string                      true  "thread ID"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  threadResponse
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
@@ -129,6 +166,7 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 // @Param        page   query  int     false  "page, default 1"
 // @Param        limit  query  int     false  "limit, default 20"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  commentsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
@@ -233,9 +271,9 @@ type idData struct {
 
 // threadResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type threadResponse struct {
-	Status  string     `json:"status" extensions:"x-order=0"`
-	Message string     `json:"message" extensions:"x-order=1"`
-	Data    threadData `json:"data" extensions:"x-order=2"`
+	Status  string          `json:"status" extensions:"x-order=0"`
+	Message string          `json:"message" extensions:"x-order=1"`
+	Data    response.Thread `json:"data" extensions:"x-order=2"`
 }
 
 // commentsResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
