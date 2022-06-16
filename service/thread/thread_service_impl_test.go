@@ -119,3 +119,22 @@ func TestUpdate(t *testing.T) {
 		t.Logf("Successfully updated a thread with ID %s", id)
 	}
 }
+
+func TestDelete(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+
+	tp := generator.TokenPayload{
+		ID:       "u-ZrxmQS",
+		Username: "erikrios",
+		Role:     "user",
+		IsActive: true,
+	}
+
+	id := "t-45uolpR"
+
+	if err := service.Delete(context.Background(), tp, id); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully deleted a thread with ID %s", id)
+	}
+}
