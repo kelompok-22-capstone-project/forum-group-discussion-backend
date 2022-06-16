@@ -22,4 +22,10 @@ type ThreadService interface {
 		tp generator.TokenPayload,
 		p payload.CreateThread,
 	) (id string, err error)
+
+	GetByID(
+		ctx context.Context,
+		tp generator.TokenPayload,
+		ID string,
+	) (rs response.Thread, err error)
 }
