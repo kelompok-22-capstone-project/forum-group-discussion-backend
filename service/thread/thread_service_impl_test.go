@@ -94,3 +94,28 @@ func TestGetByID(t *testing.T) {
 		t.Logf("Thread: %+v", thread)
 	}
 }
+
+func TestUpdate(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+
+	tp := generator.TokenPayload{
+		ID:       "u-ZrxmQS",
+		Username: "erikrios",
+		Role:     "user",
+		IsActive: true,
+	}
+
+	id := "t-kxdoB7i"
+
+	p := payload.UpdateThread{
+		Title:       "Go Programming Going Hype",
+		Description: "Currently Go Programming going hype, because it features.",
+		CategoryID:  "c-def",
+	}
+
+	if err := service.Update(context.Background(), tp, id, p); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully updated a thread with ID %s", id)
+	}
+}
