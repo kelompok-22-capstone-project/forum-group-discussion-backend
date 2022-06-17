@@ -268,3 +268,10 @@ func (t *threadServiceImpl) Delete(
 
 	return
 }
+
+func (t *threadServiceImpl) GetComments(
+	ctx context.Context,
+	threadID string,
+) (rs response.Pagination[response.Comment], err error) {
+	return
+}
