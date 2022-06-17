@@ -45,5 +45,7 @@ type ThreadService interface {
 	GetComments(
 		ctx context.Context,
 		threadID string,
+		page uint,
+		limit uint,
 	) (rs response.Pagination[response.Comment], err error)
 }
