@@ -138,3 +138,15 @@ func TestDelete(t *testing.T) {
 		t.Logf("Successfully deleted a thread with ID %s", id)
 	}
 }
+
+func TestGetComments(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+
+	threadID := "t-abcdefg"
+
+	if pagination, err := service.GetComments(context.Background(), threadID, 0, 0); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
+	}
+}
