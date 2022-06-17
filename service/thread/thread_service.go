@@ -41,4 +41,9 @@ type ThreadService interface {
 		tp generator.TokenPayload,
 		ID string,
 	) (err error)
+
+	GetComments(
+		ctx context.Context,
+		threadID string,
+	) (rs response.Pagination[response.Comment], err error)
 }
