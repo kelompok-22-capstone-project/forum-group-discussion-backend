@@ -58,6 +58,31 @@ func (c *categoryRepositoryImpl) FindAll(ctx context.Context) (categories []enti
 
 	return
 }
+
+func (c *categoryRepositoryImpl) FindByID(ctx context.Context, ID string) (category entity.Category, err error) {
+	statement := "SELECT id, name, description, created_at, updated_at FROM categories WHERE id = $1;"
+
+	row := c.db.QueryRowContext(ctx, statement, ID)
+
+	switch dbErr := row.Scan(&category.ID, &category.Name, &category.Description, &category.CreatedAt, &category.UpdatedAt); dbErr {
+	case sql.ErrNoRows:
+		{
+			err = repository.ErrRecordNotFound
+			return
+		}
+	case nil:
+		{
+			return
+		}
+	default:
+		{
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+	}
+}
+
 func (c *categoryRepositoryImpl) Insert(ctx context.Context, category entity.Category) (err error) {
 	statement := "INSERT INTO categories(id, name, description) VALUES ($1, $2, $3);"
 
