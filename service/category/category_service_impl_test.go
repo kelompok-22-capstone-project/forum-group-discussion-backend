@@ -9,33 +9,23 @@ import (
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
-<<<<<<< HEAD
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
 	mcr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category/mocks"
+	mtr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
-=======
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
->>>>>>> feature/thread
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	mig "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator/mocks"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 )
 
-<<<<<<< HEAD
 func TestGetAll(t *testing.T) {
 	mockRepo := &mcr.CategoryRepository{}
+	mockThreadRepo := &mtr.ThreadRepository{}
 	mockIDGen := &mig.IDGenerator{}
-=======
-var db *sql.DB
-var categoryRepo category.CategoryRepository
-var threadRepo thread.ThreadRepository
-var idGenerator generator.IDGenerator
->>>>>>> feature/thread
 
-	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockThreadRepo, mockIDGen)
 	now := time.Now()
 
 	testCases := []struct {
@@ -97,21 +87,11 @@ var idGenerator generator.IDGenerator
 		},
 	}
 
-<<<<<<< HEAD
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
 			testCase.mockBehaviour()
 
 			gotCategories, gotError := categoryService.GetAll(context.Background())
-=======
-	categoryRepo = category.NewCategoryRepositoryImpl(db)
-	threadRepo = thread.NewThreadRepositoryImpl(db)
-	idGenerator = generator.NewNanoidIDGenerator()
-}
-
-func TestGetAll(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
->>>>>>> feature/thread
 
 			if testCase.expectedError != nil {
 				assert.ErrorIs(t, gotError, testCase.expectedError)
@@ -123,14 +103,11 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-<<<<<<< HEAD
 	mockRepo := &mcr.CategoryRepository{}
+	mockThreadRepo := &mtr.ThreadRepository{}
 	mockIDGen := &mig.IDGenerator{}
-=======
-	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
->>>>>>> feature/thread
 
-	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockThreadRepo, mockIDGen)
 
 	testCases := []struct {
 		name              string
@@ -291,14 +268,11 @@ func TestCreate(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-<<<<<<< HEAD
 	mockRepo := &mcr.CategoryRepository{}
+	mockThreadRepo := &mtr.ThreadRepository{}
 	mockIDGen := &mig.IDGenerator{}
-=======
-	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
->>>>>>> feature/thread
 
-	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockThreadRepo, mockIDGen)
 
 	testCases := []struct {
 		name              string
@@ -412,14 +386,11 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-<<<<<<< HEAD
 	mockRepo := &mcr.CategoryRepository{}
+	mockThreadRepo := &mtr.ThreadRepository{}
 	mockIDGen := &mig.IDGenerator{}
-=======
-	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
->>>>>>> feature/thread
 
-	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockThreadRepo, mockIDGen)
 
 	testCases := []struct {
 		name              string
@@ -503,22 +474,5 @@ func TestDelete(t *testing.T) {
 }
 
 func TestGetAllByCategory(t *testing.T) {
-	var service CategoryService = NewCategoryServiceImpl(categoryRepo, threadRepo, idGenerator)
 
-	categoryID := "c-abc"
-	var page uint = 1
-	var limit uint = 20
-
-	tp := generator.TokenPayload{
-		ID:       "u-ZrxmQS",
-		Username: "erikrios",
-		Role:     "user",
-		IsActive: true,
-	}
-
-	if pagination, err := service.GetAllByCategory(context.Background(), tp, categoryID, page, limit); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
-	}
 }
