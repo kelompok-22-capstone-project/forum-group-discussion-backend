@@ -215,10 +215,27 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/comments [get]
 func (t *threadsController) getThreadComments(c echo.Context) error {
-	_ = c.Param("id")
-	_ = c.QueryParam("page")
-	_ = c.QueryParam("limit")
-	return nil
+	id := c.Param("id")
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	commentsResponse, err := t.threadService.GetComments(c.Request().Context(), id, uint(page), uint(limit))
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get comments successful", commentsResponse)
+	return c.JSON(http.StatusOK, response)
 }
 
 // putThreadLike godoc
