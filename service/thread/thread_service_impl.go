@@ -272,6 +272,50 @@ func (t *threadServiceImpl) Delete(
 func (t *threadServiceImpl) GetComments(
 	ctx context.Context,
 	threadID string,
+	page uint,
+	limit uint,
 ) (rs response.Pagination[response.Comment], err error) {
+	if page == 0 {
+		page = 1
+	}
+
+	if limit == 0 {
+		limit = 20
+	}
+
+	if _, repoErr := t.threadRepository.FindByID(ctx, "", threadID); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	pageInfo := entity.PageInfo{
+		Limit: limit,
+		Page:  page,
+	}
+
+	pagination, repoErr := t.threadRepository.FindAllCommentByThreadID(ctx, threadID, pageInfo)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	rs.PageInfo.Page = pagination.PageInfo.Page
+	rs.PageInfo.Limit = pagination.PageInfo.Limit
+	rs.PageInfo.PageTotal = pagination.PageInfo.PageTotal
+	rs.PageInfo.Total = pagination.PageInfo.Total
+	rs.List = make([]response.Comment, len(pagination.List))
+
+	for i, item := range pagination.List {
+		comment := response.Comment{
+			ID:          item.ID,
+			UserID:      item.User.ID,
+			Username:    item.User.Username,
+			Name:        item.User.Name,
+			Comment:     item.Comment,
+			PublishedOn: item.CreatedAt.Format(time.RFC822),
+		}
+		rs.List[i] = comment
+	}
+
 	return
 }
