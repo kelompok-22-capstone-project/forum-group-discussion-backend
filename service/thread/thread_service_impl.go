@@ -319,3 +319,11 @@ func (t *threadServiceImpl) GetComments(
 
 	return
 }
+
+func (t *threadServiceImpl) ChangeFollowingState(
+	ctx context.Context,
+	threadID string,
+	tp generator.TokenPayload,
+) (err error) {
+	return
+}
