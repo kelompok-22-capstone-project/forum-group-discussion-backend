@@ -48,4 +48,10 @@ type ThreadService interface {
 		page uint,
 		limit uint,
 	) (rs response.Pagination[response.Comment], err error)
+
+	ChangeFollowingState(
+		ctx context.Context,
+		threadID string,
+		tp generator.TokenPayload,
+	) (err error)
 }
