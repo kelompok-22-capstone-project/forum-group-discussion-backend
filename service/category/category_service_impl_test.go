@@ -118,7 +118,7 @@ func TestCreate(t *testing.T) {
 			name: "it should return service.ErrAccessForbidden, when role is not admin",
 			inputPayload: payload.CreateCategory{
 				Name:        "Music",
-				Description: "THis is a music description",
+				Description: "This is a music description",
 			},
 			inputTokenPayload: generator.TokenPayload{
 				ID:       "u-abcd",
@@ -134,7 +134,7 @@ func TestCreate(t *testing.T) {
 			name: "it should return service.ErrInvalidPayload, when payload is invalid",
 			inputPayload: payload.CreateCategory{
 				Name:        "M",
-				Description: "THis is a music description",
+				Description: "This is a music description",
 			},
 			inputTokenPayload: generator.TokenPayload{
 				ID:       "u-abcd",
@@ -262,5 +262,208 @@ func TestCreate(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestUpdate(t *testing.T) {
+	mockRepo := &mcr.CategoryRepository{}
+	mockIDGen := &mig.IDGenerator{}
+
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+
+	testCases := []struct {
+		name              string
+		inputPayload      payload.UpdateCategory
+		inputTokenPayload generator.TokenPayload
+		inputID           string
+		expectedError     error
+		mockBehaviour     func()
+	}{
+		{
+			name: "it should return service.ErrAccessForbidden, when role is not admin",
+			inputPayload: payload.UpdateCategory{
+				Name:        "Music",
+				Description: "This is a music description",
+			},
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "user",
+				Role:     "user",
+				IsActive: true,
+			},
+			inputID:       "",
+			expectedError: service.ErrAccessForbidden,
+			mockBehaviour: func() {},
+		},
+		{
+			name: "it should return service.ErrInvalidPayload, when payload is invalid",
+			inputPayload: payload.UpdateCategory{
+				Name:        "M",
+				Description: "This is a music description",
+			},
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "admin",
+				Role:     "admin",
+				IsActive: true,
+			},
+			inputID:       "",
+			expectedError: service.ErrInvalidPayload,
+			mockBehaviour: func() {},
+		},
+		{
+			name: "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+			inputPayload: payload.UpdateCategory{
+				Name:        "Music",
+				Description: "This is a music description",
+			},
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "admin",
+				Role:     "admin",
+				IsActive: true,
+			},
+			inputID:       "",
+			expectedError: service.ErrRepository,
+			mockBehaviour: func() {
+				mockRepo.On(
+					"Update",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Category{})),
+				).Return(
+					func(ctx context.Context, id string, p entity.Category) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return nil error, when no error is returned",
+			inputPayload: payload.UpdateCategory{
+				Name:        "Music",
+				Description: "This is a music description",
+			},
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "admin",
+				Role:     "admin",
+				IsActive: true,
+			},
+			inputID:       "",
+			expectedError: nil,
+			mockBehaviour: func() {
+				mockRepo.On(
+					"Update",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Category{})),
+				).Return(
+					func(ctx context.Context, id string, p entity.Category) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviour()
+
+			err := categoryService.Update(context.Background(), testCase.inputTokenPayload, testCase.inputID, testCase.inputPayload)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, err, testCase.expectedError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
+}
+
+func TestDelete(t *testing.T) {
+	mockRepo := &mcr.CategoryRepository{}
+	mockIDGen := &mig.IDGenerator{}
+
+	var categoryService CategoryService = NewCategoryServiceImpl(mockRepo, mockIDGen)
+
+	testCases := []struct {
+		name              string
+		inputTokenPayload generator.TokenPayload
+		inputID           string
+		expectedError     error
+		mockBehaviour     func()
+	}{
+		{
+			name: "it should return service.ErrAccessForbidden, when role is not admin",
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "user",
+				Role:     "user",
+				IsActive: true,
+			},
+			expectedError: service.ErrAccessForbidden,
+			mockBehaviour: func() {},
+		},
+		{
+			name: "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "admin",
+				Role:     "admin",
+				IsActive: true,
+			},
+			inputID:       "",
+			expectedError: service.ErrRepository,
+			mockBehaviour: func() {
+				mockRepo.On(
+					"Delete",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, id string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return nil error,  when no error is returned",
+
+			inputTokenPayload: generator.TokenPayload{
+				ID:       "u-abcd",
+				Username: "admin",
+				Role:     "admin",
+				IsActive: true,
+			},
+			inputID:       "",
+			expectedError: nil,
+			mockBehaviour: func() {
+				mockRepo.On(
+					"Delete",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, id string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviour()
+
+			err := categoryService.Delete(context.Background(), testCase.inputTokenPayload, testCase.inputID)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, err, testCase.expectedError)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
+	}
 }
