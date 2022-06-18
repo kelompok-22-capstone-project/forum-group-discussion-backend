@@ -130,6 +130,23 @@ func TestGetComments(t *testing.T) {
 	}
 }
 
+func TestInsertComment(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
+
+	threadID := "t-abcdefg"
+	accessorUserID := "u-6fj7Jo"
+
+	p := payload.CreateComment{
+		Comment: "Great post that i've ever seen. Good job.",
+	}
+
+	if id, err := service.InsertComment(context.Background(), threadID, accessorUserID, p); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully inserted comment with ID %s", id)
+	}
+}
+
 func TestChangeFollowingState(t *testing.T) {
 	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
