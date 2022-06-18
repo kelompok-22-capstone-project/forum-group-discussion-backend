@@ -3,6 +3,7 @@ package user
 import (
 	"context"
 	"errors"
+	"net/mail"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
@@ -37,6 +38,11 @@ func NewUserServiceImpl(
 
 func (u *userServiceImpl) Register(ctx context.Context, p payload.Register) (id string, err error) {
 	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	if _, parseErr := mail.ParseAddress(p.Email); parseErr != nil {
 		err = service.ErrInvalidPayload
 		return
 	}

@@ -13,6 +13,7 @@ import (
 	tr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	cs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread"
 	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/validation"
@@ -67,12 +68,13 @@ func main() {
 
 	userService := us.NewUserServiceImpl(userRepository, idGenerator, passwordGenerator, tokenGenerator)
 	categoryService := cs.NewCategoryServiceImpl(categoryRepository, threadRepository, idGenerator)
+	threadService := thread.NewThreadServiceImpl(threadRepository, categoryRepository, idGenerator)
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)
 	usersController := controller.NewUsersController()
 	categoriesController := controller.NewCategoriesController(categoryService, tokenGenerator)
-	threadsController := controller.NewThreadsController()
+	threadsController := controller.NewThreadsController(threadService, tokenGenerator)
 	adminController := controller.NewAdminController()
 	reportsController := controller.NewReportsController()
 

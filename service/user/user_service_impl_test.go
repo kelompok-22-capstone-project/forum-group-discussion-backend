@@ -13,6 +13,7 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
 	mur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	mig "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator/mocks"
 	mpg "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator/mocks"
 	mtg "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator/mocks"
@@ -47,6 +48,18 @@ func TestRegister(t *testing.T) {
 				Email:    "erikriosetiawan15@gmail.com",
 				Name:     "",
 				Password: "",
+			},
+			expectedID:     "",
+			expectedError:  service.ErrInvalidPayload,
+			mockBehaviours: func() {},
+		},
+		{
+			name: "it should return service.ErrInvalidPayload error, when email is invalid",
+			inputPayload: payload.Register{
+				Username: "erikrios",
+				Email:    "erikriosetiawan15",
+				Name:     "Erik Rio Setiawan",
+				Password: "erikriosetiawan",
 			},
 			expectedID:     "",
 			expectedError:  service.ErrInvalidPayload,
@@ -275,7 +288,7 @@ func TestLogin(t *testing.T) {
 			},
 		},
 		{
-			name: "it should return service.ErrUsernameNotFound error, when repository return an ErrDatabase error",
+			name: "it should return service.ErrRepository error, when repository return an ErrDatabase error",
 			inputPayload: payload.Login{
 				Username: "erikrios",
 				Password: "erikriosetiawan",
@@ -293,6 +306,39 @@ func TestLogin(t *testing.T) {
 					},
 					func(ctx context.Context, username string) error {
 						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name: "it should return service.ErrUsernameNotFound error, when user is inactive",
+			inputPayload: payload.Login{
+				Username: "erikrios",
+				Password: "erikriosetiawan",
+			},
+			expectedResponse: response.Login{},
+			expectedError:    service.ErrUsernameNotFound,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
 					},
 				).Once()
 			},
@@ -384,15 +430,12 @@ func TestLogin(t *testing.T) {
 
 				mockTokenGen.On(
 					"GenerateToken",
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", true)),
+					mock.AnythingOfType(fmt.Sprintf("%T", generator.TokenPayload{})),
 				).Return(
-					func(ID, username, role string, isActive bool) string {
+					func(generator.TokenPayload) string {
 						return ""
 					},
-					func(ID, username, role string, isActive bool) error {
+					func(generator.TokenPayload) error {
 						return errors.New("failed to generate token")
 					},
 				).Once()
@@ -445,15 +488,12 @@ func TestLogin(t *testing.T) {
 
 				mockTokenGen.On(
 					"GenerateToken",
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", true)),
+					mock.AnythingOfType(fmt.Sprintf("%T", generator.TokenPayload{})),
 				).Return(
-					func(ID, username, role string, isActive bool) string {
+					func(p generator.TokenPayload) string {
 						return "generatedtoken"
 					},
-					func(ID, username, role string, isActive bool) error {
+					func(p generator.TokenPayload) error {
 						return nil
 					},
 				).Once()

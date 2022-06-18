@@ -1,7 +1,7 @@
 package response
 
 type Entity interface {
-	ManyThread | Category
+	ManyThread | Category | Comment
 }
 
 type Pagination[T Entity] struct {

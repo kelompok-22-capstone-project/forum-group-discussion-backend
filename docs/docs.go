@@ -291,6 +291,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the threads of particular category",
@@ -654,6 +657,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get all threads",
@@ -769,6 +775,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get thread by ID",
@@ -939,6 +948,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the thread comments",
@@ -1733,44 +1745,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.moderatorData": {
-            "type": "object",
-            "properties": {
-                "moderatorID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "userID": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "email": {
-                    "type": "string",
-                    "x-order": "3"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "role": {
-                    "type": "string",
-                    "x-order": "5"
-                },
-                "isActive": {
-                    "type": "boolean",
-                    "x-order": "6"
-                },
-                "registeredOn": {
-                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "7"
-                }
-            }
-        },
         "controller.pageInfoData": {
             "type": "object",
             "properties": {
@@ -1984,79 +1958,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.threadData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "title": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "categoryID": {
-                    "type": "string",
-                    "x-order": "10"
-                },
-                "categoryName": {
-                    "type": "string",
-                    "x-order": "11"
-                },
-                "publishedOn": {
-                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "12"
-                },
-                "isLiked": {
-                    "type": "boolean",
-                    "x-order": "13"
-                },
-                "isFollowed": {
-                    "type": "boolean",
-                    "x-order": "14"
-                },
-                "moderators": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/controller.moderatorData"
-                    },
-                    "x-order": "15"
-                },
-                "description": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "totalViewer": {
-                    "type": "integer",
-                    "x-order": "3"
-                },
-                "totalLike": {
-                    "type": "integer",
-                    "x-order": "4"
-                },
-                "totalFollower": {
-                    "type": "integer",
-                    "x-order": "5"
-                },
-                "totalComment": {
-                    "type": "integer",
-                    "x-order": "6"
-                },
-                "creatorID": {
-                    "type": "string",
-                    "x-order": "7"
-                },
-                "creatorUsername": {
-                    "type": "string",
-                    "x-order": "8"
-                },
-                "creatorName": {
-                    "type": "string",
-                    "x-order": "9"
-                }
-            }
-        },
         "controller.threadResponse": {
             "type": "object",
             "properties": {
@@ -2070,7 +1971,7 @@ const docTemplate = `{
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.threadData"
+                    "$ref": "#/definitions/response.Thread"
                 }
             }
         },
@@ -2378,6 +2279,117 @@ const docTemplate = `{
                     "x-order": "8"
                 },
                 "totalLike": {
+                    "type": "integer",
+                    "x-order": "9"
+                }
+            }
+        },
+        "response.Moderator": {
+            "type": "object",
+            "properties": {
+                "moderatorID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "userId": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "5"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "x-order": "6"
+                },
+                "registeredOn": {
+                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "7"
+                }
+            }
+        },
+        "response.Thread": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "title": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "totalLike": {
+                    "type": "integer",
+                    "x-order": "10"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "11"
+                },
+                "totalComment": {
+                    "type": "integer",
+                    "x-order": "12"
+                },
+                "creatorID": {
+                    "type": "string",
+                    "x-order": "13"
+                },
+                "creatorUsername": {
+                    "type": "string",
+                    "x-order": "14"
+                },
+                "creatorName": {
+                    "type": "string",
+                    "x-order": "15"
+                },
+                "categoryID": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "categoryName": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "publishedOn": {
+                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "isLiked": {
+                    "type": "boolean",
+                    "x-order": "5"
+                },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "6"
+                },
+                "moderators": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/response.Moderator"
+                    },
+                    "x-order": "7"
+                },
+                "description": {
+                    "type": "string",
+                    "x-order": "8"
+                },
+                "totalViewer": {
                     "type": "integer",
                     "x-order": "9"
                 }
