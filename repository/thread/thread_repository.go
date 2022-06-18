@@ -51,6 +51,11 @@ type ThreadRepository interface {
 		pageInfo entity.PageInfo,
 	) (pagination entity.Pagination[entity.Comment], err error)
 
+	InsertComment(
+		ctx context.Context,
+		comment entity.Comment,
+	) (err error)
+
 	InsertFollowThread(
 		ctx context.Context,
 		threadFollow entity.ThreadFollow,
