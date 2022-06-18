@@ -272,7 +272,14 @@ func (t *threadsController) putThreadLike(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/follow [put]
 func (t *threadsController) putThreadFollow(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	if err := t.threadService.ChangeFollowingState(c.Request().Context(), threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
