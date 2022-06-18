@@ -262,5 +262,7 @@ func TestCreate(t *testing.T) {
 			}
 		})
 	}
+}
 
+func TestGetAllByCategory(t *testing.T) {
 }

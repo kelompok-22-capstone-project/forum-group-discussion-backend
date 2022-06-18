@@ -44,7 +44,7 @@ definitions:
     type: object
   controller.commentsInfoWrapper:
     properties:
-      comments:
+      list:
         items:
           $ref: '#/definitions/controller.commentData'
         type: array
@@ -121,6 +121,34 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  controller.moderatorData:
+    properties:
+      email:
+        type: string
+        x-order: "3"
+      isActive:
+        type: boolean
+        x-order: "6"
+      moderatorID:
+        type: string
+        x-order: "0"
+      name:
+        type: string
+        x-order: "4"
+      registeredOn:
+        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "7"
+      role:
+        type: string
+        x-order: "5"
+      userID:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "2"
+    type: object
   controller.pageInfoData:
     properties:
       limit:
@@ -184,14 +212,14 @@ definitions:
     type: object
   controller.profilesInfoWrapper:
     properties:
-      pageInfo:
-        $ref: '#/definitions/controller.pageInfoData'
-        x-order: "1"
-      users:
+      list:
         items:
           $ref: '#/definitions/controller.profileData'
         type: array
         x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
     type: object
   controller.profilesResponse:
     properties:
@@ -253,14 +281,14 @@ definitions:
     type: object
   controller.reportsData:
     properties:
-      pageInfo:
-        $ref: '#/definitions/controller.pageInfoData'
-        x-order: "1"
-      reports:
+      list:
         items:
           $ref: '#/definitions/controller.reportData'
         type: array
         x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
     type: object
   controller.reportsResponse:
     properties:
@@ -305,7 +333,7 @@ definitions:
         x-order: "13"
       moderators:
         items:
-          $ref: '#/definitions/controller.profileData'
+          $ref: '#/definitions/controller.moderatorData'
         type: array
         x-order: "15"
       publishedOn:
@@ -342,14 +370,14 @@ definitions:
     type: object
   controller.threadsInfoWrapper:
     properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ManyThread'
+        type: array
+        x-order: "0"
       pageInfo:
         $ref: '#/definitions/controller.pageInfoData'
         x-order: "1"
-      threads:
-        items:
-          $ref: '#/definitions/controller.threadData'
-        type: array
-        x-order: "0"
     type: object
   controller.threadsResponse:
     properties:
@@ -520,7 +548,56 @@ definitions:
         type: string
         x-order: "0"
     type: object
-host: https://moot-rest-api.herokuapp.com
+  response.ManyThread:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      categoryID:
+        type: string
+        x-order: "2"
+      categoryName:
+        type: string
+        x-order: "3"
+      creatorID:
+        type: string
+        x-order: "12"
+      creatorName:
+        type: string
+        x-order: "14"
+      creatorUsername:
+        type: string
+        x-order: "13"
+      description:
+        type: string
+        x-order: "7"
+      isFollowed:
+        type: boolean
+        x-order: "6"
+      isLiked:
+        type: boolean
+        x-order: "5"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "4"
+      title:
+        type: string
+        x-order: "1"
+      totalComment:
+        type: integer
+        x-order: "11"
+      totalFollower:
+        type: integer
+        x-order: "10"
+      totalLike:
+        type: integer
+        x-order: "9"
+      totalViewer:
+        type: integer
+        x-order: "8"
+    type: object
+host: moot-rest-api.herokuapp.com
 info:
   contact:
     email: erikriosetiawan15@gmail.com
@@ -550,6 +627,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Info
       tags:
@@ -568,6 +646,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Categories
       tags:
       - categories
@@ -610,6 +690,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Category
       tags:
@@ -641,6 +722,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Delete Category by ID
       tags:
@@ -687,6 +769,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Update a Category
       tags:
@@ -723,6 +806,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Category Threads
       tags:
       - categories
@@ -761,6 +846,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: User Login
       tags:
       - login
@@ -791,6 +878,9 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKey: []
       summary: User Register
       tags:
       - register
@@ -822,6 +912,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Reports
       tags:
@@ -861,6 +952,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Report
       tags:
@@ -904,6 +996,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Update a Report Status
       tags:
@@ -935,6 +1028,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Threads
       tags:
       - threads
@@ -973,6 +1068,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Thread
       tags:
@@ -1004,6 +1100,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Delete Thread by ID
       tags:
@@ -1035,6 +1132,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Thread by ID
       tags:
       - threads
@@ -1076,6 +1175,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Update a Thread
       tags:
@@ -1112,6 +1212,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Thread Comments
       tags:
       - threads
@@ -1144,6 +1246,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Follow/Unfollow a Thread
       tags:
@@ -1177,6 +1280,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Like/Unlike a Thread
       tags:
@@ -1220,6 +1324,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Add a Moderator to Thread
       tags:
@@ -1263,6 +1368,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Remove a Moderator from Thread
       tags:
@@ -1298,6 +1404,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get Users
       tags:
       - users
@@ -1325,6 +1433,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get User by Username
       tags:
       - users
@@ -1357,6 +1467,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Banned/Unbanned a User
       tags:
@@ -1390,6 +1501,7 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Follow/Unfollow a User
       tags:
@@ -1426,6 +1538,8 @@ paths:
           description: Internal Server Error
           schema:
             $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
       summary: Get User Threads
       tags:
       - users
@@ -1452,11 +1566,16 @@ paths:
           schema:
             $ref: '#/definitions/echo.HTTPError'
       security:
+      - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Own Profile
       tags:
       - users
 securityDefinitions:
+  ApiKey:
+    in: header
+    name: API-Key
+    type: apiKey
   ApiKeyAuth:
     in: header
     name: Authorization

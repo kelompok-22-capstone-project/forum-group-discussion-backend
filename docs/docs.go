@@ -29,6 +29,9 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -58,6 +61,11 @@ const docTemplate = `{
         },
         "/categories": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get all category",
                 "produces": [
                     "application/json"
@@ -83,6 +91,9 @@ const docTemplate = `{
             },
             "post": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -152,6 +163,9 @@ const docTemplate = `{
         "/categories/{id}": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -224,6 +238,9 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -271,6 +288,11 @@ const docTemplate = `{
         },
         "/categories/{id}/threads": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the threads of particular category",
                 "produces": [
                     "application/json"
@@ -324,6 +346,11 @@ const docTemplate = `{
         },
         "/login": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user login",
                 "consumes": [
                     "application/json"
@@ -382,6 +409,14 @@ const docTemplate = `{
         },
         "/register": {
             "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    },
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used for user register.",
                 "consumes": [
                     "application/json"
@@ -429,6 +464,9 @@ const docTemplate = `{
         "/reports": {
             "get": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -478,6 +516,9 @@ const docTemplate = `{
             },
             "post": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -541,6 +582,9 @@ const docTemplate = `{
         "/reports/{id}/status": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -607,6 +651,11 @@ const docTemplate = `{
         },
         "/threads": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get all threads",
                 "produces": [
                     "application/json"
@@ -652,6 +701,9 @@ const docTemplate = `{
             },
             "post": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -714,6 +766,11 @@ const docTemplate = `{
         },
         "/threads/{id}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get thread by ID",
                 "produces": [
                     "application/json"
@@ -760,6 +817,9 @@ const docTemplate = `{
             },
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -826,6 +886,9 @@ const docTemplate = `{
             "delete": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -873,6 +936,11 @@ const docTemplate = `{
         },
         "/threads/{id}/comments": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the thread comments",
                 "produces": [
                     "application/json"
@@ -928,6 +996,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -980,6 +1051,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1031,6 +1105,9 @@ const docTemplate = `{
         "/threads/{id}/moderators/add": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -1099,6 +1176,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1164,6 +1244,11 @@ const docTemplate = `{
         },
         "/users": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get all users",
                 "produces": [
                     "application/json"
@@ -1218,6 +1303,9 @@ const docTemplate = `{
             "get": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1259,6 +1347,11 @@ const docTemplate = `{
         },
         "/users/{username}": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the another user by username",
                 "produces": [
                     "application/json"
@@ -1301,6 +1394,9 @@ const docTemplate = `{
         "/users/{username}/banned": {
             "put": {
                 "security": [
+                    {
+                        "ApiKey": []
+                    },
                     {
                         "ApiKeyAuth": []
                     }
@@ -1354,6 +1450,9 @@ const docTemplate = `{
             "put": {
                 "security": [
                     {
+                        "ApiKey": []
+                    },
+                    {
                         "ApiKeyAuth": []
                     }
                 ],
@@ -1404,6 +1503,11 @@ const docTemplate = `{
         },
         "/users/{username}/threads": {
             "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
                 "description": "This endpoint is used to get the user threads",
                 "produces": [
                     "application/json"
@@ -1519,7 +1623,7 @@ const docTemplate = `{
         "controller.commentsInfoWrapper": {
             "type": "object",
             "properties": {
-                "comments": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.commentData"
@@ -1629,6 +1733,44 @@ const docTemplate = `{
                 }
             }
         },
+        "controller.moderatorData": {
+            "type": "object",
+            "properties": {
+                "moderatorID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "5"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "x-order": "6"
+                },
+                "registeredOn": {
+                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "7"
+                }
+            }
+        },
         "controller.pageInfoData": {
             "type": "object",
             "properties": {
@@ -1716,7 +1858,7 @@ const docTemplate = `{
         "controller.profilesInfoWrapper": {
             "type": "object",
             "properties": {
-                "users": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.profileData"
@@ -1812,7 +1954,7 @@ const docTemplate = `{
         "controller.reportsData": {
             "type": "object",
             "properties": {
-                "reports": {
+                "list": {
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/controller.reportData"
@@ -1877,7 +2019,7 @@ const docTemplate = `{
                 "moderators": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.profileData"
+                        "$ref": "#/definitions/controller.moderatorData"
                     },
                     "x-order": "15"
                 },
@@ -1935,10 +2077,10 @@ const docTemplate = `{
         "controller.threadsInfoWrapper": {
             "type": "object",
             "properties": {
-                "threads": {
+                "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.threadData"
+                        "$ref": "#/definitions/response.ManyThread"
                     },
                     "x-order": "0"
                 },
@@ -2174,9 +2316,80 @@ const docTemplate = `{
                     "x-order": "1"
                 }
             }
+        },
+        "response.ManyThread": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "title": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "10"
+                },
+                "totalComment": {
+                    "type": "integer",
+                    "x-order": "11"
+                },
+                "creatorID": {
+                    "type": "string",
+                    "x-order": "12"
+                },
+                "creatorUsername": {
+                    "type": "string",
+                    "x-order": "13"
+                },
+                "creatorName": {
+                    "type": "string",
+                    "x-order": "14"
+                },
+                "categoryID": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "categoryName": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "publishedOn": {
+                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "isLiked": {
+                    "type": "boolean",
+                    "x-order": "5"
+                },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "6"
+                },
+                "description": {
+                    "type": "string",
+                    "x-order": "7"
+                },
+                "totalViewer": {
+                    "type": "integer",
+                    "x-order": "8"
+                },
+                "totalLike": {
+                    "type": "integer",
+                    "x-order": "9"
+                }
+            }
         }
     },
     "securityDefinitions": {
+        "ApiKey": {
+            "type": "apiKey",
+            "name": "API-Key",
+            "in": "header"
+        },
         "ApiKeyAuth": {
             "type": "apiKey",
             "name": "Authorization",
@@ -2188,7 +2401,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "https://moot-rest-api.herokuapp.com",
+	Host:             "moot-rest-api.herokuapp.com",
 	BasePath:         "/api/v1",
 	Schemes:          []string{},
 	Title:            "Forum Group Discussion API",

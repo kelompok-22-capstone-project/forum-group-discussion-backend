@@ -10,6 +10,7 @@ import (
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	cr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
+	tr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	cs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
 	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
@@ -31,11 +32,15 @@ import (
 // @license.name  Apache 2.0
 // @license.url   http://www.apache.org/licenses/LICENSE-2.0.html
 
+// @securityDefinitions.apikey  ApiKey
+// @in                          header
+// @name                        API-Key
+
 // @securityDefinitions.apikey  ApiKeyAuth
 // @in                          header
 // @name                        Authorization
 
-// @host      https://moot-rest-api.herokuapp.com
+// @host      moot-rest-api.herokuapp.com
 // @BasePath  /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -58,9 +63,10 @@ func main() {
 
 	userRepository := ur.NewUserRepositoryImpl(db)
 	categoryRepository := cr.NewCategoryRepositoryImpl(db)
+	threadRepository := tr.NewThreadRepositoryImpl(db)
 
 	userService := us.NewUserServiceImpl(userRepository, idGenerator, passwordGenerator, tokenGenerator)
-	categoryService := cs.NewCategoryServiceImpl(categoryRepository, idGenerator)
+	categoryService := cs.NewCategoryServiceImpl(categoryRepository, threadRepository, idGenerator)
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)
@@ -87,7 +93,7 @@ func main() {
 
 	e.GET("/*", echoSwagger.WrapHandler)
 
-	g := e.Group("/api/v1")
+	g := e.Group("/api/v1", middleware.KeyAuth())
 
 	registerController.Route(g)
 	loginController.Route(g)

@@ -42,7 +42,10 @@ func (j *jwtTokenGenerator) GenerateToken(payload TokenPayload) (token string, e
 }
 
 func (j *jwtTokenGenerator) ExtractToken(c echo.Context) (payload TokenPayload) {
-	user := c.Get("user").(*jwt.Token)
+	user, ok := c.Get("user").(*jwt.Token)
+	if !ok {
+		return
+	}
 
 	if user.Valid {
 		claims := user.Claims.(jwt.MapClaims)

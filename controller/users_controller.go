@@ -3,6 +3,7 @@ package controller
 import (
 	"net/http"
 
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/labstack/echo/v4"
 )
 
@@ -27,12 +28,13 @@ func (u *usersController) Route(g *echo.Group) {
 // @Description  This endpoint is used to get all users
 // @Tags         users
 // @Produce      json
-// @Param        page      query     int     false  "page, default 1"
-// @Param        limit     query     int     false  "limit, default 20"
-// @Param        order_by  query     string  false  "options: registered_date, ranking, default registered_date"
-// @Param        status    query     string  false  "options: active, banned, default active"
-// @Success      200       {object}  profilesResponse
-// @Failure      500       {object}  echo.HTTPError
+// @Param        page      query  int     false  "page, default 1"
+// @Param        limit     query  int     false  "limit, default 20"
+// @Param        order_by  query  string  false  "options: registered_date, ranking, default registered_date"
+// @Param        status    query  string  false  "options: active, banned, default active"
+// @Security     ApiKey
+// @Success      200  {object}  profilesResponse
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /users [get]
 func (u *usersController) getUsers(c echo.Context) error {
 	_ = c.QueryParam("page")
@@ -47,11 +49,12 @@ func (u *usersController) getUsers(c echo.Context) error {
 // @Description  This endpoint is used to get their own user profile
 // @Tags         users
 // @Produce      json
+// @Security     ApiKey
 // @Security     ApiKeyAuth
-// @Success      200       {object}  profileResponse
+// @Success      200  {object}  profileResponse
 // @Failure      401  {object}  echo.HTTPError
-// @Failure      404       {object}  echo.HTTPError
-// @Failure      500       {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /users/me [get]
 func (u *usersController) getMe(c echo.Context) error {
 	return nil
@@ -62,10 +65,11 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Description  This endpoint is used to get the another user by username
 // @Tags         users
 // @Produce      json
-// @Param        username  path      string  true  "username"
+// @Param        username  path  string  true  "username"
+// @Security     ApiKey
 // @Success      200  {object}  profileResponse
-// @Failure      404       {object}  echo.HTTPError
-// @Failure      500       {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username} [get]
 func (u *usersController) getUserByUsername(c echo.Context) error {
 	_ = c.Param("username")
@@ -77,10 +81,11 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Description  This endpoint is used to get the user threads
 // @Tags         users
 // @Produce      json
-// @Param        username  path      string  true   "username"
-// @Param        page      query     int     false  "page, default 1"
-// @Param        limit     query     int     false  "limit, default 10"
-// @Success      200       {object}  threadsResponse
+// @Param        username  path   string  true   "username"
+// @Param        page      query  int     false  "page, default 1"
+// @Param        limit     query  int     false  "limit, default 10"
+// @Security     ApiKey
+// @Success      200  {object}  threadsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/threads [get]
@@ -98,6 +103,7 @@ func (u *usersController) getUserThreads(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        username  path  string  true  "username"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError
@@ -116,6 +122,7 @@ func (u *usersController) putUserFollow(c echo.Context) error {
 // @Accept       json
 // @Produce      json
 // @Param        username  path  string  true  "username"
+// @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError
@@ -163,13 +170,13 @@ type profileData struct {
 }
 
 type profilesInfoWrapper struct {
-	Threads  []profileData `json:"users" extensions:"x-order=0"`
+	Threads  []profileData `json:"list" extensions:"x-order=0"`
 	PageInfo pageInfoData  `json:"pageInfo" extensions:"x-order=1"`
 }
 
 type threadsInfoWrapper struct {
-	Threads  []threadData `json:"threads" extensions:"x-order=0"`
-	PageInfo pageInfoData `json:"pageInfo" extensions:"x-order=1"`
+	Threads  []response.ManyThread `json:"list" extensions:"x-order=0"`
+	PageInfo pageInfoData          `json:"pageInfo" extensions:"x-order=1"`
 }
 
 type threadData struct {
@@ -186,10 +193,22 @@ type threadData struct {
 	CategoryID      string `json:"categoryID" extensions:"x-order=10"`
 	CategoryName    string `json:"categoryName" extensions:"x-order=11"`
 	// PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	PublishedOn string        `json:"publishedOn" extensions:"x-order=12"`
-	IsLiked     bool          `json:"isLiked" extensions:"x-order=13"`
-	IsFollowed  bool          `json:"isFollowed" extensions:"x-order=14"`
-	Moderators  []profileData `json:"moderators" extensions:"x-order=15"`
+	PublishedOn string          `json:"publishedOn" extensions:"x-order=12"`
+	IsLiked     bool            `json:"isLiked" extensions:"x-order=13"`
+	IsFollowed  bool            `json:"isFollowed" extensions:"x-order=14"`
+	Moderators  []moderatorData `json:"moderators" extensions:"x-order=15"`
+}
+
+type moderatorData struct {
+	ModeratorID string `json:"moderatorID" extensions:"x-order=0"`
+	UserID      string `json:"userID" extensions:"x-order=1"`
+	Username    string `json:"username" extensions:"x-order=2"`
+	Email       string `json:"email" extensions:"x-order=3"`
+	Name        string `json:"name" extensions:"x-order=4"`
+	Role        string `json:"role" extensions:"x-order=5"`
+	IsActive    bool   `json:"isActive" extensions:"x-order=6"`
+	// RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
+	RegisteredOn string `json:"registeredOn" extensions:"x-order=7"`
 }
 
 type pageInfoData struct {
