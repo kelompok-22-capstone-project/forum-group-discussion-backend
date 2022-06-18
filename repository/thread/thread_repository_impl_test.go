@@ -143,6 +143,27 @@ func TestFindAllCommentByThreadID(t *testing.T) {
 	}
 }
 
+func TestInsertComment(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	comment := entity.Comment{
+		ID: "c-gfedcba",
+		User: entity.User{
+			ID: "u-kt56R1",
+		},
+		Thread: entity.Thread{
+			ID: "t-abcdefg",
+		},
+		Comment: "Good job guys, keep it simple.",
+	}
+
+	if err := repo.InsertComment(context.Background(), comment); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Comment with ID %s successfully inserted", comment.ID)
+	}
+}
+
 func TestInsertFollowThread(t *testing.T) {
 	var repo ThreadRepository = NewThreadRepositoryImpl(db)
 
