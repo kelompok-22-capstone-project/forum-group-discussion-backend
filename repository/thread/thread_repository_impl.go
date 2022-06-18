@@ -663,6 +663,34 @@ OFFSET $2 LIMIT $3;`
 	}
 }
 
+func (t *threadRepositoryImpl) InsertComment(
+	ctx context.Context,
+	comment entity.Comment,
+) (err error) {
+	statement := "INSERT INTO comments(id, user_id, thread_id, comment) VALUES ($1, $2, $3, $4);"
+
+	result, dbErr := t.db.ExecContext(ctx, statement, comment.ID, comment.User.ID, comment.Thread.ID, comment.Comment)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrDatabase
+		return
+	}
+
+	return
+}
+
 func (t *threadRepositoryImpl) InsertFollowThread(
 	ctx context.Context,
 	threadFollow entity.ThreadFollow,
