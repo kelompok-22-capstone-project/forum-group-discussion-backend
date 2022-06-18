@@ -49,7 +49,7 @@ type ThreadService interface {
 		limit uint,
 	) (rs response.Pagination[response.Comment], err error)
 
-	InsertComment(
+	CreateComment(
 		ctx context.Context,
 		threadID string,
 		accessorUserID string,

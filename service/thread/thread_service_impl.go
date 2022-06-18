@@ -318,7 +318,7 @@ func (t *threadServiceImpl) GetComments(
 	return
 }
 
-func (t *threadServiceImpl) InsertComment(
+func (t *threadServiceImpl) CreateComment(
 	ctx context.Context,
 	threadID string,
 	accessorUserID string,
