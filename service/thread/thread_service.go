@@ -49,6 +49,13 @@ type ThreadService interface {
 		limit uint,
 	) (rs response.Pagination[response.Comment], err error)
 
+	InsertComment(
+		ctx context.Context,
+		threadID string,
+		accessorUserID string,
+		p payload.CreateComment,
+	) (id string, err error)
+
 	ChangeFollowingState(
 		ctx context.Context,
 		threadID string,
