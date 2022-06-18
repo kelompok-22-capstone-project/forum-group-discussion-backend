@@ -126,3 +126,16 @@ func TestGetComments(t *testing.T) {
 		t.Logf("Pagination: %+v", pagination)
 	}
 }
+
+func TestChangeFollowingState(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+
+	threadID := "t-abcdefg"
+	accessorUserID := "u-kt56R1"
+
+	if err := service.ChangeFollowingState(context.Background(), threadID, accessorUserID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Log("Successfully change the following state")
+	}
+}
