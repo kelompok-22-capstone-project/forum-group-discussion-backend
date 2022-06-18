@@ -9,6 +9,7 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"gopkg.in/validator.v2"
@@ -17,17 +18,20 @@ import (
 type threadServiceImpl struct {
 	threadRepository   thread.ThreadRepository
 	categoryRepository category.CategoryRepository
+	userRepository     user.UserRepository
 	idGenerator        generator.IDGenerator
 }
 
 func NewThreadServiceImpl(
 	threadRepository thread.ThreadRepository,
 	categoryRepository category.CategoryRepository,
+	userRepository user.UserRepository,
 	idGenerator generator.IDGenerator,
 ) *threadServiceImpl {
 	return &threadServiceImpl{
 		threadRepository:   threadRepository,
 		categoryRepository: categoryRepository,
+		userRepository:     userRepository,
 		idGenerator:        idGenerator,
 	}
 }
@@ -393,6 +397,129 @@ func (t *threadServiceImpl) ChangeLikeState(
 			err = service.MapError(repoErr)
 			return
 		}
+	}
+
+	return
+}
+
+func (t *threadServiceImpl) AddModerator(
+	ctx context.Context,
+	p payload.AddRemoveModerator,
+	threadID string,
+	accessorUserID string,
+) (err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	thread, serviceErr := t.GetByID(ctx, accessorUserID, threadID)
+	if serviceErr != nil {
+		err = serviceErr
+		return
+	}
+
+	if accessorUserID != thread.CreatorID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	userToAdded, repoErr := t.userRepository.FindByUsername(ctx, p.Username)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if accessorUserID == userToAdded.ID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	for _, mod := range thread.Moderators {
+		if mod.UserID == userToAdded.ID {
+			err = service.ErrDataAlreadyExists
+			return
+		}
+	}
+
+	moderatorID, genErr := t.idGenerator.GenerateModeratorID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	moderator := entity.Moderator{
+		ID: moderatorID,
+		User: entity.User{
+			ID: userToAdded.ID,
+		},
+		ThreadID: threadID,
+	}
+
+	if repoErr := t.threadRepository.InsertModerator(ctx, moderator); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	return
+}
+
+func (t *threadServiceImpl) RemoveModerator(
+	ctx context.Context,
+	p payload.AddRemoveModerator,
+	threadID string,
+	accessorUserID string,
+) (err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	thread, serviceErr := t.GetByID(ctx, accessorUserID, threadID)
+	if serviceErr != nil {
+		err = serviceErr
+		return
+	}
+
+	if accessorUserID != thread.CreatorID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	userToRemoved, repoErr := t.userRepository.FindByUsername(ctx, p.Username)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if accessorUserID == userToRemoved.ID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	var isExists bool
+	for _, mod := range thread.Moderators {
+		if mod.UserID == userToRemoved.ID {
+			isExists = true
+			break
+		}
+	}
+
+	if !isExists {
+		err = service.ErrUsernameNotFound
+		return
+	}
+
+	moderator := entity.Moderator{
+		User: entity.User{
+			ID: userToRemoved.ID,
+		},
+		ThreadID: threadID,
+	}
+
+	if repoErr := t.threadRepository.DeleteModerator(ctx, moderator); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
 	}
 
 	return
