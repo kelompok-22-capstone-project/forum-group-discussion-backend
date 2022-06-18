@@ -54,4 +54,10 @@ type ThreadService interface {
 		threadID string,
 		accessorUserID string,
 	) (err error)
+
+	ChangeLikeState(
+		ctx context.Context,
+		threadID string,
+		accessorUserID string,
+	) (err error)
 }
