@@ -139,3 +139,16 @@ func TestChangeFollowingState(t *testing.T) {
 		t.Log("Successfully change the following state")
 	}
 }
+
+func TestChangeLikeState(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+
+	threadID := "t-abcdefg"
+	accessorUserID := "u-kt56R1"
+
+	if err := service.ChangeLikeState(context.Background(), threadID, accessorUserID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Log("Successfully change the like state")
+	}
+}
