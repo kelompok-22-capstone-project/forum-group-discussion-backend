@@ -1462,6 +1462,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get Users
       tags:
       - users
@@ -1491,6 +1492,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get User by Username
       tags:
       - users
@@ -1596,6 +1598,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get User Threads
       tags:
       - users

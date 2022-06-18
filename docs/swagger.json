@@ -1323,6 +1323,9 @@
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get all users",
@@ -1426,6 +1429,9 @@
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the another user by username",
@@ -1582,6 +1588,9 @@
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the user threads",

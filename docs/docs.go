@@ -1330,6 +1330,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get all users",
@@ -1433,6 +1436,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the another user by username",
@@ -1589,6 +1595,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the user threads",
