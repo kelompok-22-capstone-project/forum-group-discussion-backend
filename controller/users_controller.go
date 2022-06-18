@@ -33,6 +33,7 @@ func (u *usersController) Route(g *echo.Group) {
 // @Param        order_by  query  string  false  "options: registered_date, ranking, default registered_date"
 // @Param        status    query  string  false  "options: active, banned, default active"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  profilesResponse
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users [get]
@@ -67,6 +68,7 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Produce      json
 // @Param        username  path  string  true  "username"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  profileResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
@@ -85,6 +87,7 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Param        page      query  int     false  "page, default 1"
 // @Param        limit     query  int     false  "limit, default 10"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  threadsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
