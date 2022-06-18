@@ -307,7 +307,18 @@ func (t *threadsController) putThreadFollow(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/moderators/add [put]
 func (t *threadsController) putThreadAddModerator(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.AddRemoveModerator)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	if err := t.threadService.AddModerator(c.Request().Context(), *p, threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -328,7 +339,18 @@ func (t *threadsController) putThreadAddModerator(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/moderators/remove [put]
 func (t *threadsController) putThreadRemoveModerator(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.AddRemoveModerator)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	if err := t.threadService.RemoveModerator(c.Request().Context(), *p, threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
