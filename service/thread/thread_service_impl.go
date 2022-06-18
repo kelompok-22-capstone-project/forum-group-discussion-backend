@@ -355,3 +355,45 @@ func (t *threadServiceImpl) ChangeFollowingState(
 
 	return
 }
+
+func (t *threadServiceImpl) ChangeLikeState(
+	ctx context.Context,
+	threadID string,
+	accessorUserID string,
+) (err error) {
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	lID, genErr := t.idGenerator.GenerateLikeID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	tl := entity.Like{
+		ID: lID,
+		User: entity.User{
+			ID: accessorUserID,
+		},
+		Thread: entity.Thread{
+			ID: threadID,
+		},
+	}
+
+	if thread.IsLiked {
+		if repoErr := t.threadRepository.DeleteLike(ctx, tl); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	} else {
+		if repoErr := t.threadRepository.InsertLike(ctx, tl); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	}
+
+	return
+}
