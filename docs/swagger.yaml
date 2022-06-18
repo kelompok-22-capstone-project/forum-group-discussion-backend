@@ -20,33 +20,11 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.commentData:
-    properties:
-      ID:
-        type: string
-        x-order: "0"
-      comment:
-        type: string
-        x-order: "4"
-      name:
-        type: string
-        x-order: "3"
-      publishedOn:
-        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "5"
-      userID:
-        type: string
-        x-order: "1"
-      username:
-        type: string
-        x-order: "2"
-    type: object
   controller.commentsInfoWrapper:
     properties:
       list:
         items:
-          $ref: '#/definitions/controller.commentData'
+          $ref: '#/definitions/response.Comment'
         type: array
         x-order: "0"
       pageInfo:
@@ -338,6 +316,13 @@ definitions:
         type: string
         x-order: "0"
     type: object
+  payload.CreateComment:
+    properties:
+      comment:
+        minLength: 1
+        type: string
+        x-order: "0"
+    type: object
   payload.CreateReport:
     properties:
       reason:
@@ -456,6 +441,28 @@ definitions:
       name:
         type: string
         x-order: "1"
+    type: object
+  response.Comment:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      comment:
+        type: string
+        x-order: "4"
+      name:
+        type: string
+        x-order: "3"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "5"
+      userID:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "2"
     type: object
   response.Login:
     properties:
@@ -1219,6 +1226,51 @@ paths:
       - ApiKey: []
       - ApiKeyAuth: []
       summary: Get Thread Comments
+      tags:
+      - threads
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a comment of a thread
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateComment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Create a Comment
       tags:
       - threads
   /threads/{id}/follow:
