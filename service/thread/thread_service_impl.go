@@ -319,5 +319,39 @@ func (t *threadServiceImpl) ChangeFollowingState(
 	threadID string,
 	accessorUserID string,
 ) (err error) {
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	tfID, genErr := t.idGenerator.GenerateThreadFollowID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	tf := entity.ThreadFollow{
+		ID: tfID,
+		User: entity.User{
+			ID: accessorUserID,
+		},
+		Thread: entity.Thread{
+			ID: threadID,
+		},
+	}
+
+	if thread.IsFollowed {
+		if repoErr := t.threadRepository.DeleteFollowThread(ctx, tf); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	} else {
+		if repoErr := t.threadRepository.InsertFollowThread(ctx, tf); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	}
+
 	return
 }
