@@ -318,6 +318,48 @@ func (t *threadServiceImpl) GetComments(
 	return
 }
 
+func (t *threadServiceImpl) InsertComment(
+	ctx context.Context,
+	threadID string,
+	accessorUserID string,
+	p payload.CreateComment,
+) (id string, err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	_, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	id, genErr := t.idGenerator.GenerateCommentID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	comment := entity.Comment{
+		ID: id,
+		User: entity.User{
+			ID: accessorUserID,
+		},
+		Thread: entity.Thread{
+			ID: threadID,
+		},
+		Comment: p.Comment,
+	}
+
+	if repoErr := t.threadRepository.InsertComment(ctx, comment); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	return
+}
+
 func (t *threadServiceImpl) ChangeFollowingState(
 	ctx context.Context,
 	threadID string,
