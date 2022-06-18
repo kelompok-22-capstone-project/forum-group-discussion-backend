@@ -60,4 +60,18 @@ type ThreadService interface {
 		threadID string,
 		accessorUserID string,
 	) (err error)
+
+	AddModerator(
+		ctx context.Context,
+		p payload.AddRemoveModerator,
+		threadID string,
+		accessorUserID string,
+	) (err error)
+
+	RemoveModerator(
+		ctx context.Context,
+		p payload.AddRemoveModerator,
+		threadID string,
+		accessorUserID string,
+	) (err error)
 }
