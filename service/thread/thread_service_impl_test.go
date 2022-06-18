@@ -11,12 +11,14 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 )
 
 var db *sql.DB
 var threadRepo thread.ThreadRepository
 var categoryRepo category.CategoryRepository
+var userRepo user.UserRepository
 var idGenerator generator.IDGenerator
 
 func init() {
@@ -29,11 +31,12 @@ func init() {
 
 	threadRepo = thread.NewThreadRepositoryImpl(db)
 	categoryRepo = category.NewCategoryRepositoryImpl(db)
+	userRepo = user.NewUserRepositoryImpl(db)
 	idGenerator = generator.NewNanoidIDGenerator()
 }
 
 func TestGetAll(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	accessorUserID := "u-ZrxmQS"
 
@@ -49,7 +52,7 @@ func TestGetAll(t *testing.T) {
 }
 
 func TestCreate(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	accessorUserID := "u-ZrxmQS"
 
@@ -67,7 +70,7 @@ func TestCreate(t *testing.T) {
 }
 
 func TestGetByID(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	accessorUserID := "u-ZrxmQS"
 
@@ -81,7 +84,7 @@ func TestGetByID(t *testing.T) {
 }
 
 func TestUpdate(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	accessorUserID := "u-ZrxmQS"
 
@@ -101,7 +104,7 @@ func TestUpdate(t *testing.T) {
 }
 
 func TestDelete(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	accessorUserID := "u-ZrxmQS"
 	role := "user"
@@ -116,7 +119,7 @@ func TestDelete(t *testing.T) {
 }
 
 func TestGetComments(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	threadID := "t-abcdefg"
 
@@ -128,7 +131,7 @@ func TestGetComments(t *testing.T) {
 }
 
 func TestChangeFollowingState(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	threadID := "t-abcdefg"
 	accessorUserID := "u-kt56R1"
@@ -141,7 +144,7 @@ func TestChangeFollowingState(t *testing.T) {
 }
 
 func TestChangeLikeState(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
 
 	threadID := "t-abcdefg"
 	accessorUserID := "u-kt56R1"
@@ -150,5 +153,39 @@ func TestChangeLikeState(t *testing.T) {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Log("Successfully change the like state")
+	}
+}
+
+func TestAddModerator(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
+
+	p := payload.AddRemoveModerator{
+		Username: "rezana",
+	}
+
+	threadID := "t-abcdefg"
+	accessorUserID := "u-ZrxmQS"
+
+	if err := service.AddModerator(context.Background(), p, threadID, accessorUserID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully add moderator with user username %s for a thread with thread ID %s", p.Username, threadID)
+	}
+}
+
+func TestRemoveModerator(t *testing.T) {
+	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
+
+	p := payload.AddRemoveModerator{
+		Username: "rezana",
+	}
+
+	threadID := "t-abcdefg"
+	accessorUserID := "u-ZrxmQS"
+
+	if err := service.RemoveModerator(context.Background(), p, threadID, accessorUserID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully remove moderator with user username %s for a thread with thread ID %s", p.Username, threadID)
 	}
 }
