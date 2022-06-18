@@ -35,18 +35,13 @@ func init() {
 func TestGetAll(t *testing.T) {
 	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
 
-	tp := generator.TokenPayload{
-		ID:       "u-ZrxmQS",
-		Username: "erikrios",
-		Role:     "user",
-		IsActive: true,
-	}
+	accessorUserID := "u-ZrxmQS"
 
 	page := 1
 	limit := 20
 	query := "Read"
 
-	if pagination, err := service.GetAll(context.Background(), tp, uint(page), uint(limit), query); err != nil {
+	if pagination, err := service.GetAll(context.Background(), accessorUserID, uint(page), uint(limit), query); err != nil {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Pagination: %+v", pagination)
@@ -56,12 +51,7 @@ func TestGetAll(t *testing.T) {
 func TestCreate(t *testing.T) {
 	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
 
-	tp := generator.TokenPayload{
-		ID:       "u-ZrxmQS",
-		Username: "erikrios",
-		Role:     "user",
-		IsActive: true,
-	}
+	accessorUserID := "u-ZrxmQS"
 
 	p := payload.CreateThread{
 		Title:       "Go Programming Language Going Hype",
@@ -69,7 +59,7 @@ func TestCreate(t *testing.T) {
 		CategoryID:  "c-abc",
 	}
 
-	if id, err := service.Create(context.Background(), tp, p); err != nil {
+	if id, err := service.Create(context.Background(), accessorUserID, p); err != nil {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Successfully create a thread with ID %s", id)
@@ -79,16 +69,11 @@ func TestCreate(t *testing.T) {
 func TestGetByID(t *testing.T) {
 	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
 
-	tp := generator.TokenPayload{
-		ID:       "u-ZrxmQS",
-		Username: "erikrios",
-		Role:     "user",
-		IsActive: true,
-	}
+	accessorUserID := "u-ZrxmQS"
 
 	id := "t-kxdoB7i"
 
-	if thread, err := service.GetByID(context.Background(), tp, id); err != nil {
+	if thread, err := service.GetByID(context.Background(), accessorUserID, id); err != nil {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Thread: %+v", thread)
@@ -98,12 +83,7 @@ func TestGetByID(t *testing.T) {
 func TestUpdate(t *testing.T) {
 	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
 
-	tp := generator.TokenPayload{
-		ID:       "u-ZrxmQS",
-		Username: "erikrios",
-		Role:     "user",
-		IsActive: true,
-	}
+	accessorUserID := "u-ZrxmQS"
 
 	id := "t-kxdoB7i"
 
@@ -113,7 +93,7 @@ func TestUpdate(t *testing.T) {
 		CategoryID:  "c-def",
 	}
 
-	if err := service.Update(context.Background(), tp, id, p); err != nil {
+	if err := service.Update(context.Background(), accessorUserID, id, p); err != nil {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Successfully updated a thread with ID %s", id)
@@ -123,16 +103,12 @@ func TestUpdate(t *testing.T) {
 func TestDelete(t *testing.T) {
 	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, idGenerator)
 
-	tp := generator.TokenPayload{
-		ID:       "u-ZrxmQS",
-		Username: "erikrios",
-		Role:     "user",
-		IsActive: true,
-	}
+	accessorUserID := "u-ZrxmQS"
+	role := "user"
 
 	id := "t-45uolpR"
 
-	if err := service.Delete(context.Background(), tp, id); err != nil {
+	if err := service.Delete(context.Background(), accessorUserID, role, id); err != nil {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Successfully deleted a thread with ID %s", id)

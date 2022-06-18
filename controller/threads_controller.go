@@ -73,7 +73,7 @@ func (t *threadsController) getThreads(c echo.Context) error {
 
 	tp := t.tokenGenerator.ExtractToken(c)
 
-	threadsResponse, err := t.threadService.GetAll(c.Request().Context(), tp, uint(page), uint(limit), search)
+	threadsResponse, err := t.threadService.GetAll(c.Request().Context(), tp.ID, uint(page), uint(limit), search)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -105,7 +105,7 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	id, err := t.threadService.Create(c.Request().Context(), tp, *p)
+	id, err := t.threadService.Create(c.Request().Context(), tp.ID, *p)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -133,7 +133,7 @@ func (t *threadsController) getThread(c echo.Context) error {
 
 	tp := t.tokenGenerator.ExtractToken(c)
 
-	threadResponse, err := t.threadService.GetByID(c.Request().Context(), tp, id)
+	threadResponse, err := t.threadService.GetByID(c.Request().Context(), tp.ID, id)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -168,7 +168,7 @@ func (t *threadsController) putUpdateThread(c echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	if err := t.threadService.Update(c.Request().Context(), tp, id, *p); err != nil {
+	if err := t.threadService.Update(c.Request().Context(), tp.ID, id, *p); err != nil {
 		return newErrorResponse(err)
 	}
 
@@ -193,7 +193,7 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 
 	tp := t.tokenGenerator.ExtractToken(c)
 
-	if err := t.threadService.Delete(c.Request().Context(), tp, id); err != nil {
+	if err := t.threadService.Delete(c.Request().Context(), tp.ID, tp.Role, id); err != nil {
 		return newErrorResponse(err)
 	}
 

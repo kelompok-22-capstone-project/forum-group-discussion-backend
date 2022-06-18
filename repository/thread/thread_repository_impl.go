@@ -45,12 +45,17 @@ func (t *threadRepositoryImpl) Insert(ctx context.Context, thread entity.Thread)
 	return
 }
 
-func (t *threadRepositoryImpl) FindAllWithPagination(
+func (t *threadRepositoryImpl) FindAllWithQueryAndPagination(
 	ctx context.Context,
 	accessorUserID string,
+	query string,
 	pageInfo entity.PageInfo,
 ) (pagination entity.Pagination[entity.Thread], err error) {
-	statement := `SELECT t.id                                                                        as thread_id,
+	var rows *sql.Rows
+	var dbErr error
+
+	if query == "" {
+		statement := `SELECT t.id                                                                        as thread_id,
        t.title                                                                                     as thread_title,
        t.description                                                                               as thread_description,
        t.total_viewer,
@@ -88,97 +93,14 @@ FROM threads as t
 ORDER BY t.created_at DESC
 OFFSET $2 LIMIT $3;`
 
-	rows, dbErr := t.db.QueryContext(ctx, statement, accessorUserID, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1)
-	if dbErr != nil {
-		log.Println(dbErr)
-		err = repository.ErrDatabase
-		return
-	}
-
-	defer func(rows *sql.Rows) {
-		if dbErr := rows.Close(); dbErr != nil {
-			log.Println(dbErr)
-		}
-	}(rows)
-
-	pagination.List = make([]entity.Thread, 0)
-	for rows.Next() {
-		var thread entity.Thread
-		if dbErr := rows.Scan(
-			&thread.ID,
-			&thread.Title,
-			&thread.Description,
-			&thread.TotalViewer,
-			&thread.Creator.ID,
-			&thread.Creator.Username,
-			&thread.Creator.Email,
-			&thread.Creator.Name,
-			&thread.Creator.Password,
-			&thread.Creator.Role,
-			&thread.Creator.IsActive,
-			&thread.Creator.CreatedAt,
-			&thread.Creator.UpdatedAt,
-			&thread.Category.ID,
-			&thread.Category.Name,
-			&thread.Category.Description,
-			&thread.Category.CreatedAt,
-			&thread.Category.UpdatedAt,
-			&thread.CreatedAt,
-			&thread.UpdatedAt,
-			&thread.IsLiked,
-			&thread.IsFollowed,
-			&thread.TotalFollower,
-			&thread.TotalLike,
-			&thread.TotalComment,
-		); dbErr != nil {
+		rows, dbErr = t.db.QueryContext(ctx, statement, accessorUserID, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1)
+		if dbErr != nil {
 			log.Println(dbErr)
 			err = repository.ErrDatabase
 			return
 		}
-		pagination.List = append(pagination.List, thread)
-	}
-
-	if dbErr := rows.Err(); dbErr != nil {
-		log.Println(dbErr)
-		err = repository.ErrDatabase
-		return
-	}
-
-	countStatement := "SELECT count(threads.id) FROM threads;"
-
-	row := t.db.QueryRowContext(ctx, countStatement)
-
-	var count uint
-	switch dbErr := row.Scan(&count); dbErr {
-	case sql.ErrNoRows:
-		{
-			err = repository.ErrRecordNotFound
-			return
-		}
-	case nil:
-		{
-			pagination.PageInfo.Limit = pageInfo.Limit
-			pagination.PageInfo.Page = pageInfo.Page
-			pagination.PageInfo.PageTotal = uint(math.Ceil(float64(count) / float64(pageInfo.Limit)))
-			pagination.PageInfo.Total = count
-			return
-		}
-	default:
-		{
-			log.Println(dbErr)
-			err = repository.ErrDatabase
-			return
-		}
-	}
-}
-
-func (t *threadRepositoryImpl) FindAllWithQueryAndPagination(
-	ctx context.Context,
-	accessorUserID string,
-	query string,
-	pageInfo entity.PageInfo,
-) (pagination entity.Pagination[entity.Thread], err error) {
-	statement := `SELECT t.id                                                                        as thread_id,
+	} else {
+		statement := `SELECT t.id                                                                        as thread_id,
        t.title                                                                                     as thread_title,
        t.description                                                                               as thread_description,
        t.total_viewer,
@@ -217,11 +139,12 @@ WHERE t.title ILIKE $4
 ORDER BY t.created_at DESC
 OFFSET $2 LIMIT $3;`
 
-	rows, dbErr := t.db.QueryContext(ctx, statement, accessorUserID, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1, fmt.Sprintf("%%%s%%", query))
-	if dbErr != nil {
-		log.Println(dbErr)
-		err = repository.ErrDatabase
-		return
+		rows, dbErr = t.db.QueryContext(ctx, statement, accessorUserID, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1, fmt.Sprintf("%%%s%%", query))
+		if dbErr != nil {
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
 	}
 
 	defer func(rows *sql.Rows) {

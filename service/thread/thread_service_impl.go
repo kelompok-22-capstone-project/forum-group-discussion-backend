@@ -34,7 +34,7 @@ func NewThreadServiceImpl(
 
 func (t *threadServiceImpl) GetAll(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	page uint,
 	limit uint,
 	query string,
@@ -47,14 +47,7 @@ func (t *threadServiceImpl) GetAll(
 		limit = 10
 	}
 
-	var pagination entity.Pagination[entity.Thread]
-	var repoErr error
-
-	if query == "" {
-		pagination, repoErr = t.threadRepository.FindAllWithPagination(ctx, tp.ID, entity.PageInfo{Page: page, Limit: limit})
-	} else {
-		pagination, repoErr = t.threadRepository.FindAllWithQueryAndPagination(ctx, tp.ID, query, entity.PageInfo{Page: page, Limit: limit})
-	}
+	pagination, repoErr := t.threadRepository.FindAllWithQueryAndPagination(ctx, accessorUserID, query, entity.PageInfo{Page: page, Limit: limit})
 
 	if repoErr != nil {
 		err = service.MapError(repoErr)
@@ -94,7 +87,7 @@ func (t *threadServiceImpl) GetAll(
 
 func (t *threadServiceImpl) Create(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	p payload.CreateThread,
 ) (id string, err error) {
 	if validateErr := validator.Validate(p); validateErr != nil {
@@ -118,7 +111,7 @@ func (t *threadServiceImpl) Create(
 		Title:       p.Title,
 		Description: p.Description,
 		Creator: entity.User{
-			ID: tp.ID,
+			ID: accessorUserID,
 		},
 		Category: entity.Category{
 			ID: p.CategoryID,
@@ -139,7 +132,7 @@ func (t *threadServiceImpl) Create(
 	moderator := entity.Moderator{
 		ID: modID,
 		User: entity.User{
-			ID: tp.ID,
+			ID: accessorUserID,
 		},
 		ThreadID: id,
 	}
@@ -154,10 +147,10 @@ func (t *threadServiceImpl) Create(
 
 func (t *threadServiceImpl) GetByID(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	ID string,
 ) (rs response.Thread, err error) {
-	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
@@ -208,7 +201,7 @@ func (t *threadServiceImpl) GetByID(
 
 func (t *threadServiceImpl) Update(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	ID string,
 	p payload.UpdateThread,
 ) (err error) {
@@ -222,13 +215,13 @@ func (t *threadServiceImpl) Update(
 		return
 	}
 
-	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
 
-	if tp.ID != thread.Creator.ID {
+	if accessorUserID != thread.Creator.ID {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -247,16 +240,17 @@ func (t *threadServiceImpl) Update(
 
 func (t *threadServiceImpl) Delete(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
+	role string,
 	ID string,
 ) (err error) {
-	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
 
-	if tp.Role != "admin" && tp.ID != thread.Creator.ID {
+	if role != "admin" && accessorUserID != thread.Creator.ID {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -323,7 +317,7 @@ func (t *threadServiceImpl) GetComments(
 func (t *threadServiceImpl) ChangeFollowingState(
 	ctx context.Context,
 	threadID string,
-	tp generator.TokenPayload,
+	accessorUserID string,
 ) (err error) {
 	return
 }
