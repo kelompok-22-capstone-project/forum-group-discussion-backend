@@ -9,5 +9,15 @@ import (
 
 type UserService interface {
 	Register(ctx context.Context, p payload.Register) (id string, err error)
+
 	Login(ctx context.Context, p payload.Login) (r response.Login, err error)
+
+	GetAll(
+		ctx context.Context,
+		accessorUserID,
+		orderBy,
+		status string,
+		page,
+		limit uint,
+	) (r response.Pagination[response.User], err error)
 }
