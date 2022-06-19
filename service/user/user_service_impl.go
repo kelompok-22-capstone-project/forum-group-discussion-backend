@@ -37,7 +37,10 @@ func NewUserServiceImpl(
 	}
 }
 
-func (u *userServiceImpl) Register(ctx context.Context, p payload.Register) (id string, err error) {
+func (u *userServiceImpl) Register(
+	ctx context.Context,
+	p payload.Register,
+) (id string, err error) {
 	if validateErr := validator.Validate(p); validateErr != nil {
 		err = service.ErrInvalidPayload
 		return
@@ -77,7 +80,10 @@ func (u *userServiceImpl) Register(ctx context.Context, p payload.Register) (id 
 	return
 }
 
-func (u *userServiceImpl) Login(ctx context.Context, p payload.Login) (r response.Login, err error) {
+func (u *userServiceImpl) Login(
+	ctx context.Context,
+	p payload.Login,
+) (r response.Login, err error) {
 	if validateErr := validator.Validate(p); validateErr != nil {
 		err = service.ErrInvalidPayload
 		return
@@ -98,7 +104,10 @@ func (u *userServiceImpl) Login(ctx context.Context, p payload.Login) (r respons
 		return
 	}
 
-	if compareErr := u.passwordGenerator.CompareHashAndPassword([]byte(user.Password), []byte(p.Password)); compareErr != nil {
+	if compareErr := u.passwordGenerator.CompareHashAndPassword(
+		[]byte(user.Password),
+		[]byte(p.Password),
+	); compareErr != nil {
 		err = service.ErrCredentialNotMatch
 		return
 	}
@@ -158,9 +167,11 @@ func (u *userServiceImpl) GetAll(
 		Limit: limit,
 	}
 
-	pagination, dbErr := u.userRepository.FindAllWithStatusAndPagination(ctx, accessorUserID, userOrderBy, userStatus, pageInfo)
-	if dbErr != nil {
-		err = service.MapError(dbErr)
+	pagination, repoErr := u.userRepository.FindAllWithStatusAndPagination(
+		ctx, accessorUserID, userOrderBy, userStatus, pageInfo,
+	)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
 		return
 	}
 
@@ -185,6 +196,33 @@ func (u *userServiceImpl) GetAll(
 			IsFollowed:    user.IsFollowed,
 		}
 		r.List[i] = user
+	}
+
+	return
+}
+
+func (u *userServiceImpl) GetOwn(
+	ctx context.Context,
+	accessorUserID,
+	accessorUsername string,
+) (r response.User, err error) {
+	if user, repoErr := u.userRepository.FindByUsernameWithAccessor(
+		ctx, accessorUserID, accessorUsername,
+	); repoErr != nil {
+		err = service.MapError(repoErr)
+	} else {
+		r = response.User{
+			UserID:        user.ID,
+			Username:      user.Username,
+			Email:         user.Email,
+			Name:          user.Name,
+			Role:          user.Role,
+			IsActive:      user.IsActive,
+			RegisteredOn:  user.CreatedAt.Format(time.RFC822),
+			TotalThread:   uint(user.TotalThread),
+			TotalFollower: uint(user.TotalFollower),
+			IsFollowed:    user.IsFollowed,
+		}
 	}
 
 	return
