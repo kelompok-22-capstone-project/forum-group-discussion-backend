@@ -581,3 +581,32 @@ func TestGetOwn(t *testing.T) {
 		t.Logf("User: %+v", user)
 	}
 }
+
+func TestGetByUsername(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+
+	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+
+	accessorUserID := "u-ZrxmQS"
+	username := "rezana"
+
+	if user, err := service.GetByUsername(context.Background(), accessorUserID, username); err != nil {
+		t.Logf("Error happened: %s", err)
+	} else {
+		t.Logf("User: %+v", user)
+	}
+}
