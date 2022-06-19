@@ -3,10 +3,13 @@ package user
 import (
 	"context"
 	"database/sql"
+	"log"
 	"testing"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/joho/godotenv"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
 	"github.com/lib/pq"
@@ -245,5 +248,34 @@ func TestFindByUsername(t *testing.T) {
 				assert.Equal(t, testCase.expectedUser.IsActive, gotUser.IsActive)
 			}
 		})
+	}
+}
+
+func TestFindAllWithStatusAndPagination(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo UserRepository = NewUserRepositoryImpl(db)
+
+	accessorUserID := "u-kt56R1"
+	orderBy := entity.Ranking
+	userStatus := entity.Active
+	pageInfo := entity.PageInfo{
+		Page:  1,
+		Limit: 20,
+	}
+
+	if pagination, err := repo.FindAllWithStatusAndPagination(context.Background(), accessorUserID, orderBy, userStatus, pageInfo); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
 	}
 }
