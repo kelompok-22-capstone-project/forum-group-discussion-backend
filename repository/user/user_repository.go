@@ -29,4 +29,9 @@ type UserRepository interface {
 		ctx context.Context,
 		userID string,
 	) (err error)
+
+	UnbannedUser(
+		ctx context.Context,
+		userID string,
+	) (err error)
 }
