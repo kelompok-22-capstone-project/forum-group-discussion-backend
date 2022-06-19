@@ -227,3 +227,30 @@ func (u *userServiceImpl) GetOwn(
 
 	return
 }
+
+func (u *userServiceImpl) GetByUsername(
+	ctx context.Context,
+	accessorUserID,
+	username string,
+) (r response.User, err error) {
+	if user, repoErr := u.userRepository.FindByUsernameWithAccessor(
+		ctx, accessorUserID, username,
+	); repoErr != nil {
+		err = service.MapError(repoErr)
+	} else {
+		r = response.User{
+			UserID:        user.ID,
+			Username:      user.Username,
+			Email:         user.Email,
+			Name:          user.Name,
+			Role:          user.Role,
+			IsActive:      user.IsActive,
+			RegisteredOn:  user.CreatedAt.Format(time.RFC822),
+			TotalThread:   uint(user.TotalThread),
+			TotalFollower: uint(user.TotalFollower),
+			IsFollowed:    user.IsFollowed,
+		}
+	}
+
+	return
+}
