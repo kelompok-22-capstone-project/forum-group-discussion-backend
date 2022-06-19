@@ -71,7 +71,7 @@ func (u *userRepositoryImpl) FindByUsername(ctx context.Context, username string
 							 FROM users
 							 WHERE username = $1;`
 
-	row := u.db.QueryRow(statement, username)
+	row := u.db.QueryRowContext(ctx, statement, username)
 
 	switch dbErr := row.Scan(
 		&user.ID,
@@ -194,6 +194,62 @@ OFFSET $3 LIMIT $4;`, userOrderBy)
 			pagination.PageInfo.Page = pageInfo.Page
 			pagination.PageInfo.PageTotal = uint(math.Ceil(float64(count) / float64(pageInfo.Limit)))
 			pagination.PageInfo.Total = count
+			return
+		}
+	default:
+		{
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+	}
+}
+
+func (u *userRepositoryImpl) FindByUsernameWithAccessor(
+	ctx context.Context,
+	accessorUserID string,
+	username string,
+) (user entity.User, err error) {
+	statement := `SELECT u.id,
+       u.username,
+       u.email,
+       u.name,
+       u.role,
+       u.is_active,
+       u.created_at,
+       u.updated_at,
+       (SELECT count(t.id) FROM threads t WHERE t.creator_id = u.id)           AS total_thread,
+       (SELECT count(uf.id) FROM user_follows uf WHERE uf.following_id = u.id) AS total_follower,
+       (SELECT CASE WHEN count(uf.id) > 0 THEN true ELSE false END
+        FROM user_follows uf
+        WHERE uf.user_id = $1
+          AND uf.following_id = u.id)                                          AS is_followed
+FROM users u
+WHERE u.username = $2
+  AND role = 'user';`
+
+	row := u.db.QueryRowContext(ctx, statement, accessorUserID, username)
+
+	switch dbErr := row.Scan(
+		&user.ID,
+		&user.Username,
+		&user.Email,
+		&user.Name,
+		&user.Role,
+		&user.IsActive,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+		&user.TotalThread,
+		&user.TotalFollower,
+		&user.IsFollowed,
+	); dbErr {
+	case sql.ErrNoRows:
+		{
+			err = repository.ErrRecordNotFound
+			return
+		}
+	case nil:
+		{
 			return
 		}
 	default:
