@@ -4,13 +4,17 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"testing"
 	"time"
 
+	"github.com/joho/godotenv"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	mur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
@@ -514,5 +518,37 @@ func TestLogin(t *testing.T) {
 				assert.Equal(t, testCase.expectedResponse, gotResponse)
 			}
 		})
+	}
+}
+
+func TestGetAll(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+
+	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+
+	accessorUserID := "u-ZrxmQS"
+	orderBy := "registered_date"
+	status := "active"
+	page := 1
+	limit := 10
+
+	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit)); err != nil {
+		t.Logf("Error happened: %s", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
 	}
 }
