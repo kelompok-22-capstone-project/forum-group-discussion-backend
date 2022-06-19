@@ -20,4 +20,10 @@ type UserService interface {
 		page,
 		limit uint,
 	) (r response.Pagination[response.User], err error)
+
+	GetOwn(
+		ctx context.Context,
+		accessorUserID,
+		accessorUsername string,
+	) (r response.User, err error)
 }
