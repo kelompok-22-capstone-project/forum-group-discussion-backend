@@ -302,3 +302,26 @@ func TestFindByUsernameWithAccessor(t *testing.T) {
 		t.Logf("User: %+v", user)
 	}
 }
+
+func TestBannedUser(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo UserRepository = NewUserRepositoryImpl(db)
+
+	userID := "u-NplCrv"
+
+	if err := repo.BannedUser(context.Background(), userID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully banned a user with ID %s", userID)
+	}
+}
