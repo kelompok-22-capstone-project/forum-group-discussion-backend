@@ -320,3 +320,63 @@ func (u *userRepositoryImpl) BannedUser(
 
 	return
 }
+
+func (u *userRepositoryImpl) UnbannedUser(
+	ctx context.Context,
+	userID string,
+) (err error) {
+	tx, dbErr := u.db.BeginTx(ctx, nil)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	defer tx.Rollback()
+
+	result, dbErr := tx.ExecContext(ctx, "DELETE FROM user_banneds WHERE user_id = $1;", userID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrDatabase
+		return
+	}
+
+	result, dbErr = tx.ExecContext(ctx, "UPDATE users SET is_active  = true, updated_at = current_timestamp WHERE id = $1;", userID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr = result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrDatabase
+		return
+	}
+
+	if dbErr := tx.Commit(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	return
+}
