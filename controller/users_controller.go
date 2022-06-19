@@ -139,9 +139,9 @@ func (u *usersController) putUserBanned(c echo.Context) error {
 
 // profileResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type profileResponse struct {
-	Status  string      `json:"status" extensions:"x-order=0"`
-	Message string      `json:"message" extensions:"x-order=1"`
-	Data    profileData `json:"data" extensions:"x-order=2"`
+	Status  string        `json:"status" extensions:"x-order=0"`
+	Message string        `json:"message" extensions:"x-order=1"`
+	Data    response.User `json:"data" extensions:"x-order=2"`
 }
 
 // profilesResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
@@ -158,23 +158,9 @@ type threadsResponse struct {
 	Data    threadsInfoWrapper `json:"data" extensions:"x-order=2"`
 }
 
-type profileData struct {
-	UserID   string `json:"userID" extensions:"x-order=0"`
-	Username string `json:"username" extensions:"x-order=1"`
-	Email    string `json:"email" extensions:"x-order=2"`
-	Name     string `json:"name" extensions:"x-order=3"`
-	Role     string `json:"role" extensions:"x-order=4"`
-	IsActive bool   `json:"isActive" extensions:"x-order=5"`
-	// RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	RegisteredOn  string `json:"registeredOn" extensions:"x-order=6"`
-	TotalThread   uint   `json:"totalThread" extensions:"x-order=7"`
-	TotalFollower uint   `json:"totalFollower" extensions:"x-order=8"`
-	IsFollowed    bool   `json:"isFollowed" extensions:"x-order=9"`
-}
-
 type profilesInfoWrapper struct {
-	Threads  []profileData `json:"list" extensions:"x-order=0"`
-	PageInfo pageInfoData  `json:"pageInfo" extensions:"x-order=1"`
+	Threads  []response.User `json:"list" extensions:"x-order=0"`
+	PageInfo pageInfoData    `json:"pageInfo" extensions:"x-order=1"`
 }
 
 type threadsInfoWrapper struct {
