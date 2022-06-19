@@ -279,3 +279,26 @@ func TestFindAllWithStatusAndPagination(t *testing.T) {
 		t.Logf("Pagination: %+v", pagination)
 	}
 }
+
+func TestFindByUsernameWithAccessor(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo UserRepository = NewUserRepositoryImpl(db)
+
+	accessorUserID := "u-kt56R1"
+	username := "erikrios"
+	if user, err := repo.FindByUsernameWithAccessor(context.Background(), accessorUserID, username); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("User: %+v", user)
+	}
+}
