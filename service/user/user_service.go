@@ -26,4 +26,10 @@ type UserService interface {
 		accessorUserID,
 		accessorUsername string,
 	) (r response.User, err error)
+
+	GetByUsername(
+		ctx context.Context,
+		accessorUserID,
+		username string,
+	) (r response.User, err error)
 }
