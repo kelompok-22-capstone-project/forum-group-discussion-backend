@@ -3,7 +3,9 @@ package user
 import (
 	"context"
 	"database/sql"
+	"fmt"
 	"log"
+	"math"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
@@ -89,6 +91,109 @@ func (u *userRepositoryImpl) FindByUsername(ctx context.Context, username string
 		}
 	case nil:
 		{
+			return
+		}
+	default:
+		{
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+	}
+}
+
+func (u *userRepositoryImpl) FindAllWithStatusAndPagination(
+	ctx context.Context,
+	accessorUserID string,
+	orderBy entity.UserOrderBy,
+	userStatus entity.UserStatus,
+	pageInfo entity.PageInfo,
+) (pagination entity.Pagination[entity.User], err error) {
+	var userOrderBy string
+	if orderBy == entity.Ranking {
+		userOrderBy = "total_follower"
+	} else {
+		userOrderBy = "u.created_at"
+	}
+
+	statement := fmt.Sprintf(`SELECT u.id,
+       u.username,
+       u.email,
+       u.name,
+       u.role,
+       u.is_active,
+       u.created_at,
+       u.updated_at,
+       (SELECT count(t.id) FROM threads t WHERE t.creator_id = u.id)           AS total_thread,
+       (SELECT count(uf.id) FROM user_follows uf WHERE uf.following_id = u.id) AS total_follower,
+       (SELECT CASE WHEN count(uf.id) > 0 THEN true ELSE false END
+        FROM user_follows uf
+        WHERE uf.user_id = $1
+          AND uf.following_id = u.id)                                          AS is_followed
+FROM users u
+WHERE is_active = $2 AND u.role = 'user'
+ORDER BY %s
+OFFSET $3 LIMIT $4;`, userOrderBy)
+
+	rows, dbErr := u.db.QueryContext(ctx, statement, accessorUserID, userStatus, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	defer func(rows *sql.Rows) {
+		if dbErr := rows.Close(); dbErr != nil {
+			log.Println(dbErr)
+		}
+	}(rows)
+
+	pagination.List = make([]entity.User, 0)
+	for rows.Next() {
+		var user entity.User
+		if dbErr := rows.Scan(
+			&user.ID,
+			&user.Username,
+			&user.Email,
+			&user.Name,
+			&user.Role,
+			&user.IsActive,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+			&user.TotalThread,
+			&user.TotalFollower,
+			&user.IsFollowed,
+		); dbErr != nil {
+			log.Println(dbErr)
+			err = repository.ErrDatabase
+			return
+		}
+		pagination.List = append(pagination.List, user)
+	}
+
+	if dbErr := rows.Err(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	countStatement := "SELECT count(u.id) FROM users u WHERE is_active = $1 AND u.role = 'user';"
+
+	row := u.db.QueryRowContext(ctx, countStatement, userStatus)
+
+	var count uint
+	switch dbErr := row.Scan(&count); dbErr {
+	case sql.ErrNoRows:
+		{
+			err = repository.ErrRecordNotFound
+			return
+		}
+	case nil:
+		{
+			pagination.PageInfo.Limit = pageInfo.Limit
+			pagination.PageInfo.Page = pageInfo.Page
+			pagination.PageInfo.PageTotal = uint(math.Ceil(float64(count) / float64(pageInfo.Limit)))
+			pagination.PageInfo.Total = count
 			return
 		}
 	default:
