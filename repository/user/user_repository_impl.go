@@ -380,3 +380,56 @@ func (u *userRepositoryImpl) UnbannedUser(
 
 	return
 }
+
+func (u *userRepositoryImpl) FollowUser(
+	ctx context.Context,
+	ID string,
+	accessorUserID string,
+	userID string,
+) (err error) {
+	statement := "INSERT INTO user_follows (id, user_id, following_id) VALUES ($1, $2, $3);"
+
+	result, dbErr := u.db.ExecContext(ctx, statement, ID, accessorUserID, userID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count, dbErr := result.RowsAffected(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+	} else {
+		if count < 1 {
+			err = repository.ErrDatabase
+		}
+	}
+
+	return
+}
+
+func (u *userRepositoryImpl) UnfollowUser(
+	ctx context.Context,
+	accessorUserID string,
+	userID string,
+) (err error) {
+	statement := "DELETE FROM user_follows WHERE user_id = $1 AND following_id = $2;"
+
+	result, dbErr := u.db.ExecContext(ctx, statement, accessorUserID, userID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count, dbErr := result.RowsAffected(); dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+	} else {
+		if count < 1 {
+			err = repository.ErrDatabase
+		}
+	}
+
+	return
+}
