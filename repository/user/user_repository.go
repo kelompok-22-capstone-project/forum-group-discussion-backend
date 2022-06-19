@@ -24,4 +24,9 @@ type UserRepository interface {
 		accessorUserID string,
 		username string,
 	) (user entity.User, err error)
+
+	BannedUser(
+		ctx context.Context,
+		userID string,
+	) (err error)
 }
