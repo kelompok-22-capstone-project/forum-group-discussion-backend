@@ -348,3 +348,52 @@ func TestUnbannedUser(t *testing.T) {
 		t.Logf("Successfully unbanned a user with ID %s", userID)
 	}
 }
+
+func TestFollowUser(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo UserRepository = NewUserRepositoryImpl(db)
+
+	ID := "f-abcdefg"
+	accessorUserID := "u-kt56R1"
+	userID := "u-ZrxmQS"
+
+	if err := repo.FollowUser(context.Background(), ID, accessorUserID, userID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully follow a user with ID %s", userID)
+	}
+}
+
+func TestUnfollowUser(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo UserRepository = NewUserRepositoryImpl(db)
+
+	accessorUserID := "u-kt56R1"
+	userID := "u-ZrxmQS"
+
+	if err := repo.UnfollowUser(context.Background(), accessorUserID, userID); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully unfollow a user with ID %s", userID)
+	}
+}
