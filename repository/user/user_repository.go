@@ -34,4 +34,17 @@ type UserRepository interface {
 		ctx context.Context,
 		userID string,
 	) (err error)
+
+	FollowUser(
+		ctx context.Context,
+		ID string,
+		accessorUserID string,
+		userID string,
+	) (err error)
+
+	UnfollowUser(
+		ctx context.Context,
+		accessorUserID string,
+		userID string,
+	) (err error)
 }
