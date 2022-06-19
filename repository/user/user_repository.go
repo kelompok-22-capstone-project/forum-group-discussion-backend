@@ -18,4 +18,10 @@ type UserRepository interface {
 		userStatus entity.UserStatus,
 		pageInfo entity.PageInfo,
 	) (pagination entity.Pagination[entity.User], err error)
+
+	FindByUsernameWithAccessor(
+		ctx context.Context,
+		accessorUserID string,
+		username string,
+	) (user entity.User, err error)
 }
