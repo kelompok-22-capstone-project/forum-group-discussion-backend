@@ -294,6 +294,11 @@ definitions:
       reason:
         minLength: 2
         type: string
+        x-order: "2"
+      threadID:
+        maxLength: 10
+        minLength: 2
+        type: string
         x-order: "1"
       userID:
         maxLength: 10
@@ -363,15 +368,6 @@ definitions:
       name:
         maxLength: 50
         minLength: 2
-        type: string
-        x-order: "0"
-    type: object
-  payload.UpdateReportStatus:
-    properties:
-      status:
-        description: 'Status, available options: rejected, accepted'
-        maxLength: 9
-        minLength: 5
         type: string
         x-order: "0"
     type: object
@@ -896,7 +892,7 @@ paths:
     get:
       description: This endpoint is used to get all report
       parameters:
-      - description: 'options: all, review, rejected, accepted, default all'
+      - description: 'options: review, accepted, default review'
         in: query
         name: status
         type: string
@@ -963,50 +959,6 @@ paths:
       - ApiKey: []
       - ApiKeyAuth: []
       summary: Create a Report
-      tags:
-      - reports
-  /reports/{id}/status:
-    put:
-      consumes:
-      - application/json
-      description: This endpoint is used to update a report status
-      parameters:
-      - description: request body
-        in: body
-        name: default
-        required: true
-        schema:
-          $ref: '#/definitions/payload.UpdateReportStatus'
-      - description: report ID
-        in: path
-        name: id
-        required: true
-        type: string
-      produces:
-      - application/json
-      responses:
-        "204":
-          description: ""
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/echo.HTTPError'
-      security:
-      - ApiKey: []
-      - ApiKeyAuth: []
-      summary: Update a Report Status
       tags:
       - reports
   /threads:
