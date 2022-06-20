@@ -485,7 +485,7 @@ const docTemplate = `{
                 "parameters": [
                     {
                         "type": "string",
-                        "description": "options: review, accepted, default",
+                        "description": "options: review, accepted, default review",
                         "name": "status",
                         "in": "query"
                     },
