@@ -636,6 +636,35 @@ func TestChangeBannedState(t *testing.T) {
 	if err := service.ChangeBannedState(context.Background(), accessorRole, username); err != nil {
 		t.Logf("Error happened: %s", err)
 	} else {
-		t.Logf("Successfully banned/unbanned user with username %s", username)
+		t.Logf("Successfully banned/unbanned a user with username %s", username)
+	}
+}
+
+func TestChangeFollowingState(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+
+	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+
+	accessorUserID := "u-kt56R1"
+	username := "erikrios"
+
+	if err := service.ChangeFollowingState(context.Background(), accessorUserID, username); err != nil {
+		t.Logf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully follow/unfollow a user with username %s", username)
 	}
 }
