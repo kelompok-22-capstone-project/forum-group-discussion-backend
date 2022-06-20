@@ -272,12 +272,48 @@ func (u *userServiceImpl) ChangeBannedState(
 	}
 
 	if user.IsActive {
-		if repoErr := u.userRepository.BannedUser(context.Background(), user.ID); repoErr != nil {
+		if repoErr := u.userRepository.BannedUser(
+			context.Background(), user.ID,
+		); repoErr != nil {
 			err = service.MapError(repoErr)
 			return
 		}
 	} else {
-		if repoErr := u.userRepository.UnbannedUser(context.Background(), user.ID); repoErr != nil {
+		if repoErr := u.userRepository.UnbannedUser(
+			context.Background(), user.ID,
+		); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	}
+
+	return
+}
+
+func (u *userServiceImpl) ChangeFollowingState(
+	ctx context.Context,
+	accessorUserID,
+	usernameToFollow string,
+) (err error) {
+	user, repoErr := u.userRepository.FindByUsernameWithAccessor(ctx, accessorUserID, usernameToFollow)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if user.IsFollowed {
+		if repoErr := u.userRepository.UnfollowUser(ctx, accessorUserID, user.ID); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	} else {
+		id, genErr := u.idGenerator.GenerateUserFollowID()
+		if genErr != nil {
+			err = service.MapError(genErr)
+			return
+		}
+
+		if repoErr := u.userRepository.FollowUser(ctx, id, accessorUserID, user.ID); repoErr != nil {
 			err = service.MapError(repoErr)
 			return
 		}
