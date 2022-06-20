@@ -32,4 +32,10 @@ type UserService interface {
 		accessorUserID,
 		username string,
 	) (r response.User, err error)
+
+	ChangeBannedState(
+		ctx context.Context,
+		accessorRole string,
+		username string,
+	) (err error)
 }
