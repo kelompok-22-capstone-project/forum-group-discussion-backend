@@ -896,7 +896,7 @@ paths:
     get:
       description: This endpoint is used to get all report
       parameters:
-      - description: 'options: all, review, rejected, accepted, default all'
+      - description: 'options: review, accepted, default'
         in: query
         name: status
         type: string
