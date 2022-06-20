@@ -39,7 +39,7 @@ func (r *reportsController) postCreateReport(c echo.Context) error {
 // @Description  This endpoint is used to get all report
 // @Tags         reports
 // @Produce      json
-// @Param        status  query  string  false  "options: review, accepted, default"
+// @Param        status  query  string  false  "options: review, accepted, default review"
 // @Param        page    query  int     false  "page, default 1"
 // @Param        limit   query  int     false  "limit, default 20"
 // @Security     ApiKey
