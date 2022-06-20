@@ -2,7 +2,6 @@ package category
 
 import (
 	"context"
-	"log"
 	"time"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
@@ -54,9 +53,8 @@ func (c *categoryServiceImpl) GetAll(ctx context.Context) (rs []response.Categor
 	return
 }
 
-func (c *categoryServiceImpl) Create(ctx context.Context, tp generator.TokenPayload, p payload.CreateCategory) (id string, err error) {
-	log.Println(tp)
-	if tp.Role != "admin" {
+func (c *categoryServiceImpl) Create(ctx context.Context, accessorRole string, p payload.CreateCategory) (id string, err error) {
+	if accessorRole != "admin" {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -86,9 +84,8 @@ func (c *categoryServiceImpl) Create(ctx context.Context, tp generator.TokenPayl
 	return
 }
 
-func (c *categoryServiceImpl) Update(ctx context.Context, tp generator.TokenPayload, id string, p payload.UpdateCategory) (err error) {
-	log.Println(tp)
-	if tp.Role != "admin" {
+func (c *categoryServiceImpl) Update(ctx context.Context, accessorRole string, id string, p payload.UpdateCategory) (err error) {
+	if accessorRole != "admin" {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -111,9 +108,8 @@ func (c *categoryServiceImpl) Update(ctx context.Context, tp generator.TokenPayl
 	return
 }
 
-func (c *categoryServiceImpl) Delete(ctx context.Context, tp generator.TokenPayload, id string) (err error) {
-	log.Println(tp)
-	if tp.Role != "admin" {
+func (c *categoryServiceImpl) Delete(ctx context.Context, accessorRole string, id string) (err error) {
+	if accessorRole != "admin" {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -128,7 +124,7 @@ func (c *categoryServiceImpl) Delete(ctx context.Context, tp generator.TokenPayl
 
 func (c *categoryServiceImpl) GetAllByCategory(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorID string,
 	categoryID string,
 	page uint,
 	limit uint,
@@ -148,7 +144,7 @@ func (c *categoryServiceImpl) GetAllByCategory(
 
 	pagination, repoErr := c.threadRepository.FindAllByCategoryIDWithPagination(
 		ctx,
-		tp.ID,
+		accessorID,
 		categoryID,
 		entity.PageInfo{
 			Limit: limit,
