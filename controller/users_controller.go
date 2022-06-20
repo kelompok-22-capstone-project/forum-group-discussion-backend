@@ -4,6 +4,7 @@ import (
 	"net/http"
 	"strconv"
 
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
@@ -28,12 +29,12 @@ func NewUsersController(
 
 func (u *usersController) Route(g *echo.Group) {
 	group := g.Group("/users")
-	group.GET("", u.getUsers)
-	group.GET("/me", u.getMe)
-	group.GET("/:username", u.getUserByUsername)
-	group.GET("/:username/threads", u.getUserThreads)
-	group.PUT("/:username/follow", u.putUserFollow)
-	group.PUT("/:username/banned", u.putUserBanned)
+	group.GET("", u.getUsers, middleware.JWTMiddleware())
+	group.GET("/me", u.getMe, middleware.JWTMiddleware())
+	group.GET("/:username", u.getUserByUsername, middleware.JWTMiddleware())
+	group.GET("/:username/threads", u.getUserThreads, middleware.JWTMiddleware())
+	group.PUT("/:username/follow", u.putUserFollow, middleware.JWTMiddleware())
+	group.PUT("/:username/banned", u.putUserBanned, middleware.JWTMiddleware())
 }
 
 // getUsers     godoc
