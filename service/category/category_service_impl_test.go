@@ -462,7 +462,7 @@ func TestGetAllByCategory(t *testing.T) {
 		mockBehaviour      func()
 	}{
 		{
-			name:               "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+			name:               "it should return service.ErrRepository, when category repository return a repository.ErrDatabase error",
 			inputAccessorID:    "",
 			inputCategoryID:    "",
 			inputPage:          0,
@@ -531,7 +531,7 @@ func TestGetAllByCategory(t *testing.T) {
 			},
 		},
 		{
-			name:            "it should return valid categories, when repository return nil error",
+			name:            "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
 			inputAccessorID: "",
 			inputCategoryID: "",
 			inputPage:       1,
