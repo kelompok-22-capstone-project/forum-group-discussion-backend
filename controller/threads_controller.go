@@ -37,6 +37,7 @@ func (t *threadsController) Route(g *echo.Group) {
 	group.PUT("/:id", t.putUpdateThread, middleware.JWTMiddleware())
 	group.DELETE("/:id", t.deleteThread, middleware.JWTMiddleware())
 	group.GET("/:id/comments", t.getThreadComments, middleware.JWTMiddleware())
+	group.POST("/:id/comments", t.postCreateThreadComments, middleware.JWTMiddleware())
 	group.PUT("/:id/like", t.putThreadLike, middleware.JWTMiddleware())
 	group.PUT("/:id/follow", t.putThreadFollow, middleware.JWTMiddleware())
 	group.PUT("/:id/moderators/add", t.putThreadAddModerator, middleware.JWTMiddleware())
@@ -73,7 +74,7 @@ func (t *threadsController) getThreads(c echo.Context) error {
 
 	tp := t.tokenGenerator.ExtractToken(c)
 
-	threadsResponse, err := t.threadService.GetAll(c.Request().Context(), tp, uint(page), uint(limit), search)
+	threadsResponse, err := t.threadService.GetAll(c.Request().Context(), tp.ID, uint(page), uint(limit), search)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -105,7 +106,7 @@ func (t *threadsController) postCreateThread(c echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	id, err := t.threadService.Create(c.Request().Context(), tp, *p)
+	id, err := t.threadService.Create(c.Request().Context(), tp.ID, *p)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -133,7 +134,7 @@ func (t *threadsController) getThread(c echo.Context) error {
 
 	tp := t.tokenGenerator.ExtractToken(c)
 
-	threadResponse, err := t.threadService.GetByID(c.Request().Context(), tp, id)
+	threadResponse, err := t.threadService.GetByID(c.Request().Context(), tp.ID, id)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -168,7 +169,7 @@ func (t *threadsController) putUpdateThread(c echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	if err := t.threadService.Update(c.Request().Context(), tp, id, *p); err != nil {
+	if err := t.threadService.Update(c.Request().Context(), tp.ID, id, *p); err != nil {
 		return newErrorResponse(err)
 	}
 
@@ -193,7 +194,7 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 
 	tp := t.tokenGenerator.ExtractToken(c)
 
-	if err := t.threadService.Delete(c.Request().Context(), tp, id); err != nil {
+	if err := t.threadService.Delete(c.Request().Context(), tp.ID, tp.Role, id); err != nil {
 		return newErrorResponse(err)
 	}
 
@@ -205,7 +206,7 @@ func (t *threadsController) deleteThread(c echo.Context) error {
 // @Description  This endpoint is used to get the thread comments
 // @Tags         threads
 // @Produce      json
-// @Param        id     path   string  true   "thread ID"
+// @Param        id       path  string                 true  "thread ID"
 // @Param        page   query  int     false  "page, default 1"
 // @Param        limit  query  int     false  "limit, default 20"
 // @Security     ApiKey
@@ -238,6 +239,42 @@ func (t *threadsController) getThreadComments(c echo.Context) error {
 	return c.JSON(http.StatusOK, response)
 }
 
+// postCreateThreadComments godoc
+// @Summary      Create a Comment
+// @Description  This endpoint is used to create a comment of a thread
+// @Tags         threads
+// @Accept       json
+// @Produce      json
+// @Param        id     path   string  true   "thread ID"
+// @Param        default  body  payload.CreateComment  true  "request body"
+// @Security     ApiKey
+// @Security     ApiKeyAuth
+// @Success      201  {object}  createThreadResponse
+// @Failure      400  {object}  echo.HTTPError
+// @Failure      401  {object}  echo.HTTPError
+// @Failure      404  {object}  echo.HTTPError
+// @Failure      500  {object}  echo.HTTPError
+// @Router       /threads/{id}/comments [post]
+func (t *threadsController) postCreateThreadComments(c echo.Context) error {
+	id := c.Param("id")
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.CreateComment)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	id, err := t.threadService.CreateComment(c.Request().Context(), id, tp.ID, *p)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	idResponse := map[string]any{"ID": id}
+	response := model.NewResponse("success", "Create comment successful.", idResponse)
+	return c.JSON(http.StatusCreated, response)
+}
+
 // putThreadLike godoc
 // @Summary      Like/Unlike a Thread
 // @Description  This endpoint is used to like/unlike a thread
@@ -253,7 +290,14 @@ func (t *threadsController) getThreadComments(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/like [put]
 func (t *threadsController) putThreadLike(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	if err := t.threadService.ChangeLikeState(c.Request().Context(), threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -272,7 +316,14 @@ func (t *threadsController) putThreadLike(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/follow [put]
 func (t *threadsController) putThreadFollow(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	if err := t.threadService.ChangeFollowingState(c.Request().Context(), threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -293,7 +344,18 @@ func (t *threadsController) putThreadFollow(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/moderators/add [put]
 func (t *threadsController) putThreadAddModerator(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.AddRemoveModerator)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	if err := t.threadService.AddModerator(c.Request().Context(), *p, threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
@@ -314,7 +376,18 @@ func (t *threadsController) putThreadAddModerator(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /threads/{id}/moderators/remove [put]
 func (t *threadsController) putThreadRemoveModerator(c echo.Context) error {
-	_ = c.Param("id")
+	threadID := c.Param("id")
+	tp := t.tokenGenerator.ExtractToken(c)
+
+	p := new(payload.AddRemoveModerator)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	if err := t.threadService.RemoveModerator(c.Request().Context(), *p, threadID, tp.ID); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 

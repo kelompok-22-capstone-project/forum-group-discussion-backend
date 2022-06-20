@@ -9,6 +9,7 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"gopkg.in/validator.v2"
@@ -17,24 +18,27 @@ import (
 type threadServiceImpl struct {
 	threadRepository   thread.ThreadRepository
 	categoryRepository category.CategoryRepository
+	userRepository     user.UserRepository
 	idGenerator        generator.IDGenerator
 }
 
 func NewThreadServiceImpl(
 	threadRepository thread.ThreadRepository,
 	categoryRepository category.CategoryRepository,
+	userRepository user.UserRepository,
 	idGenerator generator.IDGenerator,
 ) *threadServiceImpl {
 	return &threadServiceImpl{
 		threadRepository:   threadRepository,
 		categoryRepository: categoryRepository,
+		userRepository:     userRepository,
 		idGenerator:        idGenerator,
 	}
 }
 
 func (t *threadServiceImpl) GetAll(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	page uint,
 	limit uint,
 	query string,
@@ -47,14 +51,7 @@ func (t *threadServiceImpl) GetAll(
 		limit = 10
 	}
 
-	var pagination entity.Pagination[entity.Thread]
-	var repoErr error
-
-	if query == "" {
-		pagination, repoErr = t.threadRepository.FindAllWithPagination(ctx, tp.ID, entity.PageInfo{Page: page, Limit: limit})
-	} else {
-		pagination, repoErr = t.threadRepository.FindAllWithQueryAndPagination(ctx, tp.ID, query, entity.PageInfo{Page: page, Limit: limit})
-	}
+	pagination, repoErr := t.threadRepository.FindAllWithQueryAndPagination(ctx, accessorUserID, query, entity.PageInfo{Page: page, Limit: limit})
 
 	if repoErr != nil {
 		err = service.MapError(repoErr)
@@ -94,7 +91,7 @@ func (t *threadServiceImpl) GetAll(
 
 func (t *threadServiceImpl) Create(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	p payload.CreateThread,
 ) (id string, err error) {
 	if validateErr := validator.Validate(p); validateErr != nil {
@@ -118,7 +115,7 @@ func (t *threadServiceImpl) Create(
 		Title:       p.Title,
 		Description: p.Description,
 		Creator: entity.User{
-			ID: tp.ID,
+			ID: accessorUserID,
 		},
 		Category: entity.Category{
 			ID: p.CategoryID,
@@ -139,7 +136,7 @@ func (t *threadServiceImpl) Create(
 	moderator := entity.Moderator{
 		ID: modID,
 		User: entity.User{
-			ID: tp.ID,
+			ID: accessorUserID,
 		},
 		ThreadID: id,
 	}
@@ -154,10 +151,10 @@ func (t *threadServiceImpl) Create(
 
 func (t *threadServiceImpl) GetByID(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	ID string,
 ) (rs response.Thread, err error) {
-	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
@@ -208,7 +205,7 @@ func (t *threadServiceImpl) GetByID(
 
 func (t *threadServiceImpl) Update(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
 	ID string,
 	p payload.UpdateThread,
 ) (err error) {
@@ -222,13 +219,13 @@ func (t *threadServiceImpl) Update(
 		return
 	}
 
-	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
 
-	if tp.ID != thread.Creator.ID {
+	if accessorUserID != thread.Creator.ID {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -247,16 +244,17 @@ func (t *threadServiceImpl) Update(
 
 func (t *threadServiceImpl) Delete(
 	ctx context.Context,
-	tp generator.TokenPayload,
+	accessorUserID string,
+	role string,
 	ID string,
 ) (err error) {
-	thread, repoErr := t.threadRepository.FindByID(ctx, tp.ID, ID)
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
 
-	if tp.Role != "admin" && tp.ID != thread.Creator.ID {
+	if role != "admin" && accessorUserID != thread.Creator.ID {
 		err = service.ErrAccessForbidden
 		return
 	}
@@ -320,10 +318,251 @@ func (t *threadServiceImpl) GetComments(
 	return
 }
 
+func (t *threadServiceImpl) CreateComment(
+	ctx context.Context,
+	threadID string,
+	accessorUserID string,
+	p payload.CreateComment,
+) (id string, err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	_, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	id, genErr := t.idGenerator.GenerateCommentID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	comment := entity.Comment{
+		ID: id,
+		User: entity.User{
+			ID: accessorUserID,
+		},
+		Thread: entity.Thread{
+			ID: threadID,
+		},
+		Comment: p.Comment,
+	}
+
+	if repoErr := t.threadRepository.InsertComment(ctx, comment); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	return
+}
+
 func (t *threadServiceImpl) ChangeFollowingState(
 	ctx context.Context,
 	threadID string,
-	tp generator.TokenPayload,
+	accessorUserID string,
 ) (err error) {
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	tfID, genErr := t.idGenerator.GenerateThreadFollowID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	tf := entity.ThreadFollow{
+		ID: tfID,
+		User: entity.User{
+			ID: accessorUserID,
+		},
+		Thread: entity.Thread{
+			ID: threadID,
+		},
+	}
+
+	if thread.IsFollowed {
+		if repoErr := t.threadRepository.DeleteFollowThread(ctx, tf); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	} else {
+		if repoErr := t.threadRepository.InsertFollowThread(ctx, tf); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	}
+
+	return
+}
+
+func (t *threadServiceImpl) ChangeLikeState(
+	ctx context.Context,
+	threadID string,
+	accessorUserID string,
+) (err error) {
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	lID, genErr := t.idGenerator.GenerateLikeID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	tl := entity.Like{
+		ID: lID,
+		User: entity.User{
+			ID: accessorUserID,
+		},
+		Thread: entity.Thread{
+			ID: threadID,
+		},
+	}
+
+	if thread.IsLiked {
+		if repoErr := t.threadRepository.DeleteLike(ctx, tl); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	} else {
+		if repoErr := t.threadRepository.InsertLike(ctx, tl); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	}
+
+	return
+}
+
+func (t *threadServiceImpl) AddModerator(
+	ctx context.Context,
+	p payload.AddRemoveModerator,
+	threadID string,
+	accessorUserID string,
+) (err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	thread, serviceErr := t.GetByID(ctx, accessorUserID, threadID)
+	if serviceErr != nil {
+		err = serviceErr
+		return
+	}
+
+	if accessorUserID != thread.CreatorID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	userToAdded, repoErr := t.userRepository.FindByUsername(ctx, p.Username)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if accessorUserID == userToAdded.ID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	for _, mod := range thread.Moderators {
+		if mod.UserID == userToAdded.ID {
+			err = service.ErrDataAlreadyExists
+			return
+		}
+	}
+
+	moderatorID, genErr := t.idGenerator.GenerateModeratorID()
+	if genErr != nil {
+		err = service.MapError(genErr)
+		return
+	}
+
+	moderator := entity.Moderator{
+		ID: moderatorID,
+		User: entity.User{
+			ID: userToAdded.ID,
+		},
+		ThreadID: threadID,
+	}
+
+	if repoErr := t.threadRepository.InsertModerator(ctx, moderator); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	return
+}
+
+func (t *threadServiceImpl) RemoveModerator(
+	ctx context.Context,
+	p payload.AddRemoveModerator,
+	threadID string,
+	accessorUserID string,
+) (err error) {
+	if validateErr := validator.Validate(p); validateErr != nil {
+		err = service.ErrInvalidPayload
+		return
+	}
+
+	thread, serviceErr := t.GetByID(ctx, accessorUserID, threadID)
+	if serviceErr != nil {
+		err = serviceErr
+		return
+	}
+
+	if accessorUserID != thread.CreatorID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	userToRemoved, repoErr := t.userRepository.FindByUsername(ctx, p.Username)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if accessorUserID == userToRemoved.ID {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	var isExists bool
+	for _, mod := range thread.Moderators {
+		if mod.UserID == userToRemoved.ID {
+			isExists = true
+			break
+		}
+	}
+
+	if !isExists {
+		err = service.ErrUsernameNotFound
+		return
+	}
+
+	moderator := entity.Moderator{
+		User: entity.User{
+			ID: userToRemoved.ID,
+		},
+		ThreadID: threadID,
+	}
+
+	if repoErr := t.threadRepository.DeleteModerator(ctx, moderator); repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
 	return
 }

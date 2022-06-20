@@ -91,6 +91,27 @@ func (_m *ThreadRepository) FindAllByCategoryIDWithPagination(ctx context.Contex
 	return r0, r1
 }
 
+// FindAllByUserIDWithPagination provides a mock function with given fields: ctx, accessorUserID, UserID, pageInfo
+func (_m *ThreadRepository) FindAllByUserIDWithPagination(ctx context.Context, accessorUserID string, UserID string, pageInfo entity.PageInfo) (entity.Pagination[entity.Thread], error) {
+	ret := _m.Called(ctx, accessorUserID, UserID, pageInfo)
+
+	var r0 entity.Pagination[entity.Thread]
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, entity.PageInfo) entity.Pagination[entity.Thread]); ok {
+		r0 = rf(ctx, accessorUserID, UserID, pageInfo)
+	} else {
+		r0 = ret.Get(0).(entity.Pagination[entity.Thread])
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, entity.PageInfo) error); ok {
+		r1 = rf(ctx, accessorUserID, UserID, pageInfo)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindAllCommentByThreadID provides a mock function with given fields: ctx, threadID, pageInfo
 func (_m *ThreadRepository) FindAllCommentByThreadID(ctx context.Context, threadID string, pageInfo entity.PageInfo) (entity.Pagination[entity.Comment], error) {
 	ret := _m.Called(ctx, threadID, pageInfo)
@@ -128,27 +149,6 @@ func (_m *ThreadRepository) FindAllModeratorByThreadID(ctx context.Context, thre
 	var r1 error
 	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
 		r1 = rf(ctx, threadID)
-	} else {
-		r1 = ret.Error(1)
-	}
-
-	return r0, r1
-}
-
-// FindAllWithPagination provides a mock function with given fields: ctx, accessorUserID, pageInfo
-func (_m *ThreadRepository) FindAllWithPagination(ctx context.Context, accessorUserID string, pageInfo entity.PageInfo) (entity.Pagination[entity.Thread], error) {
-	ret := _m.Called(ctx, accessorUserID, pageInfo)
-
-	var r0 entity.Pagination[entity.Thread]
-	if rf, ok := ret.Get(0).(func(context.Context, string, entity.PageInfo) entity.Pagination[entity.Thread]); ok {
-		r0 = rf(ctx, accessorUserID, pageInfo)
-	} else {
-		r0 = ret.Get(0).(entity.Pagination[entity.Thread])
-	}
-
-	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, entity.PageInfo) error); ok {
-		r1 = rf(ctx, accessorUserID, pageInfo)
 	} else {
 		r1 = ret.Error(1)
 	}
@@ -205,6 +205,20 @@ func (_m *ThreadRepository) Insert(ctx context.Context, _a1 entity.Thread) error
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, entity.Thread) error); ok {
 		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// InsertComment provides a mock function with given fields: ctx, comment
+func (_m *ThreadRepository) InsertComment(ctx context.Context, comment entity.Comment) error {
+	ret := _m.Called(ctx, comment)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, entity.Comment) error); ok {
+		r0 = rf(ctx, comment)
 	} else {
 		r0 = ret.Error(0)
 	}

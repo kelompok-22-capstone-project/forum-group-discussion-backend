@@ -9,12 +9,6 @@ import (
 type ThreadRepository interface {
 	Insert(ctx context.Context, thread entity.Thread) (err error)
 
-	FindAllWithPagination(
-		ctx context.Context,
-		accessorUserID string,
-		pageInfo entity.PageInfo,
-	) (pagination entity.Pagination[entity.Thread], err error)
-
 	FindAllWithQueryAndPagination(
 		ctx context.Context,
 		accessorUserID string,
@@ -26,6 +20,13 @@ type ThreadRepository interface {
 		ctx context.Context,
 		accessorUserID string,
 		categoryID string,
+		pageInfo entity.PageInfo,
+	) (pagination entity.Pagination[entity.Thread], err error)
+
+	FindAllByUserIDWithPagination(
+		ctx context.Context,
+		accessorUserID string,
+		UserID string,
 		pageInfo entity.PageInfo,
 	) (pagination entity.Pagination[entity.Thread], err error)
 
@@ -56,6 +57,11 @@ type ThreadRepository interface {
 		threadID string,
 		pageInfo entity.PageInfo,
 	) (pagination entity.Pagination[entity.Comment], err error)
+
+	InsertComment(
+		ctx context.Context,
+		comment entity.Comment,
+	) (err error)
 
 	InsertFollowThread(
 		ctx context.Context,

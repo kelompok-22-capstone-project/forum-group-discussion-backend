@@ -15,6 +15,118 @@ type UserService struct {
 	mock.Mock
 }
 
+// ChangeBannedState provides a mock function with given fields: ctx, accessorRole, username
+func (_m *UserService) ChangeBannedState(ctx context.Context, accessorRole string, username string) error {
+	ret := _m.Called(ctx, accessorRole, username)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, accessorRole, username)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// ChangeFollowingState provides a mock function with given fields: ctx, accessorUserID, usernameToFollow
+func (_m *UserService) ChangeFollowingState(ctx context.Context, accessorUserID string, usernameToFollow string) error {
+	ret := _m.Called(ctx, accessorUserID, usernameToFollow)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, accessorUserID, usernameToFollow)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// GetAll provides a mock function with given fields: ctx, accessorUserID, orderBy, status, page, limit
+func (_m *UserService) GetAll(ctx context.Context, accessorUserID string, orderBy string, status string, page uint, limit uint) (response.Pagination[response.User], error) {
+	ret := _m.Called(ctx, accessorUserID, orderBy, status, page, limit)
+
+	var r0 response.Pagination[response.User]
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uint, uint) response.Pagination[response.User]); ok {
+		r0 = rf(ctx, accessorUserID, orderBy, status, page, limit)
+	} else {
+		r0 = ret.Get(0).(response.Pagination[response.User])
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, uint, uint) error); ok {
+		r1 = rf(ctx, accessorUserID, orderBy, status, page, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetAllThreadByUsername provides a mock function with given fields: ctx, accessorUserID, username, page, limit
+func (_m *UserService) GetAllThreadByUsername(ctx context.Context, accessorUserID string, username string, page uint, limit uint) (response.Pagination[response.ManyThread], error) {
+	ret := _m.Called(ctx, accessorUserID, username, page, limit)
+
+	var r0 response.Pagination[response.ManyThread]
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, uint, uint) response.Pagination[response.ManyThread]); ok {
+		r0 = rf(ctx, accessorUserID, username, page, limit)
+	} else {
+		r0 = ret.Get(0).(response.Pagination[response.ManyThread])
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, uint, uint) error); ok {
+		r1 = rf(ctx, accessorUserID, username, page, limit)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetByUsername provides a mock function with given fields: ctx, accessorUserID, username
+func (_m *UserService) GetByUsername(ctx context.Context, accessorUserID string, username string) (response.User, error) {
+	ret := _m.Called(ctx, accessorUserID, username)
+
+	var r0 response.User
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) response.User); ok {
+		r0 = rf(ctx, accessorUserID, username)
+	} else {
+		r0 = ret.Get(0).(response.User)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, accessorUserID, username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// GetOwn provides a mock function with given fields: ctx, accessorUserID, accessorUsername
+func (_m *UserService) GetOwn(ctx context.Context, accessorUserID string, accessorUsername string) (response.User, error) {
+	ret := _m.Called(ctx, accessorUserID, accessorUsername)
+
+	var r0 response.User
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) response.User); ok {
+		r0 = rf(ctx, accessorUserID, accessorUsername)
+	} else {
+		r0 = ret.Get(0).(response.User)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, accessorUserID, accessorUsername)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // Login provides a mock function with given fields: ctx, p
 func (_m *UserService) Login(ctx context.Context, p payload.Login) (response.Login, error) {
 	ret := _m.Called(ctx, p)

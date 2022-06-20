@@ -1002,6 +1002,77 @@ const docTemplate = `{
                         }
                     }
                 }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "This endpoint is used to create a comment of a thread",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "threads"
+                ],
+                "summary": "Create a Comment",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "request body",
+                        "name": "default",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/payload.CreateComment"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/controller.createThreadResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
             }
         },
         "/threads/{id}/follow": {
@@ -1259,6 +1330,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get all users",
@@ -1362,6 +1436,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the another user by username",
@@ -1437,8 +1514,20 @@ const docTemplate = `{
                     "204": {
                         "description": ""
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1518,6 +1607,9 @@ const docTemplate = `{
                 "security": [
                     {
                         "ApiKey": []
+                    },
+                    {
+                        "ApiKeyAuth": []
                     }
                 ],
                 "description": "This endpoint is used to get the user threads",
@@ -1602,43 +1694,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.commentData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "userID": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "3"
-                },
-                "comment": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "publishedOn": {
-                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "5"
-                }
-            }
-        },
         "controller.commentsInfoWrapper": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.commentData"
+                        "$ref": "#/definitions/response.Comment"
                     },
                     "x-order": "0"
                 },
@@ -1766,52 +1828,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.profileData": {
-            "type": "object",
-            "properties": {
-                "userID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "email": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "3"
-                },
-                "role": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "isActive": {
-                    "type": "boolean",
-                    "x-order": "5"
-                },
-                "registeredOn": {
-                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "6"
-                },
-                "totalThread": {
-                    "type": "integer",
-                    "x-order": "7"
-                },
-                "totalFollower": {
-                    "type": "integer",
-                    "x-order": "8"
-                },
-                "isFollowed": {
-                    "type": "boolean",
-                    "x-order": "9"
-                }
-            }
-        },
         "controller.profileResponse": {
             "type": "object",
             "properties": {
@@ -1825,7 +1841,7 @@ const docTemplate = `{
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.profileData"
+                    "$ref": "#/definitions/response.User"
                 }
             }
         },
@@ -1835,7 +1851,7 @@ const docTemplate = `{
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.profileData"
+                        "$ref": "#/definitions/response.User"
                     },
                     "x-order": "0"
                 },
@@ -2049,6 +2065,16 @@ const docTemplate = `{
                 }
             }
         },
+        "payload.CreateComment": {
+            "type": "object",
+            "properties": {
+                "comment": {
+                    "type": "string",
+                    "minLength": 1,
+                    "x-order": "0"
+                }
+            }
+        },
         "payload.CreateReport": {
             "type": "object",
             "properties": {
@@ -2202,6 +2228,36 @@ const docTemplate = `{
                     "description": "CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
                     "x-order": "3"
+                }
+            }
+        },
+        "response.Comment": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "comment": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "publishedOn": {
+                    "description": "PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "5"
                 }
             }
         },
@@ -2391,6 +2447,52 @@ const docTemplate = `{
                 },
                 "totalViewer": {
                     "type": "integer",
+                    "x-order": "9"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "x-order": "5"
+                },
+                "registeredOn": {
+                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "6"
+                },
+                "totalThread": {
+                    "type": "integer",
+                    "x-order": "7"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "8"
+                },
+                "isFollowed": {
+                    "type": "boolean",
                     "x-order": "9"
                 }
             }

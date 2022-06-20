@@ -48,21 +48,6 @@ func TestInsert(t *testing.T) {
 	}
 }
 
-func TestFindAllWithPagination(t *testing.T) {
-	var repo ThreadRepository = NewThreadRepositoryImpl(db)
-
-	pageInfo := entity.PageInfo{
-		Limit: 10,
-		Page:  1,
-	}
-
-	if pagination, err := repo.FindAllWithPagination(context.Background(), "u-ZrxmQS", pageInfo); err != nil {
-		t.Fatalf("Error happened: %+v", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
-	}
-}
-
 func TestFindAllWithQueryAndPagination(t *testing.T) {
 	var repo ThreadRepository = NewThreadRepositoryImpl(db)
 
@@ -87,6 +72,21 @@ func TestFindAllByCategoryIDWithPagination(t *testing.T) {
 	}
 
 	if pagination, err := repo.FindAllByCategoryIDWithPagination(context.Background(), "u-ZrxmQS", "c-abc", pageInfo); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
+	}
+}
+
+func TestFindAllByUserIDWithPagination(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	pageInfo := entity.PageInfo{
+		Limit: 10,
+		Page:  1,
+	}
+
+	if pagination, err := repo.FindAllByUserIDWithPagination(context.Background(), "u-kt56R1", "u-ZrxmQS", pageInfo); err != nil {
 		t.Fatalf("Error happened: %+v", err)
 	} else {
 		t.Logf("Pagination: %+v", pagination)
@@ -155,6 +155,27 @@ func TestFindAllCommentByThreadID(t *testing.T) {
 		t.Fatalf("Error happened: %+v", err)
 	} else {
 		t.Logf("Paginations: %+v", paginations)
+	}
+}
+
+func TestInsertComment(t *testing.T) {
+	var repo ThreadRepository = NewThreadRepositoryImpl(db)
+
+	comment := entity.Comment{
+		ID: "c-gfedcba",
+		User: entity.User{
+			ID: "u-kt56R1",
+		},
+		Thread: entity.Thread{
+			ID: "t-abcdefg",
+		},
+		Comment: "Good job guys, keep it simple.",
+	}
+
+	if err := repo.InsertComment(context.Background(), comment); err != nil {
+		t.Fatalf("Error happened: %+v", err)
+	} else {
+		t.Logf("Comment with ID %s successfully inserted", comment.ID)
 	}
 }
 

@@ -14,6 +14,41 @@ type UserRepository struct {
 	mock.Mock
 }
 
+// BannedUser provides a mock function with given fields: ctx, userID
+func (_m *UserRepository) BannedUser(ctx context.Context, userID string) error {
+	ret := _m.Called(ctx, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// FindAllWithStatusAndPagination provides a mock function with given fields: ctx, accessorUserID, orderBy, userStatus, pageInfo
+func (_m *UserRepository) FindAllWithStatusAndPagination(ctx context.Context, accessorUserID string, orderBy entity.UserOrderBy, userStatus entity.UserStatus, pageInfo entity.PageInfo) (entity.Pagination[entity.User], error) {
+	ret := _m.Called(ctx, accessorUserID, orderBy, userStatus, pageInfo)
+
+	var r0 entity.Pagination[entity.User]
+	if rf, ok := ret.Get(0).(func(context.Context, string, entity.UserOrderBy, entity.UserStatus, entity.PageInfo) entity.Pagination[entity.User]); ok {
+		r0 = rf(ctx, accessorUserID, orderBy, userStatus, pageInfo)
+	} else {
+		r0 = ret.Get(0).(entity.Pagination[entity.User])
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, entity.UserOrderBy, entity.UserStatus, entity.PageInfo) error); ok {
+		r1 = rf(ctx, accessorUserID, orderBy, userStatus, pageInfo)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // FindByUsername provides a mock function with given fields: ctx, username
 func (_m *UserRepository) FindByUsername(ctx context.Context, username string) (entity.User, error) {
 	ret := _m.Called(ctx, username)
@@ -35,6 +70,41 @@ func (_m *UserRepository) FindByUsername(ctx context.Context, username string) (
 	return r0, r1
 }
 
+// FindByUsernameWithAccessor provides a mock function with given fields: ctx, accessorUserID, username
+func (_m *UserRepository) FindByUsernameWithAccessor(ctx context.Context, accessorUserID string, username string) (entity.User, error) {
+	ret := _m.Called(ctx, accessorUserID, username)
+
+	var r0 entity.User
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) entity.User); ok {
+		r0 = rf(ctx, accessorUserID, username)
+	} else {
+		r0 = ret.Get(0).(entity.User)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string, string) error); ok {
+		r1 = rf(ctx, accessorUserID, username)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
+// FollowUser provides a mock function with given fields: ctx, ID, accessorUserID, userID
+func (_m *UserRepository) FollowUser(ctx context.Context, ID string, accessorUserID string, userID string) error {
+	ret := _m.Called(ctx, ID, accessorUserID, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string) error); ok {
+		r0 = rf(ctx, ID, accessorUserID, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Insert provides a mock function with given fields: ctx, _a1
 func (_m *UserRepository) Insert(ctx context.Context, _a1 entity.User) error {
 	ret := _m.Called(ctx, _a1)
@@ -42,6 +112,34 @@ func (_m *UserRepository) Insert(ctx context.Context, _a1 entity.User) error {
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, entity.User) error); ok {
 		r0 = rf(ctx, _a1)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UnbannedUser provides a mock function with given fields: ctx, userID
+func (_m *UserRepository) UnbannedUser(ctx context.Context, userID string) error {
+	ret := _m.Called(ctx, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string) error); ok {
+		r0 = rf(ctx, userID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
+// UnfollowUser provides a mock function with given fields: ctx, accessorUserID, userID
+func (_m *UserRepository) UnfollowUser(ctx context.Context, accessorUserID string, userID string) error {
+	ret := _m.Called(ctx, accessorUserID, userID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(context.Context, string, string) error); ok {
+		r0 = rf(ctx, accessorUserID, userID)
 	} else {
 		r0 = ret.Error(0)
 	}
