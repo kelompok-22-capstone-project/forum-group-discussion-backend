@@ -121,34 +121,6 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.moderatorData:
-    properties:
-      email:
-        type: string
-        x-order: "3"
-      isActive:
-        type: boolean
-        x-order: "6"
-      moderatorID:
-        type: string
-        x-order: "0"
-      name:
-        type: string
-        x-order: "4"
-      registeredOn:
-        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "7"
-      role:
-        type: string
-        x-order: "5"
-      userID:
-        type: string
-        x-order: "1"
-      username:
-        type: string
-        x-order: "2"
-    type: object
   controller.pageInfoData:
     properties:
       limit:
@@ -302,64 +274,10 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.threadData:
-    properties:
-      ID:
-        type: string
-        x-order: "0"
-      categoryID:
-        type: string
-        x-order: "10"
-      categoryName:
-        type: string
-        x-order: "11"
-      creatorID:
-        type: string
-        x-order: "7"
-      creatorName:
-        type: string
-        x-order: "9"
-      creatorUsername:
-        type: string
-        x-order: "8"
-      description:
-        type: string
-        x-order: "2"
-      isFollowed:
-        type: boolean
-        x-order: "14"
-      isLiked:
-        type: boolean
-        x-order: "13"
-      moderators:
-        items:
-          $ref: '#/definitions/controller.moderatorData'
-        type: array
-        x-order: "15"
-      publishedOn:
-        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "12"
-      title:
-        type: string
-        x-order: "1"
-      totalComment:
-        type: integer
-        x-order: "6"
-      totalFollower:
-        type: integer
-        x-order: "5"
-      totalLike:
-        type: integer
-        x-order: "4"
-      totalViewer:
-        type: integer
-        x-order: "3"
-    type: object
   controller.threadResponse:
     properties:
       data:
-        $ref: '#/definitions/controller.threadData'
+        $ref: '#/definitions/response.Thread'
         x-order: "2"
       message:
         type: string
@@ -597,6 +515,88 @@ definitions:
         type: integer
         x-order: "8"
     type: object
+  response.Moderator:
+    properties:
+      email:
+        type: string
+        x-order: "3"
+      isActive:
+        type: boolean
+        x-order: "6"
+      moderatorID:
+        type: string
+        x-order: "0"
+      name:
+        type: string
+        x-order: "4"
+      registeredOn:
+        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "7"
+      role:
+        type: string
+        x-order: "5"
+      userId:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "2"
+    type: object
+  response.Thread:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      categoryID:
+        type: string
+        x-order: "2"
+      categoryName:
+        type: string
+        x-order: "3"
+      creatorID:
+        type: string
+        x-order: "13"
+      creatorName:
+        type: string
+        x-order: "15"
+      creatorUsername:
+        type: string
+        x-order: "14"
+      description:
+        type: string
+        x-order: "8"
+      isFollowed:
+        type: boolean
+        x-order: "6"
+      isLiked:
+        type: boolean
+        x-order: "5"
+      moderators:
+        items:
+          $ref: '#/definitions/response.Moderator'
+        type: array
+        x-order: "7"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "4"
+      title:
+        type: string
+        x-order: "1"
+      totalComment:
+        type: integer
+        x-order: "12"
+      totalFollower:
+        type: integer
+        x-order: "11"
+      totalLike:
+        type: integer
+        x-order: "10"
+      totalViewer:
+        type: integer
+        x-order: "9"
+    type: object
 host: moot-rest-api.herokuapp.com
 info:
   contact:
@@ -808,6 +808,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get Category Threads
       tags:
       - categories
@@ -1030,6 +1031,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get Threads
       tags:
       - threads
@@ -1134,6 +1136,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get Thread by ID
       tags:
       - threads
@@ -1214,6 +1217,7 @@ paths:
             $ref: '#/definitions/echo.HTTPError'
       security:
       - ApiKey: []
+      - ApiKeyAuth: []
       summary: Get Thread Comments
       tags:
       - threads

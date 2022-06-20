@@ -36,7 +36,7 @@ func (c *categoriesController) Route(g *echo.Group) {
 	group.GET("", c.getCategories)
 	group.PUT("/:id", c.putUpdateCategory, middleware.JWTMiddleware())
 	group.DELETE("/:id", c.deleteCategory, middleware.JWTMiddleware())
-	group.GET("/:id/threads", c.getCategoryThreads)
+	group.GET("/:id/threads", c.getCategoryThreads, middleware.JWTMiddleware())
 }
 
 // postCreateCategory godoc
@@ -163,6 +163,7 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 // @Param        page   query  int     false  "page, default 1"
 // @Param        limit  query  int     false  "limit, default 10"
 // @Security     ApiKey
+// @Security     ApiKeyAuth
 // @Success      200  {object}  threadsResponse
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
@@ -189,7 +190,7 @@ func (c *categoriesController) getCategoryThreads(e echo.Context) error {
 		return newErrorResponse(err)
 	}
 
-	response := model.NewResponse("success", "Get categories successful.", threadsResponse)
+	response := model.NewResponse("success", "Get threads by category successful.", threadsResponse)
 	return e.JSON(http.StatusOK, response)
 }
 
