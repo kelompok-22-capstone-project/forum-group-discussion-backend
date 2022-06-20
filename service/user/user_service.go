@@ -38,4 +38,10 @@ type UserService interface {
 		accessorRole string,
 		username string,
 	) (err error)
+
+	ChangeFollowingState(
+		ctx context.Context,
+		accessorUserID,
+		usernameToFollow string,
+	) (err error)
 }
