@@ -582,76 +582,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/reports/{id}/status": {
-            "put": {
-                "security": [
-                    {
-                        "ApiKey": []
-                    },
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "description": "This endpoint is used to update a report status",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "reports"
-                ],
-                "summary": "Update a Report Status",
-                "parameters": [
-                    {
-                        "description": "request body",
-                        "name": "default",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/payload.UpdateReportStatus"
-                        }
-                    },
-                    {
-                        "type": "string",
-                        "description": "report ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": ""
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/echo.HTTPError"
-                        }
-                    }
-                }
-            }
-        },
         "/threads": {
             "get": {
                 "security": [
@@ -2178,18 +2108,6 @@ const docTemplate = `{
                     "type": "string",
                     "minLength": 2,
                     "x-order": "1"
-                }
-            }
-        },
-        "payload.UpdateReportStatus": {
-            "type": "object",
-            "properties": {
-                "status": {
-                    "description": "Status, available options: rejected, accepted",
-                    "type": "string",
-                    "maxLength": 9,
-                    "minLength": 5,
-                    "x-order": "0"
                 }
             }
         },
