@@ -161,45 +161,11 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.reportData:
-    properties:
-      ID:
-        type: string
-        x-order: "0"
-      moderatorID:
-        type: string
-        x-order: "1"
-      moderatorName:
-        type: string
-        x-order: "3"
-      moderatorUsername:
-        type: string
-        x-order: "2"
-      name:
-        type: string
-        x-order: "6"
-      reason:
-        type: string
-        x-order: "7"
-      reportedOn:
-        description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "9"
-      status:
-        type: string
-        x-order: "8"
-      userID:
-        type: string
-        x-order: "4"
-      username:
-        type: string
-        x-order: "5"
-    type: object
   controller.reportsData:
     properties:
       list:
         items:
-          $ref: '#/definitions/controller.reportData'
+          $ref: '#/definitions/response.Report'
         type: array
         x-order: "0"
       pageInfo:
@@ -300,7 +266,7 @@ definitions:
         minLength: 2
         type: string
         x-order: "1"
-      userID:
+      username:
         maxLength: 10
         minLength: 2
         type: string
@@ -511,6 +477,40 @@ definitions:
       username:
         type: string
         x-order: "2"
+    type: object
+  response.Report:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      moderatorID:
+        type: string
+        x-order: "1"
+      moderatorName:
+        type: string
+        x-order: "3"
+      moderatorUsername:
+        type: string
+        x-order: "2"
+      name:
+        type: string
+        x-order: "6"
+      reason:
+        type: string
+        x-order: "7"
+      reportedOn:
+        description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "9"
+      status:
+        type: string
+        x-order: "8"
+      userID:
+        type: string
+        x-order: "4"
+      username:
+        type: string
+        x-order: "5"
     type: object
   response.Thread:
     properties:

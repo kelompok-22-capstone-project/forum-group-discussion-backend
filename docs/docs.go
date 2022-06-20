@@ -1825,59 +1825,13 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.reportData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "moderatorID": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "moderatorUsername": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "moderatorName": {
-                    "type": "string",
-                    "x-order": "3"
-                },
-                "userID": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "5"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "6"
-                },
-                "reason": {
-                    "type": "string",
-                    "x-order": "7"
-                },
-                "status": {
-                    "type": "string",
-                    "x-order": "8"
-                },
-                "reportedOn": {
-                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "9"
-                }
-            }
-        },
         "controller.reportsData": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.reportData"
+                        "$ref": "#/definitions/response.Report"
                     },
                     "x-order": "0"
                 },
@@ -2008,7 +1962,7 @@ const docTemplate = `{
         "payload.CreateReport": {
             "type": "object",
             "properties": {
-                "userID": {
+                "username": {
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 2,
@@ -2299,6 +2253,52 @@ const docTemplate = `{
                     "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
                     "x-order": "7"
+                }
+            }
+        },
+        "response.Report": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "moderatorID": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "moderatorUsername": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "moderatorName": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "5"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "6"
+                },
+                "reason": {
+                    "type": "string",
+                    "x-order": "7"
+                },
+                "status": {
+                    "type": "string",
+                    "x-order": "8"
+                },
+                "reportedOn": {
+                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "9"
                 }
             }
         },
