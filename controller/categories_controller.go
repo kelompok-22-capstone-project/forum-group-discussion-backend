@@ -63,7 +63,7 @@ func (c *categoriesController) postCreateCategory(e echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	id, err := c.categoryService.Create(e.Request().Context(), tp.ID, *p)
+	id, err := c.categoryService.Create(e.Request().Context(), tp.Role, *p)
 	if err != nil {
 		return newErrorResponse(err)
 	}
