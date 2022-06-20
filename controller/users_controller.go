@@ -175,7 +175,18 @@ func (u *usersController) getUserThreads(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/follow [put]
 func (u *usersController) putUserFollow(c echo.Context) error {
-	_ = c.Param("username")
+	username := c.Param("username")
+
+	tp := u.tokenGenerator.ExtractToken(c)
+
+	if err := u.userService.ChangeFollowingState(
+		c.Request().Context(),
+		tp.ID,
+		username,
+	); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
