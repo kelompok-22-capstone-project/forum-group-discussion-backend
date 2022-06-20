@@ -2,20 +2,33 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"github.com/labstack/echo/v4"
 )
 
-type usersController struct{}
+type usersController struct {
+	userService    user.UserService
+	tokenGenerator generator.TokenGenerator
+}
 
-func NewUsersController() *usersController {
-	return &usersController{}
+func NewUsersController(
+	userService user.UserService,
+	tokenGenerator generator.TokenGenerator,
+) *usersController {
+	return &usersController{
+		userService:    userService,
+		tokenGenerator: tokenGenerator,
+	}
 }
 
 func (u *usersController) Route(g *echo.Group) {
 	group := g.Group("/users")
-	group.GET("/", u.getUsers)
+	group.GET("", u.getUsers)
 	group.GET("/me", u.getMe)
 	group.GET("/:username", u.getUserByUsername)
 	group.GET("/:username/threads", u.getUserThreads)
@@ -38,11 +51,39 @@ func (u *usersController) Route(g *echo.Group) {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users [get]
 func (u *usersController) getUsers(c echo.Context) error {
-	_ = c.QueryParam("page")
-	_ = c.QueryParam("limit")
-	_ = c.QueryParam("order_by")
-	_ = c.QueryParam("status")
-	return nil
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+	orderBy := c.QueryParam("order_by")
+	status := c.QueryParam("status")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := u.tokenGenerator.ExtractToken(c)
+
+	usersResponse, err := u.userService.GetAll(
+		c.Request().Context(),
+		tp.ID,
+		orderBy,
+		status,
+		uint(page),
+		uint(limit),
+	)
+
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get users successful.", usersResponse)
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // getOwnProfile godoc

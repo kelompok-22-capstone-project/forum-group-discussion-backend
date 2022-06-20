@@ -72,7 +72,7 @@ func main() {
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)
-	usersController := controller.NewUsersController()
+	usersController := controller.NewUsersController(userService, tokenGenerator)
 	categoriesController := controller.NewCategoriesController(categoryService, tokenGenerator)
 	threadsController := controller.NewThreadsController(threadService, tokenGenerator)
 	adminController := controller.NewAdminController()
