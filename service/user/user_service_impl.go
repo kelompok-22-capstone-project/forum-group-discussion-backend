@@ -254,3 +254,34 @@ func (u *userServiceImpl) GetByUsername(
 
 	return
 }
+
+func (u *userServiceImpl) ChangeBannedState(
+	ctx context.Context,
+	accessorRole string,
+	username string,
+) (err error) {
+	if accessorRole != "admin" {
+		err = service.ErrAccessForbidden
+		return
+	}
+
+	user, repoErr := u.userRepository.FindByUsername(ctx, username)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	if user.IsActive {
+		if repoErr := u.userRepository.BannedUser(context.Background(), user.ID); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	} else {
+		if repoErr := u.userRepository.UnbannedUser(context.Background(), user.ID); repoErr != nil {
+			err = service.MapError(repoErr)
+			return
+		}
+	}
+
+	return
+}
