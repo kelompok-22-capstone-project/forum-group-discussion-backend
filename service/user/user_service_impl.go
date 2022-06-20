@@ -10,6 +10,7 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
@@ -18,6 +19,7 @@ import (
 
 type userServiceImpl struct {
 	userRepository    user.UserRepository
+	threadRepository  thread.ThreadRepository
 	idGenerator       generator.IDGenerator
 	passwordGenerator generator.PasswordGenerator
 	tokenGenerator    generator.TokenGenerator
@@ -25,12 +27,14 @@ type userServiceImpl struct {
 
 func NewUserServiceImpl(
 	userRepository user.UserRepository,
+	threadRepository thread.ThreadRepository,
 	idGenerator generator.IDGenerator,
 	passwordGenerator generator.PasswordGenerator,
 	tokenGenerator generator.TokenGenerator,
 ) *userServiceImpl {
 	return &userServiceImpl{
 		userRepository:    userRepository,
+		threadRepository:  threadRepository,
 		idGenerator:       idGenerator,
 		passwordGenerator: passwordGenerator,
 		tokenGenerator:    tokenGenerator,
@@ -317,6 +321,73 @@ func (u *userServiceImpl) ChangeFollowingState(
 			err = service.MapError(repoErr)
 			return
 		}
+	}
+
+	return
+}
+
+func (u *userServiceImpl) GetAllThreadByUsername(
+	ctx context.Context,
+	accessorUserID,
+	username string,
+	page uint,
+	limit uint,
+) (rs response.Pagination[response.ManyThread], err error) {
+	if page == 0 {
+		page = 1
+	}
+
+	if limit == 0 {
+		limit = 10
+	}
+
+	user, repoErr := u.userRepository.FindByUsername(ctx, username)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	pagination, repoErr := u.threadRepository.FindAllByUserIDWithPagination(
+		ctx,
+		accessorUserID,
+		user.ID,
+		entity.PageInfo{
+			Limit: limit,
+			Page:  page,
+		},
+	)
+
+	if repoErr != nil {
+		err = service.MapError(repoErr)
+		return
+	}
+
+	rs.PageInfo.Page = pagination.PageInfo.Page
+	rs.PageInfo.Limit = pagination.PageInfo.Limit
+	rs.PageInfo.PageTotal = pagination.PageInfo.PageTotal
+	rs.PageInfo.Total = pagination.PageInfo.Total
+
+	rs.List = make([]response.ManyThread, len(pagination.List))
+
+	for i, item := range pagination.List {
+		thread := response.ManyThread{
+			ID:              item.ID,
+			Title:           item.Title,
+			CategoryID:      item.Category.ID,
+			CategoryName:    item.Category.Name,
+			PublishedOn:     item.CreatedAt.Format(time.RFC822),
+			IsLiked:         item.IsLiked,
+			IsFollowed:      item.IsFollowed,
+			Description:     item.Description,
+			TotalViewer:     item.TotalViewer,
+			TotalLike:       item.TotalLike,
+			TotalFollower:   item.TotalFollower,
+			TotalComment:    item.TotalComment,
+			CreatorID:       item.Creator.ID,
+			CreatorUsername: item.Creator.Username,
+			CreatorName:     item.Creator.Name,
+		}
+		rs.List[i] = thread
 	}
 
 	return
