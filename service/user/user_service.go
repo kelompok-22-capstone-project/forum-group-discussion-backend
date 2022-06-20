@@ -44,4 +44,12 @@ type UserService interface {
 		accessorUserID,
 		usernameToFollow string,
 	) (err error)
+
+	GetAllThreadByUsername(
+		ctx context.Context,
+		accessorUserID,
+		username string,
+		page uint,
+		limit uint,
+	) (rs response.Pagination[response.ManyThread], err error)
 }
