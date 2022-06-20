@@ -125,8 +125,18 @@ func (u *usersController) getMe(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username} [get]
 func (u *usersController) getUserByUsername(c echo.Context) error {
-	_ = c.Param("username")
-	return nil
+	username := c.Param("username")
+
+	tp := u.tokenGenerator.ExtractToken(c)
+
+	userResponse, err := u.userService.GetByUsername(c.Request().Context(), tp.ID, username)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get user successful.", userResponse)
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // getUserThreads godoc
@@ -179,13 +189,25 @@ func (u *usersController) putUserFollow(c echo.Context) error {
 // @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      204
+// @Failure      400  {object}  echo.HTTPError
 // @Failure      401  {object}  echo.HTTPError
 // @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/banned [put]
 func (u *usersController) putUserBanned(c echo.Context) error {
-	_ = c.Param("username")
+	username := c.Param("username")
+
+	tp := u.tokenGenerator.ExtractToken(c)
+
+	if err := u.userService.ChangeBannedState(
+		c.Request().Context(),
+		tp.Role,
+		username,
+	); err != nil {
+		return newErrorResponse(err)
+	}
+
 	return c.NoContent(http.StatusNoContent)
 }
 
