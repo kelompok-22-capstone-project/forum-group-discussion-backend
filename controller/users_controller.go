@@ -129,6 +129,7 @@ func (u *usersController) putUserFollow(c echo.Context) error {
 // @Security     ApiKeyAuth
 // @Success      204
 // @Failure      401  {object}  echo.HTTPError
+// @Failure      403  {object}  echo.HTTPError
 // @Failure      404  {object}  echo.HTTPError
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/banned [put]
