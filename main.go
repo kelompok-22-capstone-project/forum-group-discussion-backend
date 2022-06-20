@@ -66,7 +66,7 @@ func main() {
 	categoryRepository := cr.NewCategoryRepositoryImpl(db)
 	threadRepository := tr.NewThreadRepositoryImpl(db)
 
-	userService := us.NewUserServiceImpl(userRepository, idGenerator, passwordGenerator, tokenGenerator)
+	userService := us.NewUserServiceImpl(userRepository, threadRepository, idGenerator, passwordGenerator, tokenGenerator)
 	categoryService := cs.NewCategoryServiceImpl(categoryRepository, threadRepository, idGenerator)
 	threadService := thread.NewThreadServiceImpl(threadRepository, categoryRepository, userRepository, idGenerator)
 
