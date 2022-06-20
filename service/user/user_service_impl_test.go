@@ -610,3 +610,32 @@ func TestGetByUsername(t *testing.T) {
 		t.Logf("User: %+v", user)
 	}
 }
+
+func TestChangeBannedState(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+
+	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+
+	accessorRole := "admin"
+	username := "naruto"
+
+	if err := service.ChangeBannedState(context.Background(), accessorRole, username); err != nil {
+		t.Logf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully banned/unbanned user with username %s", username)
+	}
+}
