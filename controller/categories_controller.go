@@ -63,7 +63,7 @@ func (c *categoriesController) postCreateCategory(e echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	id, err := c.categoryService.Create(e.Request().Context(), tp, *p)
+	id, err := c.categoryService.Create(e.Request().Context(), tp.ID, *p)
 	if err != nil {
 		return newErrorResponse(err)
 	}
@@ -122,7 +122,7 @@ func (c *categoriesController) putUpdateCategory(e echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	if err := c.categoryService.Update(e.Request().Context(), tp, id, *p); err != nil {
+	if err := c.categoryService.Update(e.Request().Context(), tp.ID, id, *p); err != nil {
 		return newErrorResponse(err)
 	}
 
@@ -147,7 +147,7 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 
 	tp := c.tokenGenerator.ExtractToken(e)
 
-	if err := c.categoryService.Delete(e.Request().Context(), tp, id); err != nil {
+	if err := c.categoryService.Delete(e.Request().Context(), tp.ID, id); err != nil {
 		return newErrorResponse(err)
 	}
 
@@ -185,7 +185,7 @@ func (c *categoriesController) getCategoryThreads(e echo.Context) error {
 
 	tp := c.tokenGenerator.ExtractToken(e)
 
-	threadsResponse, err := c.categoryService.GetAllByCategory(e.Request().Context(), tp, id, uint(page), uint(limit))
+	threadsResponse, err := c.categoryService.GetAllByCategory(e.Request().Context(), tp.ID, id, uint(page), uint(limit))
 	if err != nil {
 		return newErrorResponse(err)
 	}
