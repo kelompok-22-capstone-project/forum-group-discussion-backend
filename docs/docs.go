@@ -2084,10 +2084,16 @@ const docTemplate = `{
                     "minLength": 2,
                     "x-order": "0"
                 },
+                "threadID": {
+                    "type": "string",
+                    "maxLength": 10,
+                    "minLength": 2,
+                    "x-order": "1"
+                },
                 "reason": {
                     "type": "string",
                     "minLength": 2,
-                    "x-order": "1"
+                    "x-order": "2"
                 }
             }
         },
