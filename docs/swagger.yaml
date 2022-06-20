@@ -114,44 +114,10 @@ definitions:
         type: integer
         x-order: "3"
     type: object
-  controller.profileData:
-    properties:
-      email:
-        type: string
-        x-order: "2"
-      isActive:
-        type: boolean
-        x-order: "5"
-      isFollowed:
-        type: boolean
-        x-order: "9"
-      name:
-        type: string
-        x-order: "3"
-      registeredOn:
-        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "6"
-      role:
-        type: string
-        x-order: "4"
-      totalFollower:
-        type: integer
-        x-order: "8"
-      totalThread:
-        type: integer
-        x-order: "7"
-      userID:
-        type: string
-        x-order: "0"
-      username:
-        type: string
-        x-order: "1"
-    type: object
   controller.profileResponse:
     properties:
       data:
-        $ref: '#/definitions/controller.profileData'
+        $ref: '#/definitions/response.User'
         x-order: "2"
       message:
         type: string
@@ -164,7 +130,7 @@ definitions:
     properties:
       list:
         items:
-          $ref: '#/definitions/controller.profileData'
+          $ref: '#/definitions/response.User'
         type: array
         x-order: "0"
       pageInfo:
@@ -603,6 +569,40 @@ definitions:
       totalViewer:
         type: integer
         x-order: "9"
+    type: object
+  response.User:
+    properties:
+      email:
+        type: string
+        x-order: "2"
+      isActive:
+        type: boolean
+        x-order: "5"
+      isFollowed:
+        type: boolean
+        x-order: "9"
+      name:
+        type: string
+        x-order: "3"
+      registeredOn:
+        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "6"
+      role:
+        type: string
+        x-order: "4"
+      totalFollower:
+        type: integer
+        x-order: "8"
+      totalThread:
+        type: integer
+        x-order: "7"
+      userID:
+        type: string
+        x-order: "0"
+      username:
+        type: string
+        x-order: "1"
     type: object
 host: moot-rest-api.herokuapp.com
 info:
@@ -1512,8 +1512,16 @@ paths:
       responses:
         "204":
           description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
         "401":
           description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
           schema:
             $ref: '#/definitions/echo.HTTPError'
         "404":

@@ -1514,8 +1514,20 @@ const docTemplate = `{
                     "204": {
                         "description": ""
                     },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
                     "401": {
                         "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "403": {
+                        "description": "Forbidden",
                         "schema": {
                             "$ref": "#/definitions/echo.HTTPError"
                         }
@@ -1816,52 +1828,6 @@ const docTemplate = `{
                 }
             }
         },
-        "controller.profileData": {
-            "type": "object",
-            "properties": {
-                "userID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "email": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "3"
-                },
-                "role": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "isActive": {
-                    "type": "boolean",
-                    "x-order": "5"
-                },
-                "registeredOn": {
-                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "6"
-                },
-                "totalThread": {
-                    "type": "integer",
-                    "x-order": "7"
-                },
-                "totalFollower": {
-                    "type": "integer",
-                    "x-order": "8"
-                },
-                "isFollowed": {
-                    "type": "boolean",
-                    "x-order": "9"
-                }
-            }
-        },
         "controller.profileResponse": {
             "type": "object",
             "properties": {
@@ -1875,7 +1841,7 @@ const docTemplate = `{
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.profileData"
+                    "$ref": "#/definitions/response.User"
                 }
             }
         },
@@ -1885,7 +1851,7 @@ const docTemplate = `{
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.profileData"
+                        "$ref": "#/definitions/response.User"
                     },
                     "x-order": "0"
                 },
@@ -2481,6 +2447,52 @@ const docTemplate = `{
                 },
                 "totalViewer": {
                     "type": "integer",
+                    "x-order": "9"
+                }
+            }
+        },
+        "response.User": {
+            "type": "object",
+            "properties": {
+                "userID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "email": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "role": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "isActive": {
+                    "type": "boolean",
+                    "x-order": "5"
+                },
+                "registeredOn": {
+                    "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "6"
+                },
+                "totalThread": {
+                    "type": "integer",
+                    "x-order": "7"
+                },
+                "totalFollower": {
+                    "type": "integer",
+                    "x-order": "8"
+                },
+                "isFollowed": {
+                    "type": "boolean",
                     "x-order": "9"
                 }
             }
