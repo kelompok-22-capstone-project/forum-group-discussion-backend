@@ -289,7 +289,7 @@ func (u *userRepositoryImpl) BannedUser(
 	}
 
 	if count < 1 {
-		err = repository.ErrDatabase
+		err = repository.ErrRecordAlreadyExists
 		return
 	}
 
@@ -308,7 +308,7 @@ func (u *userRepositoryImpl) BannedUser(
 	}
 
 	if count < 1 {
-		err = repository.ErrDatabase
+		err = repository.ErrRecordAlreadyExists
 		return
 	}
 
@@ -349,7 +349,7 @@ func (u *userRepositoryImpl) UnbannedUser(
 	}
 
 	if count < 1 {
-		err = repository.ErrDatabase
+		err = repository.ErrRecordAlreadyExists
 		return
 	}
 
@@ -368,7 +368,7 @@ func (u *userRepositoryImpl) UnbannedUser(
 	}
 
 	if count < 1 {
-		err = repository.ErrDatabase
+		err = repository.ErrRecordAlreadyExists
 		return
 	}
 
