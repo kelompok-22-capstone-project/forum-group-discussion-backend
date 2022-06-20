@@ -154,10 +154,38 @@ func (u *usersController) getUserByUsername(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/{username}/threads [get]
 func (u *usersController) getUserThreads(c echo.Context) error {
-	_ = c.Param("username")
-	_ = c.QueryParam("page")
-	_ = c.QueryParam("limit")
-	return nil
+	username := c.Param("username")
+
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := u.tokenGenerator.ExtractToken(c)
+
+	threadsResponse, err := u.userService.GetAllThreadByUsername(
+		c.Request().Context(),
+		tp.ID,
+		username,
+		uint(page),
+		uint(limit),
+	)
+
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get threads by username successful.", threadsResponse)
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // putUserFollow godoc
