@@ -100,7 +100,16 @@ func (u *usersController) getUsers(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /users/me [get]
 func (u *usersController) getMe(c echo.Context) error {
-	return nil
+	tp := u.tokenGenerator.ExtractToken(c)
+
+	userResponse, err := u.userService.GetOwn(c.Request().Context(), tp.ID, tp.Username)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get user successful.", userResponse)
+
+	return c.JSON(http.StatusOK, response)
 }
 
 // getUserByUsername godoc
