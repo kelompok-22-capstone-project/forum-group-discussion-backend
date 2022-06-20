@@ -14,6 +14,8 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
+	mtr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	mur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
@@ -27,12 +29,14 @@ import (
 
 func TestRegister(t *testing.T) {
 	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
 	mockIDGen := &mig.IDGenerator{}
 	mockPwdGen := &mpg.PasswordGenerator{}
 	mockTokenGen := &mtg.TokenGenerator{}
 
 	var userService UserService = NewUserServiceImpl(
 		mockUserRepository,
+		mockThreadRepository,
 		mockIDGen,
 		mockPwdGen,
 		mockTokenGen,
@@ -240,12 +244,14 @@ func TestRegister(t *testing.T) {
 
 func TestLogin(t *testing.T) {
 	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
 	mockIDGen := &mig.IDGenerator{}
 	mockPwdGen := &mpg.PasswordGenerator{}
 	mockTokenGen := &mtg.TokenGenerator{}
 
 	var userService UserService = NewUserServiceImpl(
 		mockUserRepository,
+		mockThreadRepository,
 		mockIDGen,
 		mockPwdGen,
 		mockTokenGen,
@@ -534,11 +540,12 @@ func TestGetAll(t *testing.T) {
 	}
 
 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
 	accessorUserID := "u-ZrxmQS"
 	orderBy := "registered_date"
@@ -566,11 +573,12 @@ func TestGetOwn(t *testing.T) {
 	}
 
 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
 	accessorUserID := "u-ZrxmQS"
 	accessorUsername := "erikrios"
@@ -595,11 +603,12 @@ func TestGetByUsername(t *testing.T) {
 	}
 
 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
 	accessorUserID := "u-ZrxmQS"
 	username := "rezana"
@@ -624,11 +633,12 @@ func TestChangeBannedState(t *testing.T) {
 	}
 
 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
 	accessorRole := "admin"
 	username := "naruto"
@@ -653,11 +663,12 @@ func TestChangeFollowingState(t *testing.T) {
 	}
 
 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, idGen, pwdGen, tknGen)
+	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
 	accessorUserID := "u-kt56R1"
 	username := "erikrios"
@@ -666,5 +677,37 @@ func TestChangeFollowingState(t *testing.T) {
 		t.Logf("Error happened: %s", err)
 	} else {
 		t.Logf("Successfully follow/unfollow a user with username %s", username)
+	}
+}
+
+func TestGetAllThreadByUsername(t *testing.T) {
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	err := godotenv.Load("./../../.env.example")
+	if err != nil {
+		panic(err)
+	}
+
+	db, err := config.NewPostgreSQLDatabase()
+	if err != nil {
+		panic(err)
+	}
+
+	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+
+	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+
+	accessorUserID := "u-kt56R1"
+	username := "erikrios"
+	page := 1
+	limit := 20
+
+	if pagination, err := service.GetAllThreadByUsername(context.Background(), accessorUserID, username, uint(page), uint(limit)); err != nil {
+		t.Logf("Error happened: %s", err)
+	} else {
+		t.Logf("Pagination: %+v", pagination)
 	}
 }
