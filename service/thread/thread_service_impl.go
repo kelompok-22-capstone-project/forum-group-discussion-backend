@@ -184,6 +184,10 @@ func (t *threadServiceImpl) GetByID(
 		return
 	}
 
+	go func(ctx context.Context, ID string) {
+		_ = t.threadRepository.IncrementTotalViewer(ctx, ID)
+	}(ctx, ID)
+
 	rs.Moderators = make([]response.Moderator, len(moderators))
 
 	for i, item := range moderators {
