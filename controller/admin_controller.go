@@ -1,6 +1,9 @@
 package controller
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/labstack/echo/v4"
+)
 
 type adminController struct{}
 
@@ -29,14 +32,7 @@ func (i *adminController) getInfo(c echo.Context) error {
 
 // profileResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
 type infoResponse struct {
-	Status  string   `json:"status" extensions:"x-order=0"`
-	Message string   `json:"message" extensions:"x-order=1"`
-	Data    infoData `json:"data" extensions:"x-order=2"`
-}
-
-type infoData struct {
-	TotalUser      uint `json:"totalUser" extensions:"x-order=0"`
-	TotalThread    uint `json:"totalThread" extensions:"x-order=1"`
-	TotalModerator uint `json:"totalModerator" extensions:"x-order=2"`
-	TotalReport    uint `json:"totalReport" extensions:"x-order=3"`
+	Status  string                 `json:"status" extensions:"x-order=0"`
+	Message string                 `json:"message" extensions:"x-order=1"`
+	Data    response.DashboardInfo `json:"data" extensions:"x-order=2"`
 }
