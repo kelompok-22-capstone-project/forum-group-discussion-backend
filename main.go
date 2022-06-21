@@ -10,10 +10,12 @@ import (
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
 	cr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
+	rr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/report"
 	tr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	cs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/report"
+	ts "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread"
 	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/validation"
@@ -65,10 +67,12 @@ func main() {
 	userRepository := ur.NewUserRepositoryImpl(db)
 	categoryRepository := cr.NewCategoryRepositoryImpl(db)
 	threadRepository := tr.NewThreadRepositoryImpl(db)
+	reportRepository := rr.NewReportRepositoryImpl(db)
 
 	userService := us.NewUserServiceImpl(userRepository, threadRepository, idGenerator, passwordGenerator, tokenGenerator)
 	categoryService := cs.NewCategoryServiceImpl(categoryRepository, threadRepository, idGenerator)
-	threadService := thread.NewThreadServiceImpl(threadRepository, categoryRepository, userRepository, idGenerator)
+	threadService := ts.NewThreadServiceImpl(threadRepository, categoryRepository, userRepository, idGenerator)
+	reportService := report.NewReportServiceImpl(reportRepository, userRepository, threadRepository, idGenerator)
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)
@@ -76,7 +80,7 @@ func main() {
 	categoriesController := controller.NewCategoriesController(categoryService, tokenGenerator)
 	threadsController := controller.NewThreadsController(threadService, tokenGenerator)
 	adminController := controller.NewAdminController()
-	reportsController := controller.NewReportsController()
+	reportsController := controller.NewReportsController(reportService, tokenGenerator)
 
 	e := echo.New()
 
