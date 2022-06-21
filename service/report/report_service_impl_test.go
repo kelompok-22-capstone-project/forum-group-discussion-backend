@@ -8,6 +8,7 @@ import (
 
 	"github.com/joho/godotenv"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/report"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
@@ -46,5 +47,22 @@ func TestGetAll(t *testing.T) {
 		t.Fatalf("Error happened: %s", err)
 	} else {
 		t.Logf("Pagination: %+v", pagination)
+	}
+}
+
+func TestCreate(t *testing.T) {
+	var service ReportService = NewReportServiceImpl(reportRepo, userRepo, threadRepo, idGenerator)
+
+	accessorUserID := "u-ZrxmQS"
+	p := payload.CreateReport{
+		Username: "naruto",
+		ThreadID: "t-abcdefg",
+		Reason:   "Bocil ini sangat meresahkan, tolong di banned min.",
+	}
+
+	if id, err := service.Create(context.Background(), accessorUserID, p); err != nil {
+		t.Fatalf("Error happened: %s", err)
+	} else {
+		t.Logf("Successfully created a report with id %s", id)
 	}
 }
