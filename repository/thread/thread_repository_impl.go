@@ -987,3 +987,31 @@ func (t *threadRepositoryImpl) DeleteModerator(
 
 	return
 }
+
+func (t *threadRepositoryImpl) IncrementTotalViewer(
+	ctx context.Context,
+	ID string,
+) (err error) {
+	statement := "UPDATE threads SET total_viewer = total_viewer + 1 WHERE id = $1;"
+
+	result, dbErr := t.db.ExecContext(ctx, statement, ID)
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	count, dbErr := result.RowsAffected()
+	if dbErr != nil {
+		log.Println(dbErr)
+		err = repository.ErrDatabase
+		return
+	}
+
+	if count < 1 {
+		err = repository.ErrRecordNotFound
+		return
+	}
+
+	return
+}
