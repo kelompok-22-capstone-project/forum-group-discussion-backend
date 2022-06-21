@@ -9,12 +9,14 @@ import (
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/controller"
 	_ "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/docs"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	ar "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/admin"
 	cr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
 	rr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/report"
 	tr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	ur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
+	as "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/admin"
 	cs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/report"
+	rs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/report"
 	ts "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread"
 	us "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/user"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
@@ -68,18 +70,20 @@ func main() {
 	categoryRepository := cr.NewCategoryRepositoryImpl(db)
 	threadRepository := tr.NewThreadRepositoryImpl(db)
 	reportRepository := rr.NewReportRepositoryImpl(db)
+	adminRepository := ar.NewAdminRepositoryImpl(db)
 
 	userService := us.NewUserServiceImpl(userRepository, threadRepository, idGenerator, passwordGenerator, tokenGenerator)
 	categoryService := cs.NewCategoryServiceImpl(categoryRepository, threadRepository, idGenerator)
 	threadService := ts.NewThreadServiceImpl(threadRepository, categoryRepository, userRepository, idGenerator)
-	reportService := report.NewReportServiceImpl(reportRepository, userRepository, threadRepository, idGenerator)
+	reportService := rs.NewReportServiceImpl(reportRepository, userRepository, threadRepository, idGenerator)
+	adminService := as.NewAdminServiceImpl(adminRepository)
 
 	registerController := controller.NewRegisterController(userService)
 	loginController := controller.NewLoginController(userService)
 	usersController := controller.NewUsersController(userService, tokenGenerator)
 	categoriesController := controller.NewCategoriesController(categoryService, tokenGenerator)
 	threadsController := controller.NewThreadsController(threadService, tokenGenerator)
-	adminController := controller.NewAdminController()
+	adminController := controller.NewAdminController(adminService, tokenGenerator)
 	reportsController := controller.NewReportsController(reportService, tokenGenerator)
 
 	e := echo.New()
