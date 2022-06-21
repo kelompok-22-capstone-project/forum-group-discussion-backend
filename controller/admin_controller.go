@@ -25,7 +25,7 @@ func NewAdminController(
 
 func (i *adminController) Route(g *echo.Group) {
 	group := g.Group("/admin/dashboard")
-	group.GET("/", i.getInfo, middleware.JWTMiddleware())
+	group.GET("", i.getInfo, middleware.JWTMiddleware())
 }
 
 // getInfo     godoc
