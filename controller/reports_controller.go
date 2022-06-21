@@ -1,20 +1,35 @@
 package controller
 
 import (
+	"net/http"
+	"strconv"
+
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/report"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
 	"github.com/labstack/echo/v4"
 )
 
-type reportsController struct{}
+type reportsController struct {
+	service        report.ReportService
+	tokenGenerator generator.TokenGenerator
+}
 
-func NewReportsController() *reportsController {
-	return &reportsController{}
+func NewReportsController(
+	service report.ReportService,
+	tokenGenerator generator.TokenGenerator,
+) *reportsController {
+	return &reportsController{service: service, tokenGenerator: tokenGenerator}
 }
 
 func (r *reportsController) Route(g *echo.Group) {
 	group := g.Group("/reports")
-	group.POST("", r.postCreateReport)
-	group.GET("", r.getReports)
+	group.POST("", r.postCreateReport, middleware.JWTMiddleware())
+	group.GET("", r.getReports, middleware.JWTMiddleware())
 }
 
 // postCreateReport godoc
@@ -33,7 +48,21 @@ func (r *reportsController) Route(g *echo.Group) {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /reports [post]
 func (r *reportsController) postCreateReport(c echo.Context) error {
-	return nil
+	p := new(payload.CreateReport)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	tp := r.tokenGenerator.ExtractToken(c)
+
+	id, err := r.service.Create(c.Request().Context(), tp.ID, *p)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	idResponse := map[string]any{"ID": id}
+	response := model.NewResponse("success", "Create report successful.", idResponse)
+	return c.JSON(http.StatusCreated, response)
 }
 
 // getReports     godoc
@@ -50,10 +79,29 @@ func (r *reportsController) postCreateReport(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /reports [get]
 func (r *reportsController) getReports(c echo.Context) error {
-	_ = c.QueryParam("status")
-	_ = c.QueryParam("page")
-	_ = c.QueryParam("limit")
-	return nil
+	status := c.QueryParam("status")
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := r.tokenGenerator.ExtractToken(c)
+
+	reportsResponse, err := r.service.GetAll(c.Request().Context(), tp.Role, status, uint(page), uint(limit))
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get reports successful.", reportsResponse)
+	return c.JSON(http.StatusOK, response)
 }
 
 // reportsResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
