@@ -85,6 +85,7 @@ func main() {
 	threadsController := controller.NewThreadsController(threadService, tokenGenerator)
 	adminController := controller.NewAdminController(adminService, tokenGenerator)
 	reportsController := controller.NewReportsController(reportService, tokenGenerator)
+	guestController := controller.NewGuestController(threadService, userService)
 
 	e := echo.New()
 
@@ -112,6 +113,7 @@ func main() {
 	threadsController.Route(g)
 	adminController.Route(g)
 	reportsController.Route(g)
+	guestController.Route(g)
 
 	e.Logger.Fatal(e.Start(port))
 }
