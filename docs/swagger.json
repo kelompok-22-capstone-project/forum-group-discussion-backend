@@ -340,6 +340,328 @@
                 }
             }
         },
+        "/guest/threads": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "This endpoint is used to get all threads",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guest"
+                ],
+                "summary": "Get Threads",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 10",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search by keyword, default empty string",
+                        "name": "search",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadsResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/guest/threads/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "This endpoint is used to get thread by ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guest"
+                ],
+                "summary": "Get Thread by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/guest/threads/{id}/comments": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "This endpoint is used to get the thread comments",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guest"
+                ],
+                "summary": "Get Thread Comments",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "thread ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 20",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.commentsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/guest/users": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "This endpoint is used to get all users",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guest"
+                ],
+                "summary": "Get Users",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 20",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "options: registered_date, ranking, default registered_date",
+                        "name": "order_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "options: active, banned, default active",
+                        "name": "status",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.profilesResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/guest/users/{username}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "This endpoint is used to get the another user by username",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guest"
+                ],
+                "summary": "Get User by Username",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.profileResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
+        "/guest/users/{username}/threads": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKey": []
+                    }
+                ],
+                "description": "This endpoint is used to get the user threads",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "guest"
+                ],
+                "summary": "Get User Threads",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "page, default 1",
+                        "name": "page",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "limit, default 10",
+                        "name": "limit",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/controller.threadsResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/echo.HTTPError"
+                        }
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "security": [
@@ -1675,27 +1997,6 @@
                 }
             }
         },
-        "controller.infoData": {
-            "type": "object",
-            "properties": {
-                "totalUser": {
-                    "type": "integer",
-                    "x-order": "0"
-                },
-                "totalThread": {
-                    "type": "integer",
-                    "x-order": "1"
-                },
-                "totalModerator": {
-                    "type": "integer",
-                    "x-order": "2"
-                },
-                "totalReport": {
-                    "type": "integer",
-                    "x-order": "3"
-                }
-            }
-        },
         "controller.infoResponse": {
             "type": "object",
             "properties": {
@@ -1709,7 +2010,7 @@
                 },
                 "data": {
                     "x-order": "2",
-                    "$ref": "#/definitions/controller.infoData"
+                    "$ref": "#/definitions/response.DashboardInfo"
                 }
             }
         },
@@ -1818,59 +2119,13 @@
                 }
             }
         },
-        "controller.reportData": {
-            "type": "object",
-            "properties": {
-                "ID": {
-                    "type": "string",
-                    "x-order": "0"
-                },
-                "moderatorID": {
-                    "type": "string",
-                    "x-order": "1"
-                },
-                "moderatorUsername": {
-                    "type": "string",
-                    "x-order": "2"
-                },
-                "moderatorName": {
-                    "type": "string",
-                    "x-order": "3"
-                },
-                "userID": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "5"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "6"
-                },
-                "reason": {
-                    "type": "string",
-                    "x-order": "7"
-                },
-                "status": {
-                    "type": "string",
-                    "x-order": "8"
-                },
-                "reportedOn": {
-                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
-                    "type": "string",
-                    "x-order": "9"
-                }
-            }
-        },
         "controller.reportsData": {
             "type": "object",
             "properties": {
                 "list": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/controller.reportData"
+                        "$ref": "#/definitions/response.Report"
                     },
                     "x-order": "0"
                 },
@@ -2001,7 +2256,7 @@
         "payload.CreateReport": {
             "type": "object",
             "properties": {
-                "userID": {
+                "username": {
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 2,
@@ -2178,6 +2433,27 @@
                 }
             }
         },
+        "response.DashboardInfo": {
+            "type": "object",
+            "properties": {
+                "totalUser": {
+                    "type": "integer",
+                    "x-order": "0"
+                },
+                "totalThread": {
+                    "type": "integer",
+                    "x-order": "1"
+                },
+                "totalModerator": {
+                    "type": "integer",
+                    "x-order": "2"
+                },
+                "totalReport": {
+                    "type": "integer",
+                    "x-order": "3"
+                }
+            }
+        },
         "response.Login": {
             "type": "object",
             "properties": {
@@ -2292,6 +2568,52 @@
                     "description": "RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
                     "x-order": "7"
+                }
+            }
+        },
+        "response.Report": {
+            "type": "object",
+            "properties": {
+                "ID": {
+                    "type": "string",
+                    "x-order": "0"
+                },
+                "moderatorID": {
+                    "type": "string",
+                    "x-order": "1"
+                },
+                "moderatorUsername": {
+                    "type": "string",
+                    "x-order": "2"
+                },
+                "moderatorName": {
+                    "type": "string",
+                    "x-order": "3"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "4"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "5"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "6"
+                },
+                "reason": {
+                    "type": "string",
+                    "x-order": "7"
+                },
+                "status": {
+                    "type": "string",
+                    "x-order": "8"
+                },
+                "reportedOn": {
+                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "9"
                 }
             }
         },

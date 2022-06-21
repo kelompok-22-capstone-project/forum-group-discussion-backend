@@ -1,7 +1,7 @@
 package entity
 
 type Entity interface {
-	Thread | User | Comment | Category
+	Thread | User | Comment | Category | UserBanned
 }
 
 type Pagination[T Entity] struct {

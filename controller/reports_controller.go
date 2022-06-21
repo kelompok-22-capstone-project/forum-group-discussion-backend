@@ -1,17 +1,35 @@
 package controller
 
-import "github.com/labstack/echo/v4"
+import (
+	"net/http"
+	"strconv"
 
-type reportsController struct{}
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/middleware"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/report"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
+	"github.com/labstack/echo/v4"
+)
 
-func NewReportsController() *reportsController {
-	return &reportsController{}
+type reportsController struct {
+	service        report.ReportService
+	tokenGenerator generator.TokenGenerator
+}
+
+func NewReportsController(
+	service report.ReportService,
+	tokenGenerator generator.TokenGenerator,
+) *reportsController {
+	return &reportsController{service: service, tokenGenerator: tokenGenerator}
 }
 
 func (r *reportsController) Route(g *echo.Group) {
 	group := g.Group("/reports")
-	group.POST("", r.postCreateReport)
-	group.GET("", r.getReports)
+	group.POST("", r.postCreateReport, middleware.JWTMiddleware())
+	group.GET("", r.getReports, middleware.JWTMiddleware())
 }
 
 // postCreateReport godoc
@@ -30,7 +48,21 @@ func (r *reportsController) Route(g *echo.Group) {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /reports [post]
 func (r *reportsController) postCreateReport(c echo.Context) error {
-	return nil
+	p := new(payload.CreateReport)
+	if err := c.Bind(p); err != nil {
+		return newErrorResponse(service.ErrInvalidPayload)
+	}
+
+	tp := r.tokenGenerator.ExtractToken(c)
+
+	id, err := r.service.Create(c.Request().Context(), tp.ID, *p)
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	idResponse := map[string]any{"ID": id}
+	response := model.NewResponse("success", "Create report successful.", idResponse)
+	return c.JSON(http.StatusCreated, response)
 }
 
 // getReports     godoc
@@ -47,10 +79,29 @@ func (r *reportsController) postCreateReport(c echo.Context) error {
 // @Failure      500  {object}  echo.HTTPError
 // @Router       /reports [get]
 func (r *reportsController) getReports(c echo.Context) error {
-	_ = c.QueryParam("status")
-	_ = c.QueryParam("page")
-	_ = c.QueryParam("limit")
-	return nil
+	status := c.QueryParam("status")
+	pageStr := c.QueryParam("page")
+	limitStr := c.QueryParam("limit")
+
+	page, convErr := strconv.Atoi(pageStr)
+	if convErr != nil {
+		page = 0
+	}
+
+	limit, convErr := strconv.Atoi(limitStr)
+	if convErr != nil {
+		limit = 0
+	}
+
+	tp := r.tokenGenerator.ExtractToken(c)
+
+	reportsResponse, err := r.service.GetAll(c.Request().Context(), tp.Role, status, uint(page), uint(limit))
+	if err != nil {
+		return newErrorResponse(err)
+	}
+
+	response := model.NewResponse("success", "Get reports successful.", reportsResponse)
+	return c.JSON(http.StatusOK, response)
 }
 
 // reportsResponse struct is used for swaggo to generate the API documentation, as it doesn't support generic yet.
@@ -61,20 +112,6 @@ type reportsResponse struct {
 }
 
 type reportsData struct {
-	Reports  []reportData `json:"list" extensions:"x-order=0"`
-	PageInfo pageInfoData `json:"pageInfo" extensions:"x-order=1"`
-}
-
-type reportData struct {
-	ID                string `json:"ID" extensions:"x-order=0"`
-	ModeratorID       string `json:"moderatorID" extensions:"x-order=1"`
-	ModeratorUsername string `json:"moderatorUsername" extensions:"x-order=2"`
-	ModeratorName     string `json:"moderatorName" extensions:"x-order=3"`
-	UserID            string `json:"userID" extensions:"x-order=4"`
-	Username          string `json:"username" extensions:"x-order=5"`
-	Name              string `json:"name" extensions:"x-order=6"`
-	Reason            string `json:"reason" extensions:"x-order=7"`
-	Status            string `json:"status" extensions:"x-order=8"`
-	// ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	ReportedOn string `json:"reportedOn" extensions:"x-order=9"`
+	Reports  []response.Report `json:"list" extensions:"x-order=0"`
+	PageInfo pageInfoData      `json:"pageInfo" extensions:"x-order=1"`
 }
