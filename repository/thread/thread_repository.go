@@ -94,7 +94,6 @@ type ThreadRepository interface {
 	) (err error)
 
 	IncrementTotalViewer(
-		ctx context.Context,
 		ID string,
 	) (err error)
 }

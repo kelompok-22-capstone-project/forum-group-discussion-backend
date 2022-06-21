@@ -989,12 +989,11 @@ func (t *threadRepositoryImpl) DeleteModerator(
 }
 
 func (t *threadRepositoryImpl) IncrementTotalViewer(
-	ctx context.Context,
 	ID string,
 ) (err error) {
 	statement := "UPDATE threads SET total_viewer = total_viewer + 1 WHERE id = $1;"
 
-	result, dbErr := t.db.ExecContext(ctx, statement, ID)
+	result, dbErr := t.db.Exec(statement, ID)
 	if dbErr != nil {
 		log.Println(dbErr)
 		err = repository.ErrDatabase

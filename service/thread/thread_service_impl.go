@@ -184,9 +184,9 @@ func (t *threadServiceImpl) GetByID(
 		return
 	}
 
-	go func(ctx context.Context, ID string) {
-		_ = t.threadRepository.IncrementTotalViewer(ctx, ID)
-	}(ctx, ID)
+	go func(ID string) {
+		_ = t.threadRepository.IncrementTotalViewer(ID)
+	}(ID)
 
 	rs.Moderators = make([]response.Moderator, len(moderators))
 
