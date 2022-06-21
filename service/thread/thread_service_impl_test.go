@@ -2,207 +2,583 @@ package thread
 
 import (
 	"context"
-	"database/sql"
-	"log"
+	"errors"
+	"fmt"
 	"testing"
+	"time"
 
-	"github.com/joho/godotenv"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
+	mcr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/category/mocks"
+	mtr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread/mocks"
+	mur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user/mocks"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
+	mig "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator/mocks"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/mock"
 )
 
-var db *sql.DB
-var threadRepo thread.ThreadRepository
-var categoryRepo category.CategoryRepository
-var userRepo user.UserRepository
-var idGenerator generator.IDGenerator
+func TestGetAll(t *testing.T) {
+	mockThreadRepo := &mtr.ThreadRepository{}
+	mockCategoryRepo := &mcr.CategoryRepository{}
+	mockUserRepo := &mur.UserRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	now := time.Now()
 
-func init() {
-	godotenv.Load("./../../.env.example")
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	var err error
-	if db, err = config.NewPostgreSQLDatabase(); err != nil {
-		panic(err)
+	var threadService ThreadService = NewThreadServiceImpl(mockThreadRepo, mockCategoryRepo, mockUserRepo, mockIDGen)
+
+	testCases := []struct {
+		name                string
+		inputAccessorUserID string
+		inputPage           uint
+		inputLimit          uint
+		inputQuery          string
+		expectedError       error
+		expectedPagination  response.Pagination[response.ManyThread]
+		mockBehaviour       func()
+	}{
+		{
+			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
+			inputAccessorUserID: "",
+			inputPage:           0,
+			inputLimit:          0,
+			inputQuery:          "",
+			expectedError:       service.ErrRepository,
+			expectedPagination:  response.Pagination[response.ManyThread]{},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindAllWithQueryAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+				).Return(
+					func(ctx context.Context,
+						accessorUserID string,
+						query string,
+						pageInfo entity.PageInfo,
+					) entity.Pagination[entity.Thread] {
+						return entity.Pagination[entity.Thread]{}
+					},
+					func(ctx context.Context,
+						accessorUserID string,
+						query string,
+						pageInfo entity.PageInfo,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+			inputAccessorUserID: "",
+			inputPage:           1,
+			inputLimit:          10,
+			inputQuery:          "",
+			expectedError:       service.ErrRepository,
+			expectedPagination:  response.Pagination[response.ManyThread]{},
+			mockBehaviour: func() {
+				mockCategoryRepo.On(
+					"FindAll",
+					"FindAll",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+				).Return(
+					func(ctx context.Context) []entity.Category {
+						return []entity.Category{}
+					},
+					func(ctx context.Context) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllWithQueryAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+				).Return(
+					func(ctx context.Context,
+						accessorUserID string,
+						query string,
+						pageInfo entity.PageInfo,
+					) entity.Pagination[entity.Thread] {
+						return entity.Pagination[entity.Thread]{}
+					},
+					func(ctx context.Context,
+						accessorUserID string,
+						query string,
+						pageInfo entity.PageInfo,
+					) error {
+						return service.ErrRepository
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
+			inputAccessorUserID: "",
+			inputPage:           1,
+			inputLimit:          10,
+			inputQuery:          "",
+			expectedError:       nil,
+			expectedPagination: response.Pagination[response.ManyThread]{
+				List: []response.ManyThread{
+					{
+						ID:              "d-Casfkj",
+						Title:           "Technology",
+						CategoryID:      "g-jMds",
+						CategoryName:    "Tech",
+						PublishedOn:     now.Format(time.RFC822),
+						IsLiked:         false,
+						IsFollowed:      false,
+						Description:     "Technology is the result of accumulated knowledge and application of skills, methods, and processes used in industrial production and scientific research.",
+						TotalViewer:     234,
+						TotalLike:       243,
+						TotalFollower:   674,
+						TotalComment:    23,
+						CreatorID:       "d-MDje",
+						CreatorUsername: "erikrio",
+						CreatorName:     "erik",
+					},
+				},
+				PageInfo: response.PageInfo{
+					Limit:     10,
+					Page:      1,
+					PageTotal: 1,
+					Total:     1,
+				},
+			},
+			mockBehaviour: func() {
+				mockCategoryRepo.On(
+					"FindAll",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+				).Return(
+					func(ctx context.Context) []entity.Category {
+						return []entity.Category{}
+					},
+					func(ctx context.Context) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllWithQueryAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+				).Return(
+					func(ctx context.Context,
+						accessorUserID string,
+						query string,
+						pageInfo entity.PageInfo,
+					) entity.Pagination[entity.Thread] {
+						return entity.Pagination[entity.Thread]{
+							List: []entity.Thread{
+								{
+									ID:            "d-Casfkj",
+									Title:         "Technology",
+									Description:   "Technology is the result of accumulated knowledge and application of skills, methods, and processes used in industrial production and scientific research.",
+									TotalViewer:   234,
+									TotalLike:     243,
+									TotalFollower: 674,
+									TotalComment:  23,
+									Creator: entity.User{
+										ID:       "d-MDje",
+										Username: "erikrio",
+										Name:     "erik",
+									},
+									Category: entity.Category{
+										ID:   "g-jMds",
+										Name: "Tech",
+									},
+									IsLiked:    false,
+									IsFollowed: false,
+									CreatedAt:  now,
+								},
+							},
+							PageInfo: entity.PageInfo{
+								Limit:     10,
+								Page:      1,
+								PageTotal: 1,
+								Total:     1,
+							},
+						}
+					},
+					func(ctx context.Context,
+						accessorUserID string,
+						query string,
+						pageInfo entity.PageInfo,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
 	}
 
-	threadRepo = thread.NewThreadRepositoryImpl(db)
-	categoryRepo = category.NewCategoryRepositoryImpl(db)
-	userRepo = user.NewUserRepositoryImpl(db)
-	idGenerator = generator.NewNanoidIDGenerator()
-}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviour()
 
-func TestGetAll(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
+			pagination, err := threadService.GetAll(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputPage,
+				testCase.inputLimit,
+				testCase.inputQuery,
+			)
 
-	accessorUserID := "u-ZrxmQS"
-
-	page := 1
-	limit := 20
-	query := "Read"
-
-	if pagination, err := service.GetAll(context.Background(), accessorUserID, uint(page), uint(limit), query); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, err, testCase.expectedError)
+			} else {
+				assert.ElementsMatch(t, pagination.List, testCase.expectedPagination.List)
+				assert.Equal(t, pagination.List, testCase.expectedPagination.PageInfo)
+			}
+		})
 	}
 }
 
 func TestCreate(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
+	mockThreadRepo := &mtr.ThreadRepository{}
+	mockCategoryRepo := &mcr.CategoryRepository{}
+	mockUserRepo := &mur.UserRepository{}
+	mockIDGen := &mig.IDGenerator{}
 
-	accessorUserID := "u-ZrxmQS"
+	var threadService ThreadService = NewThreadServiceImpl(mockThreadRepo, mockCategoryRepo, mockUserRepo, mockIDGen)
 
-	p := payload.CreateThread{
-		Title:       "Go Programming Language Going Hype",
-		Description: "Currently Go Programming Language going hype, because it features.",
-		CategoryID:  "c-abc",
+	testCases := []struct {
+		name                string
+		inputAccessorUserID string
+		inputPayload        payload.CreateThread
+		expectedError       error
+		expectedID          string
+		mockBehaviour       func()
+	}{
+		{
+			name:                "it should return service.ErrInvalidPayload, when payload is invalid",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "T",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "d45Nks",
+			},
+			expectedError: service.ErrInvalidPayload,
+			expectedID:    "",
+			mockBehaviour: func() {},
+		},
+		{
+			name:                "it should return service.ErrRepository, repository.ErrDatabase return an error",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "Technology",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "d45Nks",
+			},
+			expectedError: service.ErrRepository,
+			expectedID:    "",
+			mockBehaviour: func() {
+				mockCategoryRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, ID string) entity.Category {
+						return entity.Category{}
+					},
+					func(ctx context.Context, ID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when Thread ID Generator return an error",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "Technology",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "D-abc",
+			},
+			expectedError: service.ErrRepository,
+			expectedID:    "",
+			mockBehaviour: func() {
+				mockIDGen.On(
+					"GenerateThreadID",
+				).Return(
+					func() string {
+						return ""
+					},
+					func() error {
+						return errors.New("failed to generate thread id")
+					},
+				).Once()
+
+				mockCategoryRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, ID string) entity.Category {
+						return entity.Category{}
+					},
+					func(ctx context.Context, ID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "Technology",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "D-abc",
+			},
+			expectedError: service.ErrRepository,
+			expectedID:    "",
+			mockBehaviour: func() {
+				mockIDGen.On(
+					"GenerateThreadID",
+				).Return(
+					func() string {
+						return "ahds6sk9"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockCategoryRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, ID string) entity.Category {
+						return entity.Category{}
+					},
+					func(ctx context.Context, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"Insert",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Thread{})),
+				).Return(
+					func(ctx context.Context, thread entity.Thread) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when repository.ErrDatabase return an error",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "Technology",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "D-abc",
+			},
+			expectedError: service.ErrRepository,
+			expectedID:    "",
+			mockBehaviour: func() {
+				mockIDGen.On(
+					"GenerateThreadID",
+				).Return(
+					func() string {
+						return "wdsh"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+				mockIDGen.On(
+					"GenerateModeratorID",
+				).Return(
+					func() string {
+						return ""
+					},
+					func() error {
+						return errors.New("failed to generate moderator id")
+					},
+				).Once()
+
+				mockCategoryRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, ID string) entity.Category {
+						return entity.Category{}
+					},
+					func(ctx context.Context, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"Insert",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Thread{})),
+				).Return(
+					func(ctx context.Context, thread entity.Thread) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when Moderator ID Generator return an error",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "Technology",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "D-abc",
+			},
+			expectedError: service.ErrRepository,
+			expectedID:    "",
+			mockBehaviour: func() {
+				mockIDGen.On(
+					"GenerateThreadID",
+				).Return(
+					func() string {
+						return "wdsh"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+				mockIDGen.On(
+					"GenerateModeratorID",
+				).Return(
+					func() string {
+						return "dk-Dkj"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockCategoryRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, ID string) entity.Category {
+						return entity.Category{}
+					},
+					func(ctx context.Context, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"Insert",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Thread{})),
+				).Return(
+					func(ctx context.Context, thread entity.Thread) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"InsertModerator",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Moderator{})),
+				).Return(
+					func(ctx context.Context, moderator entity.Moderator) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should be valid id, when repository return nil error",
+			inputAccessorUserID: "K-amUdnk",
+			inputPayload: payload.CreateThread{
+				Title:       "Technology",
+				Description: "Technology is the result of accumulated knowledge and application of skills, methods, and processes",
+				CategoryID:  "D-abc",
+			},
+			expectedError: nil,
+			expectedID:    "",
+			mockBehaviour: func() {
+				mockIDGen.On(
+					"GenerateThreadID",
+				).Return(
+					func() string {
+						return "wdsh"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+				mockIDGen.On(
+					"GenerateModeratorID",
+				).Return(
+					func() string {
+						return "dk-Dkj"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockCategoryRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, ID string) entity.Category {
+						return entity.Category{}
+					},
+					func(ctx context.Context, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"Insert",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Thread{})),
+				).Return(
+					func(ctx context.Context, thread entity.Thread) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"InsertModerator",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Moderator{})),
+				).Return(
+					func(ctx context.Context, moderator entity.Moderator) error {
+						return nil
+					},
+				).Once()
+			},
+		},
 	}
 
-	if id, err := service.Create(context.Background(), accessorUserID, p); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully create a thread with ID %s", id)
-	}
-}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviour()
 
-func TestGetByID(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
+			id, err := threadService.Create(context.Background(), testCase.inputAccessorUserID, testCase.inputPayload)
 
-	accessorUserID := "u-ZrxmQS"
-
-	id := "t-kxdoB7i"
-
-	if thread, err := service.GetByID(context.Background(), accessorUserID, id); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Thread: %+v", thread)
-	}
-}
-
-func TestUpdate(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	accessorUserID := "u-ZrxmQS"
-
-	id := "t-kxdoB7i"
-
-	p := payload.UpdateThread{
-		Title:       "Go Programming Going Hype",
-		Description: "Currently Go Programming going hype, because it features.",
-		CategoryID:  "c-def",
-	}
-
-	if err := service.Update(context.Background(), accessorUserID, id, p); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully updated a thread with ID %s", id)
-	}
-}
-
-func TestDelete(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	accessorUserID := "u-ZrxmQS"
-	role := "user"
-
-	id := "t-45uolpR"
-
-	if err := service.Delete(context.Background(), accessorUserID, role, id); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully deleted a thread with ID %s", id)
-	}
-}
-
-func TestGetComments(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	threadID := "t-abcdefg"
-
-	if pagination, err := service.GetComments(context.Background(), threadID, 0, 0); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
-	}
-}
-
-func TestCreateComment(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	threadID := "t-abcdefg"
-	accessorUserID := "u-6fj7Jo"
-
-	p := payload.CreateComment{
-		Comment: "Great post that i've ever seen. Good job.",
-	}
-
-	if id, err := service.CreateComment(context.Background(), threadID, accessorUserID, p); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully inserted comment with ID %s", id)
-	}
-}
-
-func TestChangeFollowingState(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	threadID := "t-abcdefg"
-	accessorUserID := "u-kt56R1"
-
-	if err := service.ChangeFollowingState(context.Background(), threadID, accessorUserID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Log("Successfully change the following state")
-	}
-}
-
-func TestChangeLikeState(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	threadID := "t-abcdefg"
-	accessorUserID := "u-kt56R1"
-
-	if err := service.ChangeLikeState(context.Background(), threadID, accessorUserID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Log("Successfully change the like state")
-	}
-}
-
-func TestAddModerator(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	p := payload.AddRemoveModerator{
-		Username: "rezana",
-	}
-
-	threadID := "t-abcdefg"
-	accessorUserID := "u-ZrxmQS"
-
-	if err := service.AddModerator(context.Background(), p, threadID, accessorUserID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully add moderator with user username %s for a thread with thread ID %s", p.Username, threadID)
-	}
-}
-
-func TestRemoveModerator(t *testing.T) {
-	var service ThreadService = NewThreadServiceImpl(threadRepo, categoryRepo, userRepo, idGenerator)
-
-	p := payload.AddRemoveModerator{
-		Username: "rezana",
-	}
-
-	threadID := "t-abcdefg"
-	accessorUserID := "u-ZrxmQS"
-
-	if err := service.RemoveModerator(context.Background(), p, threadID, accessorUserID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully remove moderator with user username %s for a thread with thread ID %s", p.Username, threadID)
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, err, testCase.expectedError)
+			} else {
+				assert.Equal(t, testCase.expectedID, id)
+			}
+		})
 	}
 }
