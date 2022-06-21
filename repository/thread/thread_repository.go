@@ -92,4 +92,9 @@ type ThreadRepository interface {
 		ctx context.Context,
 		moderator entity.Moderator,
 	) (err error)
+
+	IncrementTotalViewer(
+		ctx context.Context,
+		ID string,
+	) (err error)
 }
