@@ -198,6 +198,20 @@ func (_m *ThreadRepository) FindByID(ctx context.Context, accessorUserID string,
 	return r0, r1
 }
 
+// IncrementTotalViewer provides a mock function with given fields: ID
+func (_m *ThreadRepository) IncrementTotalViewer(ID string) error {
+	ret := _m.Called(ID)
+
+	var r0 error
+	if rf, ok := ret.Get(0).(func(string) error); ok {
+		r0 = rf(ID)
+	} else {
+		r0 = ret.Error(0)
+	}
+
+	return r0
+}
+
 // Insert provides a mock function with given fields: ctx, _a1
 func (_m *ThreadRepository) Insert(ctx context.Context, _a1 entity.Thread) error {
 	ret := _m.Called(ctx, _a1)
