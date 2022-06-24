@@ -45,7 +45,7 @@ import (
 // @in                          header
 // @name                        Authorization
 
-// @host      moot-rest-api.herokuapp.com
+// @host      ugly-frog-89.a276.dcdg.xyz
 // @BasePath  /api/v1
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
