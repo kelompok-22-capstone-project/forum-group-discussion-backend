@@ -43,20 +43,20 @@ func (_m *UserService) ChangeFollowingState(ctx context.Context, accessorUserID 
 	return r0
 }
 
-// GetAll provides a mock function with given fields: ctx, accessorUserID, orderBy, status, page, limit
-func (_m *UserService) GetAll(ctx context.Context, accessorUserID string, orderBy string, status string, page uint, limit uint) (response.Pagination[response.User], error) {
-	ret := _m.Called(ctx, accessorUserID, orderBy, status, page, limit)
+// GetAll provides a mock function with given fields: ctx, accessorUserID, orderBy, status, page, limit, keyword
+func (_m *UserService) GetAll(ctx context.Context, accessorUserID string, orderBy string, status string, page uint, limit uint, keyword string) (response.Pagination[response.User], error) {
+	ret := _m.Called(ctx, accessorUserID, orderBy, status, page, limit, keyword)
 
 	var r0 response.Pagination[response.User]
-	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uint, uint) response.Pagination[response.User]); ok {
-		r0 = rf(ctx, accessorUserID, orderBy, status, page, limit)
+	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, uint, uint, string) response.Pagination[response.User]); ok {
+		r0 = rf(ctx, accessorUserID, orderBy, status, page, limit, keyword)
 	} else {
 		r0 = ret.Get(0).(response.Pagination[response.User])
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, uint, uint) error); ok {
-		r1 = rf(ctx, accessorUserID, orderBy, status, page, limit)
+	if rf, ok := ret.Get(1).(func(context.Context, string, string, string, uint, uint, string) error); ok {
+		r1 = rf(ctx, accessorUserID, orderBy, status, page, limit, keyword)
 	} else {
 		r1 = ret.Error(1)
 	}
