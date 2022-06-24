@@ -18,6 +18,7 @@ type ReportRepository interface {
 		ID,
 		moderatorID,
 		userID,
+		threadID,
 		reason string,
 	) (err error)
 }
