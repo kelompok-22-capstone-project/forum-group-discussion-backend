@@ -126,6 +126,7 @@ func (u *userRepositoryImpl) FindAllWithStatusAndPagination(
        u.updated_at,
        (SELECT count(t.id) FROM threads t WHERE t.creator_id = u.id)           AS total_thread,
        (SELECT count(uf.id) FROM user_follows uf WHERE uf.following_id = u.id) AS total_follower,
+       (SELECT count(uf.id) FROM user_follows uf WHERE uf.user_id = u.id) AS total_following,
        (SELECT CASE WHEN count(uf.id) > 0 THEN true ELSE false END
         FROM user_follows uf
         WHERE uf.user_id = $1
@@ -162,6 +163,7 @@ OFFSET $3 LIMIT $4;`, userOrderBy)
 			&user.UpdatedAt,
 			&user.TotalThread,
 			&user.TotalFollower,
+			&user.TotalFollowing,
 			&user.IsFollowed,
 		); dbErr != nil {
 			log.Println(dbErr)
@@ -220,6 +222,7 @@ func (u *userRepositoryImpl) FindByUsernameWithAccessor(
        u.updated_at,
        (SELECT count(t.id) FROM threads t WHERE t.creator_id = u.id)           AS total_thread,
        (SELECT count(uf.id) FROM user_follows uf WHERE uf.following_id = u.id) AS total_follower,
+       (SELECT count(uf.id) FROM user_follows uf WHERE uf.user_id = u.id) AS total_following,
        (SELECT CASE WHEN count(uf.id) > 0 THEN true ELSE false END
         FROM user_follows uf
         WHERE uf.user_id = $1
@@ -241,6 +244,7 @@ WHERE u.username = $2
 		&user.UpdatedAt,
 		&user.TotalThread,
 		&user.TotalFollower,
+		&user.TotalFollowing,
 		&user.IsFollowed,
 	); dbErr {
 	case sql.ErrNoRows:
