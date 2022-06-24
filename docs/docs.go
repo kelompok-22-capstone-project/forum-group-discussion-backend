@@ -2708,6 +2708,10 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "1"
                 },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "10"
+                },
                 "email": {
                     "type": "string",
                     "x-order": "2"
@@ -2737,8 +2741,8 @@ const docTemplate = `{
                     "type": "integer",
                     "x-order": "8"
                 },
-                "isFollowed": {
-                    "type": "boolean",
+                "totalFollowing": {
+                    "type": "integer",
                     "x-order": "9"
                 }
             }

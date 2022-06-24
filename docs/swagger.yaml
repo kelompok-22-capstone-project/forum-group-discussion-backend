@@ -576,7 +576,7 @@ definitions:
         x-order: "5"
       isFollowed:
         type: boolean
-        x-order: "9"
+        x-order: "10"
       name:
         type: string
         x-order: "3"
@@ -590,6 +590,9 @@ definitions:
       totalFollower:
         type: integer
         x-order: "8"
+      totalFollowing:
+        type: integer
+        x-order: "9"
       totalThread:
         type: integer
         x-order: "7"
