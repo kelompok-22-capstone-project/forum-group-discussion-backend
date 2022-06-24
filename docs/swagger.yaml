@@ -940,6 +940,10 @@ paths:
         in: query
         name: status
         type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
+        type: string
       produces:
       - application/json
       responses:
@@ -1607,6 +1611,10 @@ paths:
       - description: 'options: active, banned, default active'
         in: query
         name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
         type: string
       produces:
       - application/json

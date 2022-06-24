@@ -547,6 +547,12 @@ const docTemplate = `{
                         "description": "options: active, banned, default active",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search by keyword, default empty string",
+                        "name": "keyword",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1618,6 +1624,12 @@ const docTemplate = `{
                         "type": "string",
                         "description": "options: active, banned, default active",
                         "name": "status",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search by keyword, default empty string",
+                        "name": "keyword",
                         "in": "query"
                     }
                 ],
