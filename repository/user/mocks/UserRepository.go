@@ -28,20 +28,20 @@ func (_m *UserRepository) BannedUser(ctx context.Context, userID string) error {
 	return r0
 }
 
-// FindAllWithStatusAndPagination provides a mock function with given fields: ctx, accessorUserID, orderBy, userStatus, pageInfo
-func (_m *UserRepository) FindAllWithStatusAndPagination(ctx context.Context, accessorUserID string, orderBy entity.UserOrderBy, userStatus entity.UserStatus, pageInfo entity.PageInfo) (entity.Pagination[entity.User], error) {
-	ret := _m.Called(ctx, accessorUserID, orderBy, userStatus, pageInfo)
+// FindAllWithStatusAndPagination provides a mock function with given fields: ctx, accessorUserID, orderBy, userStatus, pageInfo, keyword
+func (_m *UserRepository) FindAllWithStatusAndPagination(ctx context.Context, accessorUserID string, orderBy entity.UserOrderBy, userStatus entity.UserStatus, pageInfo entity.PageInfo, keyword string) (entity.Pagination[entity.User], error) {
+	ret := _m.Called(ctx, accessorUserID, orderBy, userStatus, pageInfo, keyword)
 
 	var r0 entity.Pagination[entity.User]
-	if rf, ok := ret.Get(0).(func(context.Context, string, entity.UserOrderBy, entity.UserStatus, entity.PageInfo) entity.Pagination[entity.User]); ok {
-		r0 = rf(ctx, accessorUserID, orderBy, userStatus, pageInfo)
+	if rf, ok := ret.Get(0).(func(context.Context, string, entity.UserOrderBy, entity.UserStatus, entity.PageInfo, string) entity.Pagination[entity.User]); ok {
+		r0 = rf(ctx, accessorUserID, orderBy, userStatus, pageInfo, keyword)
 	} else {
 		r0 = ret.Get(0).(entity.Pagination[entity.User])
 	}
 
 	var r1 error
-	if rf, ok := ret.Get(1).(func(context.Context, string, entity.UserOrderBy, entity.UserStatus, entity.PageInfo) error); ok {
-		r1 = rf(ctx, accessorUserID, orderBy, userStatus, pageInfo)
+	if rf, ok := ret.Get(1).(func(context.Context, string, entity.UserOrderBy, entity.UserStatus, entity.PageInfo, string) error); ok {
+		r1 = rf(ctx, accessorUserID, orderBy, userStatus, pageInfo, keyword)
 	} else {
 		r1 = ret.Error(1)
 	}

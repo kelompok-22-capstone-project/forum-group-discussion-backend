@@ -108,6 +108,7 @@ func (u *userRepositoryImpl) FindAllWithStatusAndPagination(
 	orderBy entity.UserOrderBy,
 	userStatus entity.UserStatus,
 	pageInfo entity.PageInfo,
+	keyword string,
 ) (pagination entity.Pagination[entity.User], err error) {
 	var userOrderBy string
 	if orderBy == entity.Ranking {
@@ -126,16 +127,17 @@ func (u *userRepositoryImpl) FindAllWithStatusAndPagination(
        u.updated_at,
        (SELECT count(t.id) FROM threads t WHERE t.creator_id = u.id)           AS total_thread,
        (SELECT count(uf.id) FROM user_follows uf WHERE uf.following_id = u.id) AS total_follower,
+       (SELECT count(uf.id) FROM user_follows uf WHERE uf.user_id = u.id) AS total_following,
        (SELECT CASE WHEN count(uf.id) > 0 THEN true ELSE false END
         FROM user_follows uf
         WHERE uf.user_id = $1
           AND uf.following_id = u.id)                                          AS is_followed
 FROM users u
-WHERE is_active = $2 AND u.role = 'user'
+WHERE is_active = $2 AND u.role = 'user' AND u.username ILIKE $5
 ORDER BY %s
 OFFSET $3 LIMIT $4;`, userOrderBy)
 
-	rows, dbErr := u.db.QueryContext(ctx, statement, accessorUserID, userStatus, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1)
+	rows, dbErr := u.db.QueryContext(ctx, statement, accessorUserID, userStatus, (pageInfo.Page-1)*pageInfo.Limit, pageInfo.Limit*1, fmt.Sprintf("%%%s%%", keyword))
 	if dbErr != nil {
 		log.Println(dbErr)
 		err = repository.ErrDatabase
@@ -162,6 +164,7 @@ OFFSET $3 LIMIT $4;`, userOrderBy)
 			&user.UpdatedAt,
 			&user.TotalThread,
 			&user.TotalFollower,
+			&user.TotalFollowing,
 			&user.IsFollowed,
 		); dbErr != nil {
 			log.Println(dbErr)
@@ -177,9 +180,9 @@ OFFSET $3 LIMIT $4;`, userOrderBy)
 		return
 	}
 
-	countStatement := "SELECT count(u.id) FROM users u WHERE is_active = $1 AND u.role = 'user';"
+	countStatement := "SELECT count(u.id) FROM users u WHERE is_active = $1 AND u.role = 'user' AND u.username ILIKE $2;"
 
-	row := u.db.QueryRowContext(ctx, countStatement, userStatus)
+	row := u.db.QueryRowContext(ctx, countStatement, userStatus, fmt.Sprintf("%%%s%%", keyword))
 
 	var count uint
 	switch dbErr := row.Scan(&count); dbErr {
@@ -220,6 +223,7 @@ func (u *userRepositoryImpl) FindByUsernameWithAccessor(
        u.updated_at,
        (SELECT count(t.id) FROM threads t WHERE t.creator_id = u.id)           AS total_thread,
        (SELECT count(uf.id) FROM user_follows uf WHERE uf.following_id = u.id) AS total_follower,
+       (SELECT count(uf.id) FROM user_follows uf WHERE uf.user_id = u.id) AS total_following,
        (SELECT CASE WHEN count(uf.id) > 0 THEN true ELSE false END
         FROM user_follows uf
         WHERE uf.user_id = $1
@@ -241,6 +245,7 @@ WHERE u.username = $2
 		&user.UpdatedAt,
 		&user.TotalThread,
 		&user.TotalFollower,
+		&user.TotalFollowing,
 		&user.IsFollowed,
 	); dbErr {
 	case sql.ErrNoRows:

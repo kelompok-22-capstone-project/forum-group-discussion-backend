@@ -138,6 +138,7 @@ func (g *guestController) getThreadComments(c echo.Context) error {
 // @Param        limit     query  int     false  "limit, default 20"
 // @Param        order_by  query  string  false  "options: registered_date, ranking, default registered_date"
 // @Param        status    query  string  false  "options: active, banned, default active"
+// @Param        keyword   query  string  false  "search by keyword, default empty string"
 // @Security     ApiKey
 // @Success      200  {object}  profilesResponse
 // @Failure      500  {object}  echo.HTTPError
@@ -147,6 +148,7 @@ func (g *guestController) getUsers(c echo.Context) error {
 	limitStr := c.QueryParam("limit")
 	orderBy := c.QueryParam("order_by")
 	status := c.QueryParam("status")
+	keyword := c.QueryParam("keyword")
 
 	page, convErr := strconv.Atoi(pageStr)
 	if convErr != nil {
@@ -165,6 +167,7 @@ func (g *guestController) getUsers(c echo.Context) error {
 		status,
 		uint(page),
 		uint(limit),
+		keyword,
 	)
 
 	if err != nil {

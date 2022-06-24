@@ -142,6 +142,7 @@ func (u *userServiceImpl) GetAll(
 	status string,
 	page,
 	limit uint,
+	keyword string,
 ) (r response.Pagination[response.User], err error) {
 	if page == 0 {
 		page = 1
@@ -172,7 +173,7 @@ func (u *userServiceImpl) GetAll(
 	}
 
 	pagination, repoErr := u.userRepository.FindAllWithStatusAndPagination(
-		ctx, accessorUserID, userOrderBy, userStatus, pageInfo,
+		ctx, accessorUserID, userOrderBy, userStatus, pageInfo, keyword,
 	)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
@@ -188,16 +189,17 @@ func (u *userServiceImpl) GetAll(
 
 	for i, user := range pagination.List {
 		user := response.User{
-			UserID:        user.ID,
-			Username:      user.Username,
-			Email:         user.Email,
-			Name:          user.Name,
-			Role:          user.Role,
-			IsActive:      user.IsActive,
-			RegisteredOn:  user.CreatedAt.Format(time.RFC822),
-			TotalThread:   uint(user.TotalThread),
-			TotalFollower: uint(user.TotalFollower),
-			IsFollowed:    user.IsFollowed,
+			UserID:         user.ID,
+			Username:       user.Username,
+			Email:          user.Email,
+			Name:           user.Name,
+			Role:           user.Role,
+			IsActive:       user.IsActive,
+			RegisteredOn:   user.CreatedAt.Format(time.RFC822),
+			TotalThread:    uint(user.TotalThread),
+			TotalFollower:  uint(user.TotalFollower),
+			TotalFollowing: uint(user.TotalFollowing),
+			IsFollowed:     user.IsFollowed,
 		}
 		r.List[i] = user
 	}
@@ -216,16 +218,17 @@ func (u *userServiceImpl) GetOwn(
 		err = service.MapError(repoErr)
 	} else {
 		r = response.User{
-			UserID:        user.ID,
-			Username:      user.Username,
-			Email:         user.Email,
-			Name:          user.Name,
-			Role:          user.Role,
-			IsActive:      user.IsActive,
-			RegisteredOn:  user.CreatedAt.Format(time.RFC822),
-			TotalThread:   uint(user.TotalThread),
-			TotalFollower: uint(user.TotalFollower),
-			IsFollowed:    user.IsFollowed,
+			UserID:         user.ID,
+			Username:       user.Username,
+			Email:          user.Email,
+			Name:           user.Name,
+			Role:           user.Role,
+			IsActive:       user.IsActive,
+			RegisteredOn:   user.CreatedAt.Format(time.RFC822),
+			TotalThread:    uint(user.TotalThread),
+			TotalFollower:  uint(user.TotalFollower),
+			TotalFollowing: uint(user.TotalFollowing),
+			IsFollowed:     user.IsFollowed,
 		}
 	}
 
@@ -243,16 +246,17 @@ func (u *userServiceImpl) GetByUsername(
 		err = service.MapError(repoErr)
 	} else {
 		r = response.User{
-			UserID:        user.ID,
-			Username:      user.Username,
-			Email:         user.Email,
-			Name:          user.Name,
-			Role:          user.Role,
-			IsActive:      user.IsActive,
-			RegisteredOn:  user.CreatedAt.Format(time.RFC822),
-			TotalThread:   uint(user.TotalThread),
-			TotalFollower: uint(user.TotalFollower),
-			IsFollowed:    user.IsFollowed,
+			UserID:         user.ID,
+			Username:       user.Username,
+			Email:          user.Email,
+			Name:           user.Name,
+			Role:           user.Role,
+			IsActive:       user.IsActive,
+			RegisteredOn:   user.CreatedAt.Format(time.RFC822),
+			TotalThread:    uint(user.TotalThread),
+			TotalFollower:  uint(user.TotalFollower),
+			TotalFollowing: uint(user.TotalFollowing),
+			IsFollowed:     user.IsFollowed,
 		}
 	}
 

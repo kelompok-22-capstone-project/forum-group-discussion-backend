@@ -17,6 +17,7 @@ type UserRepository interface {
 		orderBy entity.UserOrderBy,
 		userStatus entity.UserStatus,
 		pageInfo entity.PageInfo,
+		keyword string,
 	) (pagination entity.Pagination[entity.User], err error)
 
 	FindByUsernameWithAccessor(

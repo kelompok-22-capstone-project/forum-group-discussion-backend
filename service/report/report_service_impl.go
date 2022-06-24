@@ -84,6 +84,8 @@ func (r *reportServiceImpl) GetAll(
 			ModeratorName:     item.Moderator.User.Name,
 			UserID:            item.User.ID,
 			Username:          item.User.Username,
+			ThreadID:          item.Thread.ID,
+			ThreadTitle:       item.Thread.Title,
 			Name:              item.User.Name,
 			Reason:            item.Reason,
 			Status:            item.Status,
@@ -150,7 +152,7 @@ func (r *reportServiceImpl) Create(
 		return
 	}
 
-	if repoErr := r.reportRepository.Insert(ctx, id, moderatorID, reportedUser.ID, p.Reason); repoErr != nil {
+	if repoErr := r.reportRepository.Insert(ctx, id, moderatorID, reportedUser.ID, p.ThreadID, p.Reason); repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}

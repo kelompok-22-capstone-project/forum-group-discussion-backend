@@ -501,10 +501,16 @@ definitions:
       reportedOn:
         description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
         type: string
-        x-order: "9"
+        x-order: "11"
       status:
         type: string
         x-order: "8"
+      threadID:
+        type: string
+        x-order: "9"
+      threadTitle:
+        type: string
+        x-order: "10"
       userID:
         type: string
         x-order: "4"
@@ -576,7 +582,7 @@ definitions:
         x-order: "5"
       isFollowed:
         type: boolean
-        x-order: "9"
+        x-order: "10"
       name:
         type: string
         x-order: "3"
@@ -590,6 +596,9 @@ definitions:
       totalFollower:
         type: integer
         x-order: "8"
+      totalFollowing:
+        type: integer
+        x-order: "9"
       totalThread:
         type: integer
         x-order: "7"
@@ -936,6 +945,10 @@ paths:
       - description: 'options: active, banned, default active'
         in: query
         name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
         type: string
       produces:
       - application/json
@@ -1604,6 +1617,10 @@ paths:
       - description: 'options: active, banned, default active'
         in: query
         name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
         type: string
       produces:
       - application/json

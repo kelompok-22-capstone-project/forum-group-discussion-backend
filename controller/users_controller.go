@@ -46,6 +46,7 @@ func (u *usersController) Route(g *echo.Group) {
 // @Param        limit     query  int     false  "limit, default 20"
 // @Param        order_by  query  string  false  "options: registered_date, ranking, default registered_date"
 // @Param        status    query  string  false  "options: active, banned, default active"
+// @Param        keyword   query  string  false  "search by keyword, default empty string"
 // @Security     ApiKey
 // @Security     ApiKeyAuth
 // @Success      200  {object}  profilesResponse
@@ -56,6 +57,7 @@ func (u *usersController) getUsers(c echo.Context) error {
 	limitStr := c.QueryParam("limit")
 	orderBy := c.QueryParam("order_by")
 	status := c.QueryParam("status")
+	keyword := c.QueryParam("keyword")
 
 	page, convErr := strconv.Atoi(pageStr)
 	if convErr != nil {
@@ -76,6 +78,7 @@ func (u *usersController) getUsers(c echo.Context) error {
 		status,
 		uint(page),
 		uint(limit),
+		keyword,
 	)
 
 	if err != nil {

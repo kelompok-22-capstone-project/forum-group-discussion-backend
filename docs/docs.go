@@ -547,6 +547,12 @@ const docTemplate = `{
                         "description": "options: active, banned, default active",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search by keyword, default empty string",
+                        "name": "keyword",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -1619,6 +1625,12 @@ const docTemplate = `{
                         "description": "options: active, banned, default active",
                         "name": "status",
                         "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "search by keyword, default empty string",
+                        "name": "keyword",
+                        "in": "query"
                     }
                 ],
                 "responses": {
@@ -2589,6 +2601,15 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "1"
                 },
+                "threadTitle": {
+                    "type": "string",
+                    "x-order": "10"
+                },
+                "reportedOn": {
+                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                    "type": "string",
+                    "x-order": "11"
+                },
                 "moderatorUsername": {
                     "type": "string",
                     "x-order": "2"
@@ -2617,8 +2638,7 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "8"
                 },
-                "reportedOn": {
-                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
+                "threadID": {
                     "type": "string",
                     "x-order": "9"
                 }
@@ -2708,6 +2728,10 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "1"
                 },
+                "isFollowed": {
+                    "type": "boolean",
+                    "x-order": "10"
+                },
                 "email": {
                     "type": "string",
                     "x-order": "2"
@@ -2737,8 +2761,8 @@ const docTemplate = `{
                     "type": "integer",
                     "x-order": "8"
                 },
-                "isFollowed": {
-                    "type": "boolean",
+                "totalFollowing": {
+                    "type": "integer",
                     "x-order": "9"
                 }
             }

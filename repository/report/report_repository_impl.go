@@ -34,6 +34,8 @@ func (r *reportRepositoryImpl) GetReportsWithPagination(
        t.user_id      AS reported_user_id,
        u2.username    AS reported_username,
        u2.name        AS reported_name,
+			 th.id 					AS thread_id,
+		   th.title       AS thread_title,
        t.reason       AS reason,
        t.status       AS status,
        t.created_at   AS created_at,
@@ -42,6 +44,7 @@ FROM user_banneds t
          INNER JOIN moderators m on m.id = t.moderator_id
          INNER JOIN users u1 on m.user_id = u1.id
          INNER JOIN users u2 on t.user_id = u2.id
+				 INNER JOIN threads th on th.id = t.thread_id
 WHERE t.status = $1
 OFFSET $2 LIMIT $3;`
 
@@ -80,6 +83,8 @@ OFFSET $2 LIMIT $3;`
 			&userBanned.User.ID,
 			&userBanned.User.Username,
 			&userBanned.User.Name,
+			&userBanned.Thread.ID,
+			&userBanned.Thread.Title,
 			&userBanned.Reason,
 			&userBanned.Status,
 			&userBanned.CreatedAt,
@@ -131,11 +136,12 @@ func (r *reportRepositoryImpl) Insert(
 	ID,
 	moderatorID,
 	userID,
+	threadID,
 	reason string,
 ) (err error) {
-	statement := "INSERT INTO user_banneds (id, moderator_id, user_id, reason) VALUES ($1, $2, $3, $4);"
+	statement := "INSERT INTO user_banneds (id, moderator_id, user_id, thread_id, reason) VALUES ($1, $2, $3, $4, $5);"
 
-	result, dbErr := r.db.ExecContext(ctx, statement, ID, moderatorID, userID, reason)
+	result, dbErr := r.db.ExecContext(ctx, statement, ID, moderatorID, userID, threadID, reason)
 	if dbErr != nil {
 		log.Println(dbErr)
 		err = repository.ErrDatabase
