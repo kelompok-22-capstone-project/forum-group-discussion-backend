@@ -34,6 +34,6 @@ jobs:
           user: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
           command: |
-            docker-compose down
+            docker compose down
             docker image rm erikrios/moot:latest
-            docker-compose up -d
+            docker compose up -d
