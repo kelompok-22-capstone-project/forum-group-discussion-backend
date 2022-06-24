@@ -19,6 +19,7 @@ type UserService interface {
 		status string,
 		page,
 		limit uint,
+		keyword string,
 	) (r response.Pagination[response.User], err error)
 
 	GetOwn(

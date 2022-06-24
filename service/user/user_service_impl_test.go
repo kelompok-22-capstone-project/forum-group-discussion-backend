@@ -552,8 +552,9 @@ func TestGetAll(t *testing.T) {
 	status := "active"
 	page := 1
 	limit := 10
+	keyword := ""
 
-	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit)); err != nil {
+	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit), keyword); err != nil {
 		t.Logf("Error happened: %s", err)
 	} else {
 		t.Logf("Pagination: %+v", pagination)

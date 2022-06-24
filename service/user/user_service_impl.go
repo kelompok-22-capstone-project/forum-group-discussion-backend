@@ -142,6 +142,7 @@ func (u *userServiceImpl) GetAll(
 	status string,
 	page,
 	limit uint,
+	keyword string,
 ) (r response.Pagination[response.User], err error) {
 	if page == 0 {
 		page = 1
@@ -172,7 +173,7 @@ func (u *userServiceImpl) GetAll(
 	}
 
 	pagination, repoErr := u.userRepository.FindAllWithStatusAndPagination(
-		ctx, accessorUserID, userOrderBy, userStatus, pageInfo,
+		ctx, accessorUserID, userOrderBy, userStatus, pageInfo, keyword,
 	)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
