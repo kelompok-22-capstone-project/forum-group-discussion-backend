@@ -3,13 +3,10 @@ package user
 import (
 	"context"
 	"database/sql"
-	"log"
 	"testing"
 	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/joho/godotenv"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
 	"github.com/lib/pq"
@@ -251,149 +248,149 @@ func TestFindByUsername(t *testing.T) {
 	}
 }
 
-func TestFindAllWithStatusAndPagination(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestFindAllWithStatusAndPagination(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo UserRepository = NewUserRepositoryImpl(db)
+// 	var repo UserRepository = NewUserRepositoryImpl(db)
 
-	accessorUserID := "u-kt56R1"
-	orderBy := entity.Ranking
-	userStatus := entity.Active
-	pageInfo := entity.PageInfo{
-		Page:  1,
-		Limit: 20,
-	}
+// 	accessorUserID := "u-kt56R1"
+// 	orderBy := entity.Ranking
+// 	userStatus := entity.Active
+// 	pageInfo := entity.PageInfo{
+// 		Page:  1,
+// 		Limit: 20,
+// 	}
 
-	if pagination, err := repo.FindAllWithStatusAndPagination(context.Background(), accessorUserID, orderBy, userStatus, pageInfo); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
-	}
-}
+// 	if pagination, err := repo.FindAllWithStatusAndPagination(context.Background(), accessorUserID, orderBy, userStatus, pageInfo); err != nil {
+// 		t.Fatalf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Pagination: %+v", pagination)
+// 	}
+// }
 
-func TestFindByUsernameWithAccessor(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestFindByUsernameWithAccessor(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo UserRepository = NewUserRepositoryImpl(db)
+// 	var repo UserRepository = NewUserRepositoryImpl(db)
 
-	accessorUserID := "u-kt56R1"
-	username := "erikrios"
-	if user, err := repo.FindByUsernameWithAccessor(context.Background(), accessorUserID, username); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("User: %+v", user)
-	}
-}
+// 	accessorUserID := "u-kt56R1"
+// 	username := "erikrios"
+// 	if user, err := repo.FindByUsernameWithAccessor(context.Background(), accessorUserID, username); err != nil {
+// 		t.Fatalf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("User: %+v", user)
+// 	}
+// }
 
-func TestBannedUser(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestBannedUser(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo UserRepository = NewUserRepositoryImpl(db)
+// 	var repo UserRepository = NewUserRepositoryImpl(db)
 
-	userID := "u-NplCrv"
+// 	userID := "u-NplCrv"
 
-	if err := repo.BannedUser(context.Background(), userID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully banned a user with ID %s", userID)
-	}
-}
+// 	if err := repo.BannedUser(context.Background(), userID); err != nil {
+// 		t.Fatalf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Successfully banned a user with ID %s", userID)
+// 	}
+// }
 
-func TestUnbannedUser(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestUnbannedUser(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo UserRepository = NewUserRepositoryImpl(db)
+// 	var repo UserRepository = NewUserRepositoryImpl(db)
 
-	userID := "u-NplCrv"
+// 	userID := "u-NplCrv"
 
-	if err := repo.UnbannedUser(context.Background(), userID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully unbanned a user with ID %s", userID)
-	}
-}
+// 	if err := repo.UnbannedUser(context.Background(), userID); err != nil {
+// 		t.Fatalf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Successfully unbanned a user with ID %s", userID)
+// 	}
+// }
 
-func TestFollowUser(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestFollowUser(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo UserRepository = NewUserRepositoryImpl(db)
+// 	var repo UserRepository = NewUserRepositoryImpl(db)
 
-	ID := "f-abcdefg"
-	accessorUserID := "u-kt56R1"
-	userID := "u-ZrxmQS"
+// 	ID := "f-abcdefg"
+// 	accessorUserID := "u-kt56R1"
+// 	userID := "u-ZrxmQS"
 
-	if err := repo.FollowUser(context.Background(), ID, accessorUserID, userID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully follow a user with ID %s", userID)
-	}
-}
+// 	if err := repo.FollowUser(context.Background(), ID, accessorUserID, userID); err != nil {
+// 		t.Fatalf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Successfully follow a user with ID %s", userID)
+// 	}
+// }
 
-func TestUnfollowUser(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestUnfollowUser(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo UserRepository = NewUserRepositoryImpl(db)
+// 	var repo UserRepository = NewUserRepositoryImpl(db)
 
-	accessorUserID := "u-kt56R1"
-	userID := "u-ZrxmQS"
+// 	accessorUserID := "u-kt56R1"
+// 	userID := "u-ZrxmQS"
 
-	if err := repo.UnfollowUser(context.Background(), accessorUserID, userID); err != nil {
-		t.Fatalf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully unfollow a user with ID %s", userID)
-	}
-}
+// 	if err := repo.UnfollowUser(context.Background(), accessorUserID, userID); err != nil {
+// 		t.Fatalf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Successfully unfollow a user with ID %s", userID)
+// 	}
+// }

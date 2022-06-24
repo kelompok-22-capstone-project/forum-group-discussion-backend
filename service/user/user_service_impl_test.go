@@ -4,19 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"testing"
 	"time"
 
-	"github.com/joho/godotenv"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/config"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread"
 	mtr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/thread/mocks"
-	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user"
 	mur "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/user/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
@@ -527,188 +522,187 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-func TestGetAll(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestGetAll(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
-	accessorUserID := "u-ZrxmQS"
-	orderBy := "registered_date"
-	status := "active"
-	page := 1
-	limit := 10
-	keyword := ""
+// 	accessorUserID := "u-ZrxmQS"
+// 	orderBy := "registered_date"
+// 	status := "active"
+// 	page := 1
+// 	limit := 10
 
-	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit), keyword); err != nil {
-		t.Logf("Error happened: %s", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
-	}
-}
+// 	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit)); err != nil {
+// 		t.Logf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Pagination: %+v", pagination)
+// 	}
+// }
 
-func TestGetOwn(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestGetOwn(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
-	accessorUserID := "u-ZrxmQS"
-	accessorUsername := "erikrios"
+// 	accessorUserID := "u-ZrxmQS"
+// 	accessorUsername := "erikrios"
 
-	if user, err := service.GetOwn(context.Background(), accessorUserID, accessorUsername); err != nil {
-		t.Logf("Error happened: %s", err)
-	} else {
-		t.Logf("User: %+v", user)
-	}
-}
+// 	if user, err := service.GetOwn(context.Background(), accessorUserID, accessorUsername); err != nil {
+// 		t.Logf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("User: %+v", user)
+// 	}
+// }
 
-func TestGetByUsername(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestGetByUsername(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
-	accessorUserID := "u-ZrxmQS"
-	username := "rezana"
+// 	accessorUserID := "u-ZrxmQS"
+// 	username := "rezana"
 
-	if user, err := service.GetByUsername(context.Background(), accessorUserID, username); err != nil {
-		t.Logf("Error happened: %s", err)
-	} else {
-		t.Logf("User: %+v", user)
-	}
-}
+// 	if user, err := service.GetByUsername(context.Background(), accessorUserID, username); err != nil {
+// 		t.Logf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("User: %+v", user)
+// 	}
+// }
 
-func TestChangeBannedState(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestChangeBannedState(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
-	accessorRole := "admin"
-	username := "naruto"
+// 	accessorRole := "admin"
+// 	username := "naruto"
 
-	if err := service.ChangeBannedState(context.Background(), accessorRole, username); err != nil {
-		t.Logf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully banned/unbanned a user with username %s", username)
-	}
-}
+// 	if err := service.ChangeBannedState(context.Background(), accessorRole, username); err != nil {
+// 		t.Logf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Successfully banned/unbanned a user with username %s", username)
+// 	}
+// }
 
-func TestChangeFollowingState(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestChangeFollowingState(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
-	accessorUserID := "u-kt56R1"
-	username := "erikrios"
+// 	accessorUserID := "u-kt56R1"
+// 	username := "erikrios"
 
-	if err := service.ChangeFollowingState(context.Background(), accessorUserID, username); err != nil {
-		t.Logf("Error happened: %s", err)
-	} else {
-		t.Logf("Successfully follow/unfollow a user with username %s", username)
-	}
-}
+// 	if err := service.ChangeFollowingState(context.Background(), accessorUserID, username); err != nil {
+// 		t.Logf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Successfully follow/unfollow a user with username %s", username)
+// 	}
+// }
 
-func TestGetAllThreadByUsername(t *testing.T) {
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	err := godotenv.Load("./../../.env.example")
-	if err != nil {
-		panic(err)
-	}
+// func TestGetAllThreadByUsername(t *testing.T) {
+// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+// 	err := godotenv.Load("./../../.env.example")
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	db, err := config.NewPostgreSQLDatabase()
-	if err != nil {
-		panic(err)
-	}
+// 	db, err := config.NewPostgreSQLDatabase()
+// 	if err != nil {
+// 		panic(err)
+// 	}
 
-	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
+// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
+// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
+// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
+// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
 
-	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
 
-	accessorUserID := "u-kt56R1"
-	username := "erikrios"
-	page := 1
-	limit := 20
+// 	accessorUserID := "u-kt56R1"
+// 	username := "erikrios"
+// 	page := 1
+// 	limit := 20
 
-	if pagination, err := service.GetAllThreadByUsername(context.Background(), accessorUserID, username, uint(page), uint(limit)); err != nil {
-		t.Logf("Error happened: %s", err)
-	} else {
-		t.Logf("Pagination: %+v", pagination)
-	}
-}
+// 	if pagination, err := service.GetAllThreadByUsername(context.Background(), accessorUserID, username, uint(page), uint(limit)); err != nil {
+// 		t.Logf("Error happened: %s", err)
+// 	} else {
+// 		t.Logf("Pagination: %+v", pagination)
+// 	}
+// }
