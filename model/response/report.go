@@ -10,6 +10,8 @@ type Report struct {
 	Name              string `json:"name" extensions:"x-order=6"`
 	Reason            string `json:"reason" extensions:"x-order=7"`
 	Status            string `json:"status" extensions:"x-order=8"`
+	ThreadID          string `json:"threadID" extensions:"x-order=9"`
+	ThreadTitle       string `json:"threadTitle" extensions:"x-order=10"`
 	// ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)
-	ReportedOn string `json:"reportedOn" extensions:"x-order=9"`
+	ReportedOn string `json:"reportedOn" extensions:"x-order=11"`
 }
