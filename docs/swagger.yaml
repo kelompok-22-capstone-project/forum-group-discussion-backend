@@ -501,10 +501,16 @@ definitions:
       reportedOn:
         description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
         type: string
-        x-order: "9"
+        x-order: "11"
       status:
         type: string
         x-order: "8"
+      threadID:
+        type: string
+        x-order: "9"
+      threadTitle:
+        type: string
+        x-order: "10"
       userID:
         type: string
         x-order: "4"
