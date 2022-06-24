@@ -22,7 +22,7 @@ func NewPostgreSQLDatabase() (*sql.DB, error) {
 	dbName := os.Getenv("DB_NAME")
 
 	var psqlInfo string
-	if os.Getenv("ENV") == "production" {
+	if os.Getenv("ENV") == "production" && os.Getenv("DB_SSL") == "on" {
 		psqlInfo = fmt.Sprintf(
 			"host=%s port=%d user=%s password=%s dbname=%s",
 			host, port, user, password, dbName,
