@@ -1,0 +1,1823 @@
+basePath: /api/v1
+definitions:
+  controller.categoriesData:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/response.Category'
+        type: array
+        x-order: "0"
+    type: object
+  controller.categoriesResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.categoriesData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.commentsInfoWrapper:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.Comment'
+        type: array
+        x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+    type: object
+  controller.commentsResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.commentsInfoWrapper'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.createThreadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.idData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.idData:
+    properties:
+      ID:
+        type: string
+    type: object
+  controller.infoResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.DashboardInfo'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.loginResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.Login'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.pageInfoData:
+    properties:
+      limit:
+        type: integer
+        x-order: "0"
+      page:
+        type: integer
+        x-order: "1"
+      pageTotal:
+        type: integer
+        x-order: "2"
+      total:
+        type: integer
+        x-order: "3"
+    type: object
+  controller.profileResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.User'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.profilesInfoWrapper:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.User'
+        type: array
+        x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+    type: object
+  controller.profilesResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.profilesInfoWrapper'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.registerResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.userIDData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.reportsData:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.Report'
+        type: array
+        x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+    type: object
+  controller.reportsResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.reportsData'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.threadResponse:
+    properties:
+      data:
+        $ref: '#/definitions/response.Thread'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.threadsInfoWrapper:
+    properties:
+      list:
+        items:
+          $ref: '#/definitions/response.ManyThread'
+        type: array
+        x-order: "0"
+      pageInfo:
+        $ref: '#/definitions/controller.pageInfoData'
+        x-order: "1"
+    type: object
+  controller.threadsResponse:
+    properties:
+      data:
+        $ref: '#/definitions/controller.threadsInfoWrapper'
+        x-order: "2"
+      message:
+        type: string
+        x-order: "1"
+      status:
+        type: string
+        x-order: "0"
+    type: object
+  controller.userIDData:
+    properties:
+      userID:
+        type: string
+    type: object
+  echo.HTTPError:
+    properties:
+      message: {}
+    type: object
+  payload.AddRemoveModerator:
+    properties:
+      username:
+        maxLength: 20
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.CreateCategory:
+    properties:
+      description:
+        minLength: 2
+        type: string
+        x-order: "1"
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.CreateComment:
+    properties:
+      comment:
+        minLength: 1
+        type: string
+        x-order: "0"
+    type: object
+  payload.CreateReport:
+    properties:
+      reason:
+        minLength: 2
+        type: string
+        x-order: "2"
+      threadID:
+        maxLength: 10
+        minLength: 2
+        type: string
+        x-order: "1"
+      username:
+        maxLength: 10
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.CreateThread:
+    properties:
+      categoryID:
+        maxLength: 6
+        minLength: 4
+        type: string
+        x-order: "2"
+      description:
+        minLength: 2
+        type: string
+        x-order: "1"
+      title:
+        maxLength: 50
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.Login:
+    properties:
+      password:
+        maxLength: 20
+        minLength: 8
+        type: string
+        x-order: "1"
+      username:
+        maxLength: 20
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.Register:
+    properties:
+      email:
+        maxLength: 50
+        minLength: 5
+        type: string
+        x-order: "1"
+      name:
+        maxLength: 50
+        minLength: 1
+        type: string
+        x-order: "2"
+      password:
+        maxLength: 20
+        minLength: 8
+        type: string
+        x-order: "3"
+      username:
+        maxLength: 20
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.UpdateCategory:
+    properties:
+      description:
+        minLength: 2
+        type: string
+        x-order: "1"
+      name:
+        maxLength: 50
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  payload.UpdateThread:
+    properties:
+      categoryID:
+        maxLength: 6
+        minLength: 4
+        type: string
+        x-order: "2"
+      description:
+        minLength: 2
+        type: string
+        x-order: "1"
+      title:
+        maxLength: 50
+        minLength: 2
+        type: string
+        x-order: "0"
+    type: object
+  response.Category:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      createdOn:
+        description: 'CreatedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "3"
+      description:
+        type: string
+        x-order: "2"
+      name:
+        type: string
+        x-order: "1"
+    type: object
+  response.Comment:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      comment:
+        type: string
+        x-order: "4"
+      name:
+        type: string
+        x-order: "3"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "5"
+      userID:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "2"
+    type: object
+  response.DashboardInfo:
+    properties:
+      totalModerator:
+        type: integer
+        x-order: "2"
+      totalReport:
+        type: integer
+        x-order: "3"
+      totalThread:
+        type: integer
+        x-order: "1"
+      totalUser:
+        type: integer
+        x-order: "0"
+    type: object
+  response.Login:
+    properties:
+      role:
+        type: string
+        x-order: "1"
+      token:
+        type: string
+        x-order: "0"
+    type: object
+  response.ManyThread:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      categoryID:
+        type: string
+        x-order: "2"
+      categoryName:
+        type: string
+        x-order: "3"
+      creatorID:
+        type: string
+        x-order: "12"
+      creatorName:
+        type: string
+        x-order: "14"
+      creatorUsername:
+        type: string
+        x-order: "13"
+      description:
+        type: string
+        x-order: "7"
+      isFollowed:
+        type: boolean
+        x-order: "6"
+      isLiked:
+        type: boolean
+        x-order: "5"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "4"
+      title:
+        type: string
+        x-order: "1"
+      totalComment:
+        type: integer
+        x-order: "11"
+      totalFollower:
+        type: integer
+        x-order: "10"
+      totalLike:
+        type: integer
+        x-order: "9"
+      totalViewer:
+        type: integer
+        x-order: "8"
+    type: object
+  response.Moderator:
+    properties:
+      email:
+        type: string
+        x-order: "3"
+      isActive:
+        type: boolean
+        x-order: "6"
+      moderatorID:
+        type: string
+        x-order: "0"
+      name:
+        type: string
+        x-order: "4"
+      registeredOn:
+        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "7"
+      role:
+        type: string
+        x-order: "5"
+      userId:
+        type: string
+        x-order: "1"
+      username:
+        type: string
+        x-order: "2"
+    type: object
+  response.Report:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      moderatorID:
+        type: string
+        x-order: "1"
+      moderatorName:
+        type: string
+        x-order: "3"
+      moderatorUsername:
+        type: string
+        x-order: "2"
+      name:
+        type: string
+        x-order: "6"
+      reason:
+        type: string
+        x-order: "7"
+      reportedOn:
+        description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "11"
+      status:
+        type: string
+        x-order: "8"
+      threadID:
+        type: string
+        x-order: "9"
+      threadTitle:
+        type: string
+        x-order: "10"
+      userID:
+        type: string
+        x-order: "4"
+      username:
+        type: string
+        x-order: "5"
+    type: object
+  response.Thread:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      categoryID:
+        type: string
+        x-order: "2"
+      categoryName:
+        type: string
+        x-order: "3"
+      creatorID:
+        type: string
+        x-order: "13"
+      creatorName:
+        type: string
+        x-order: "15"
+      creatorUsername:
+        type: string
+        x-order: "14"
+      description:
+        type: string
+        x-order: "8"
+      isFollowed:
+        type: boolean
+        x-order: "6"
+      isLiked:
+        type: boolean
+        x-order: "5"
+      moderators:
+        items:
+          $ref: '#/definitions/response.Moderator'
+        type: array
+        x-order: "7"
+      publishedOn:
+        description: 'PublishedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "4"
+      title:
+        type: string
+        x-order: "1"
+      totalComment:
+        type: integer
+        x-order: "12"
+      totalFollower:
+        type: integer
+        x-order: "11"
+      totalLike:
+        type: integer
+        x-order: "10"
+      totalViewer:
+        type: integer
+        x-order: "9"
+    type: object
+  response.User:
+    properties:
+      email:
+        type: string
+        x-order: "2"
+      isActive:
+        type: boolean
+        x-order: "5"
+      isFollowed:
+        type: boolean
+        x-order: "10"
+      name:
+        type: string
+        x-order: "3"
+      registeredOn:
+        description: 'RegisteredOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "6"
+      role:
+        type: string
+        x-order: "4"
+      totalFollower:
+        type: integer
+        x-order: "8"
+      totalFollowing:
+        type: integer
+        x-order: "9"
+      totalThread:
+        type: integer
+        x-order: "7"
+      userID:
+        type: string
+        x-order: "0"
+      username:
+        type: string
+        x-order: "1"
+    type: object
+host: moot-rest-api.herokuapp.com
+info:
+  contact:
+    email: erikriosetiawan15@gmail.com
+    name: Kelompok 22
+    url: http://www.swagger.io/support
+  description: API for Forum Group Discussion
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  termsOfService: http://swagger.io/terms/
+  title: Forum Group Discussion API
+  version: "1.0"
+paths:
+  /admin/dashboard:
+    get:
+      description: This endpoint is used to get all information for admin dashboard
+        purpose
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.infoResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Info
+      tags:
+      - admin
+  /categories:
+    get:
+      description: This endpoint is used to get all category
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.categoriesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Categories
+      tags:
+      - categories
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a category
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateCategory'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Create a Category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      description: This endpoint is used to delete a category by ID
+      parameters:
+      - description: category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Delete Category by ID
+      tags:
+      - categories
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to update a category
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UpdateCategory'
+      - description: category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Update a Category
+      tags:
+      - categories
+  /categories/{id}/threads:
+    get:
+      description: This endpoint is used to get the threads of particular category
+      parameters:
+      - description: category ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Category Threads
+      tags:
+      - categories
+  /guest/threads:
+    get:
+      description: This endpoint is used to get all threads
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      - description: search by keyword, default empty string
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Threads
+      tags:
+      - guest
+  /guest/threads/{id}:
+    get:
+      description: This endpoint is used to get thread by ID
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Thread by ID
+      tags:
+      - guest
+  /guest/threads/{id}/comments:
+    get:
+      description: This endpoint is used to get the thread comments
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.commentsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Thread Comments
+      tags:
+      - guest
+  /guest/users:
+    get:
+      description: This endpoint is used to get all users
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      - description: 'options: registered_date, ranking, default registered_date'
+        in: query
+        name: order_by
+        type: string
+      - description: 'options: active, banned, default active'
+        in: query
+        name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profilesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Users
+      tags:
+      - guest
+  /guest/users/{username}:
+    get:
+      description: This endpoint is used to get the another user by username
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get User by Username
+      tags:
+      - guest
+  /guest/users/{username}/threads:
+    get:
+      description: This endpoint is used to get the user threads
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get User Threads
+      tags:
+      - guest
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used for user login
+      parameters:
+      - description: user credentials
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.Login'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.loginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: User Login
+      tags:
+      - login
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used for user register.
+      parameters:
+      - description: register payload
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.Register'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.registerResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKey: []
+      summary: User Register
+      tags:
+      - register
+  /reports:
+    get:
+      description: This endpoint is used to get all report
+      parameters:
+      - description: 'options: review, accepted, default review'
+        in: query
+        name: status
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.reportsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Reports
+      tags:
+      - reports
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a report
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateReport'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Create a Report
+      tags:
+      - reports
+  /threads:
+    get:
+      description: This endpoint is used to get all threads
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      - description: search by keyword, default empty string
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Threads
+      tags:
+      - threads
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a thread
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateThread'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Create a Thread
+      tags:
+      - threads
+  /threads/{id}:
+    delete:
+      description: This endpoint is used to delete a thread by ID
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Delete Thread by ID
+      tags:
+      - threads
+    get:
+      description: This endpoint is used to get thread by ID
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Thread by ID
+      tags:
+      - threads
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to update a thread
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.UpdateThread'
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Update a Thread
+      tags:
+      - threads
+  /threads/{id}/comments:
+    get:
+      description: This endpoint is used to get the thread comments
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.commentsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Thread Comments
+      tags:
+      - threads
+    post:
+      consumes:
+      - application/json
+      description: This endpoint is used to create a comment of a thread
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.CreateComment'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/controller.createThreadResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Create a Comment
+      tags:
+      - threads
+  /threads/{id}/follow:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to follow/unfollow a thread
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Follow/Unfollow a Thread
+      tags:
+      - threads
+  /threads/{id}/like:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to like/unlike a thread
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Like/Unlike a Thread
+      tags:
+      - threads
+  /threads/{id}/moderators/add:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to add a moderator to thread
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.AddRemoveModerator'
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Add a Moderator to Thread
+      tags:
+      - threads
+  /threads/{id}/moderators/remove:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to remove a moderator from thread
+      parameters:
+      - description: request body
+        in: body
+        name: default
+        required: true
+        schema:
+          $ref: '#/definitions/payload.AddRemoveModerator'
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Remove a Moderator from Thread
+      tags:
+      - threads
+  /users:
+    get:
+      description: This endpoint is used to get all users
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      - description: 'options: registered_date, ranking, default registered_date'
+        in: query
+        name: order_by
+        type: string
+      - description: 'options: active, banned, default active'
+        in: query
+        name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profilesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Users
+      tags:
+      - users
+  /users/{username}:
+    get:
+      description: This endpoint is used to get the another user by username
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get User by Username
+      tags:
+      - users
+  /users/{username}/banned:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to banned/unbanned a user
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Banned/Unbanned a User
+      tags:
+      - users
+  /users/{username}/follow:
+    put:
+      consumes:
+      - application/json
+      description: This endpoint is used to follow/unfollow a user
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: ""
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Follow/Unfollow a User
+      tags:
+      - users
+  /users/{username}/threads:
+    get:
+      description: This endpoint is used to get the user threads
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get User Threads
+      tags:
+      - users
+  /users/me:
+    get:
+      description: This endpoint is used to get their own user profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profileResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      - ApiKeyAuth: []
+      summary: Get Own Profile
+      tags:
+      - users
+securityDefinitions:
+  ApiKey:
+    in: header
+    name: API-Key
+    type: apiKey
+  ApiKeyAuth:
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"

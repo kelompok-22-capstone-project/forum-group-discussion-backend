@@ -1,0 +1,45 @@
+version: "3.9"
+services:
+  db:
+    image: postgres:alpine
+    restart: always
+    container_name: moot-db 
+    environment:
+      POSTGRES_USER: 'erikrios'
+      POSTGRES_PASSWORD: 'erikrios'
+      POSTGRES_DB: 'moot_db'
+    ports: 
+      - '5432:5432'
+    expose:
+      - '5432'
+    volumes:
+      - moot-db-volume:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  api:
+    image: "erikrios/moot:latest"
+    restart: always
+    container_name: moot-api 
+    environment:
+      ENV: 'production'
+      PORT: '3000'
+      DB_PORT: '5432'
+      DB_HOST: 'moot-db'
+      DB_USER: 'erikrios'
+      DB_PASSWORD: 'erikrios'
+      DB_NAME: 'moot_db'
+      DB_SSL: 'off'
+      JWT_SECRET: 'ErikRioSetiawan'
+      API_KEY: '2ry3HBOBLi1YkCma49pdnH3RpMguwgNZ1bvU2eqCOzZg2y0g2j'
+    ports: 
+      - '3000:3000'
+    expose:
+      - '3000'
+    depends_on:
+      db:
+        condition: service_healthy
+volumes:
+  moot-db-volume:
