@@ -34,10 +34,10 @@
   <p align="center">
    Forum Group Discussion API: API that provide everything about forum group discussion
     <br />
-    <a href="https://moot-rest-api.herokuapp.com/"><strong>Explore the docs »</strong></a>
+    <a href="https://ugly-frog-89.a276.dcdg.xyz/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://moot-rest-api.herokuapp.com/">View Demo</a>
+    <a href="https://ugly-frog-89.a276.dcdg.xyz/">View Demo</a>
     ·
     <a href="https://github.com/kelompok-22-capstone-project/forum-group-discussion-backend/issues">Report Bug</a>
     ·
@@ -102,7 +102,7 @@ This is an example of how to list things you need to use the software and how to
 
 ### Installation
 
-1. Get a API Documentation at [https://moot-rest-api.herokuapp.com/](https://moot-rest-api.herokuapp.com/)
+1. Get a API Documentation at [https://ugly-frog-89.a276.dcdg.xyz/](https://ugly-frog-89.a276.dcdg.xyz/)
 2. Clone the repo
    ```sh
    git clone git@github.com:kelompok-22-capstone-project/forum-group-discussion-backend.git
@@ -134,7 +134,7 @@ This is an example of how to list things you need to use the software and how to
 
 ## Usage
 
-_For more examples, please refer to the [Documentation](https://moot-rest-api.herokuapp.com/)
+_For more examples, please refer to the [Documentation](https://ugly-frog-89.a276.dcdg.xyz/)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
