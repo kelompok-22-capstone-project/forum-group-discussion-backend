@@ -1,4 +1,8 @@
 {
+    "schemes": [
+        "http",
+        "https"
+    ],
     "swagger": "2.0",
     "info": {
         "description": "API for Forum Group Discussion",
@@ -15,7 +19,7 @@
         },
         "version": "1.0"
     },
-    "host": "moot-rest-api.herokuapp.com",
+    "host": "ugly-frog-89.a276.dcdg.xyz",
     "basePath": "/api/v1",
     "paths": {
         "/admin/dashboard": {

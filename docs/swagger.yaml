@@ -609,7 +609,7 @@ definitions:
         type: string
         x-order: "1"
     type: object
-host: moot-rest-api.herokuapp.com
+host: ugly-frog-89.a276.dcdg.xyz
 info:
   contact:
     email: erikriosetiawan15@gmail.com
@@ -1811,6 +1811,9 @@ paths:
       summary: Get Own Profile
       tags:
       - users
+schemes:
+- http
+- https
 securityDefinitions:
   ApiKey:
     in: header
