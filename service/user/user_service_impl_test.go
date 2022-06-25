@@ -839,53 +839,136 @@ func TestGetOwn(t *testing.T) {
 	}
 }
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+func TestGetByUsername(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	now := time.Now()
 
-// 	accessorUserID := "u-ZrxmQS"
-// 	accessorUsername := "erikrios"
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	if user, err := service.GetOwn(context.Background(), accessorUserID, accessorUsername); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("User: %+v", user)
-// 	}
-// }
+	testCases := []struct {
+		name                  string
+		inputAccessorUserID   string
+		inputAccessorUsername string
+		expectedResponse      response.User
+		expectedError         error
+		mockBehaviours        func()
+	}{
+		{
+			name:                  "it should return service.ErrRepository, when user repository return an repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputAccessorUsername: "erikrios",
+			expectedResponse:      response.User{},
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return valid user, when no error is returned",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputAccessorUsername: "erikrios",
+			expectedResponse: response.User{
+				UserID:         "u-ZrxmQS",
+				Username:       "erikrios",
+				Email:          "erikriosetiawan@gmail.com",
+				Name:           "Erik Rio Setiawan",
+				Role:           "user",
+				IsActive:       true,
+				RegisteredOn:   now.Format(time.RFC822),
+				TotalThread:    15,
+				TotalFollower:  200,
+				TotalFollowing: 2,
+				IsFollowed:     false,
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       true,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
 
-// func TestGetByUsername(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+			gotUser, gotError := userService.GetByUsername(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputAccessorUsername,
+			)
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
-
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
-
-// 	accessorUserID := "u-ZrxmQS"
-// 	username := "rezana"
-
-// 	if user, err := service.GetByUsername(context.Background(), accessorUserID, username); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("User: %+v", user)
-// 	}
-// }
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.Equal(t, testCase.expectedResponse, gotUser)
+			}
+		})
+	}
+}
 
 // func TestChangeBannedState(t *testing.T) {
 // 	log.SetFlags(log.LstdFlags | log.Lshortfile)
