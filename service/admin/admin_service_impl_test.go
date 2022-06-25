@@ -23,21 +23,21 @@ func TestGetDashboardInfo(t *testing.T) {
 		inputAccessorRole     string
 		expectedError         error
 		expectedDashboardInfo response.DashboardInfo
-		mockBehaviour         func()
+		mockBehaviours        func()
 	}{
 		{
 			name:                  "it should return service.ErrAccessForbidden, if accessorRole is not admin",
 			inputAccessorRole:     "user",
 			expectedError:         service.ErrAccessForbidden,
 			expectedDashboardInfo: response.DashboardInfo{},
-			mockBehaviour:         func() {},
+			mockBehaviours:        func() {},
 		},
 		{
 			name:                  "it should return service.ErrRepository, when admin repository return repository.ErrrDatabase",
 			inputAccessorRole:     "admin",
 			expectedError:         service.ErrRepository,
 			expectedDashboardInfo: response.DashboardInfo{},
-			mockBehaviour: func() {
+			mockBehaviours: func() {
 				mockAdminRepo.On(
 					"FindDashboardInfo",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
@@ -61,7 +61,7 @@ func TestGetDashboardInfo(t *testing.T) {
 				TotalModerator: 442139842,
 				TotalReport:    125,
 			},
-			mockBehaviour: func() {
+			mockBehaviours: func() {
 				mockAdminRepo.On(
 					"FindDashboardInfo",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
@@ -84,7 +84,7 @@ func TestGetDashboardInfo(t *testing.T) {
 
 	for _, testCase := range testCases {
 		t.Run(testCase.name, func(t *testing.T) {
-			testCase.mockBehaviour()
+			testCase.mockBehaviours()
 
 			gotDashboardInfo, gotError := adminService.GetDashboardInfo(
 				context.Background(),
