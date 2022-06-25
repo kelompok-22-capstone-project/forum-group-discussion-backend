@@ -522,38 +522,191 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-// func TestGetAll(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func TestGetAll(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	now := time.Now()
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	testCases := []struct {
+		name                string
+		inputAccessorUserID string
+		inputOrderBy        string
+		inputStatus         string
+		inputPage           uint
+		inputLimit          uint
+		inputKeyword        string
+		expectedResponse    response.Pagination[response.User]
+		expectedError       error
+		mockBehaviours      func()
+	}{
+		{
+			name:                "it should return service.ErrRepository, when user repository return an repository.ErrDatabase error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputOrderBy:        "ranking",
+			inputStatus:         "banned",
+			inputPage:           0,
+			inputLimit:          0,
+			inputKeyword:        "random keyword",
+			expectedResponse:    response.Pagination[response.User]{},
+			expectedError:       service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindAllWithStatusAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserOrderBy(entity.Ranking))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserStatus(entity.Banned))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) entity.Pagination[entity.User] {
+						return entity.Pagination[entity.User]{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return valid users pagination, when no error is returned",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputOrderBy:        "registered_date",
+			inputStatus:         "active",
+			inputPage:           1,
+			inputLimit:          35,
+			inputKeyword:        "random keyword",
+			expectedResponse: response.Pagination[response.User]{
+				List: []response.User{
+					{
+						UserID:         "u-ZrxmQS",
+						Username:       "erikrios",
+						Email:          "erikriosetiawan@gmail.com",
+						Name:           "Erik Rio Setiawan",
+						Role:           "user",
+						IsActive:       true,
+						RegisteredOn:   now.Format(time.RFC822),
+						TotalThread:    15,
+						TotalFollower:  200,
+						TotalFollowing: 2,
+						IsFollowed:     false,
+					},
+				},
+				PageInfo: response.PageInfo{
+					Limit:     35,
+					Page:      1,
+					PageTotal: 1,
+					Total:     29,
+				},
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindAllWithStatusAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserOrderBy(entity.Ranking))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserStatus(entity.Banned))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) entity.Pagination[entity.User] {
+						return entity.Pagination[entity.User]{
+							List: []entity.User{
+								{
+									ID:             "u-ZrxmQS",
+									Username:       "erikrios",
+									Email:          "erikriosetiawan@gmail.com",
+									Name:           "Erik Rio Setiawan",
+									Role:           "user",
+									IsActive:       true,
+									TotalThread:    15,
+									TotalFollower:  200,
+									TotalFollowing: 2,
+									IsFollowed:     false,
+									CreatedAt:      now,
+									UpdatedAt:      now,
+								},
+							},
+							PageInfo: entity.PageInfo{
+								Limit:     35,
+								Page:      1,
+								PageTotal: 1,
+								Total:     29,
+							},
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
 
-// 	accessorUserID := "u-ZrxmQS"
-// 	orderBy := "registered_date"
-// 	status := "active"
-// 	page := 1
-// 	limit := 10
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
 
-// 	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit)); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Pagination: %+v", pagination)
-// 	}
-// }
+			gotPagination, gotError := userService.GetAll(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputOrderBy,
+				testCase.inputStatus,
+				testCase.inputPage,
+				testCase.inputLimit,
+				testCase.inputKeyword,
+			)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.ElementsMatch(t, testCase.expectedResponse.List, gotPagination.List)
+				assert.Equal(t, testCase.expectedResponse.PageInfo, gotPagination.PageInfo)
+			}
+		})
+	}
+}
 
 // func TestGetOwn(t *testing.T) {
 // 	log.SetFlags(log.LstdFlags | log.Lshortfile)
