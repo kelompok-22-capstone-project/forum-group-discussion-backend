@@ -47,6 +47,7 @@ import (
 
 // @host      moot-rest-api.herokuapp.com
 // @BasePath  /api/v1
+// @schemes   https http
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if err := godotenv.Load(".env"); err != nil {
