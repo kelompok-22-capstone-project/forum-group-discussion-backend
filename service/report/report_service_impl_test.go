@@ -2,11 +2,13 @@ package report
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"testing"
 	"time"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/entity"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository"
 	mr "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/repository/report/mocks"
@@ -191,19 +193,531 @@ func TestGetAll(t *testing.T) {
 	}
 }
 
-// func TestCreate(t *testing.T) {
-// 	var service ReportService = NewReportServiceImpl(reportRepo, userRepo, threadRepo, idGenerator)
+func TestCreate(t *testing.T) {
+	mockReportRepo := &mr.ReportRepository{}
+	mockUserRepo := &mu.UserRepository{}
+	mockThreadRepo := &mt.ThreadRepository{}
+	mockIDGen := &mi.IDGenerator{}
 
-// 	accessorUserID := "u-ZrxmQS"
-// 	p := payload.CreateReport{
-// 		Username: "naruto",
-// 		ThreadID: "t-abcdefg",
-// 		Reason:   "Bocil ini sangat meresahkan, tolong di banned min.",
-// 	}
+	var reportService ReportService = NewReportServiceImpl(mockReportRepo, mockUserRepo, mockThreadRepo, mockIDGen)
 
-// 	if id, err := service.Create(context.Background(), accessorUserID, p); err != nil {
-// 		t.Fatalf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Successfully created a report with id %s", id)
-// 	}
-// }
+	testCases := []struct {
+		name                string
+		inputAccessorUserID string
+		inputPayload        payload.CreateReport
+		expectedID          string
+		expectedError       error
+		mockBehaviours      func()
+	}{
+		{
+			name:                "it should return service.ErrInvalidPayload, when the payload is invalid",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "",
+			},
+			expectedID:     "",
+			expectedError:  service.ErrInvalidPayload,
+			mockBehaviours: func() {},
+		},
+		{
+			name:                "it should return service.ErrDataNotFound, when find by username return repository.ErrRecordNotFound error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "",
+			expectedError: service.ErrDataNotFound,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{}
+					},
+					func(ctx context.Context, username string) error {
+						return repository.ErrRecordNotFound
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrDataNotFound, when find thread by ID return repository.ErrRecordNotFound error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "",
+			expectedError: service.ErrDataNotFound,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
+						return entity.Thread{}
+					},
+					func(ctx context.Context, accessorUserID, threadID string) error {
+						return repository.ErrRecordNotFound
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when find all moderators by thread ID return repository.ErrDatabase error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "",
+			expectedError: service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
+						return entity.Thread{}
+					},
+					func(ctx context.Context, accessorUserID, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{}
+					},
+					func(ctx context.Context, threadID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrAccessForbidden, when accessor is not moderator",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "",
+			expectedError: service.ErrAccessForbidden,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
+						return entity.Thread{}
+					},
+					func(ctx context.Context, accessorUserID, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{
+									ID: "u-ZrxmQq",
+								},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when generate report ID return an error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "",
+			expectedError: service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
+						return entity.Thread{}
+					},
+					func(ctx context.Context, accessorUserID, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{
+									ID: "u-ZrxmQS",
+								},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateReportID",
+				).Return(
+					func() string {
+						return ""
+					},
+					func() error {
+						return errors.New("Something went wrong.")
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when insert report return repository.ErrDatabase",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "",
+			expectedError: service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
+						return entity.Thread{}
+					},
+					func(ctx context.Context, accessorUserID, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{
+									ID: "u-ZrxmQS",
+								},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateReportID",
+				).Return(
+					func() string {
+						return "r-ErLN4lS"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockReportRepo.On(
+					"Insert",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						ID,
+						moderatorID,
+						userID,
+						threadID,
+						reason string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return valid ID, when no error is returned",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputPayload: payload.CreateReport{
+				Username: "erikrios",
+				ThreadID: "t-Ku7Pi",
+				Reason:   "Harrashment",
+			},
+			expectedID:    "r-ErLN4lS",
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:        "u-abcdef",
+							Username:  "erikrios",
+							Email:     "erikriosetiawan15@gmail.com",
+							Name:      "Erik Rio Setiawan",
+							Password:  "erikriosetiawan",
+							Role:      "user",
+							IsActive:  false,
+							CreatedAt: time.Now(),
+							UpdatedAt: time.Now(),
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
+						return entity.Thread{}
+					},
+					func(ctx context.Context, accessorUserID, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{
+									ID: "u-ZrxmQS",
+								},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateReportID",
+				).Return(
+					func() string {
+						return "r-ErLN4lS"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockReportRepo.On(
+					"Insert",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						ID,
+						moderatorID,
+						userID,
+						threadID,
+						reason string,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			gotID, gotErr := reportService.Create(context.Background(), testCase.inputAccessorUserID, testCase.inputPayload)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotErr, testCase.expectedError)
+			} else {
+				assert.NoError(t, gotErr)
+				assert.Equal(t, testCase.expectedID, gotID)
+			}
+		})
+	}
+}
