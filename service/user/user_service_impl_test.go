@@ -1198,35 +1198,315 @@ func TestChangeBannedState(t *testing.T) {
 	}
 }
 
-// func TestChangeFollowingState(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func TestChangeFollowingState(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	now := time.Now()
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	testCases := []struct {
+		name                  string
+		inputAccessorUserID   string
+		inputUsernameToFollow string
+		expectedError         error
+		mockBehaviours        func()
+	}{
+		{
+			name:                  "it should return service.ErrRepository, when user repository return a repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "naruto",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return service.ErrRepository, when unfollow user return a repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     true,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	accessorUserID := "u-kt56R1"
-// 	username := "erikrios"
+				mockUserRepository.On(
+					"UnfollowUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return service.ErrRepository, when generate id return an error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	if err := service.ChangeFollowingState(context.Background(), accessorUserID, username); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Successfully follow/unfollow a user with username %s", username)
-// 	}
-// }
+				mockIDGen.On(
+					"GenerateUserFollowID",
+				).Return(
+					func() string {
+						return ""
+					},
+					func() error {
+						return errors.New("Something went wrong.")
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return service.ErrRepository, when follow user return a repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateUserFollowID",
+				).Return(
+					func() string {
+						return "f-abcdefg"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepository.On(
+					"FollowUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, id, accessorUserID, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return nil error, when no error is returned",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateUserFollowID",
+				).Return(
+					func() string {
+						return "f-abcdefg"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepository.On(
+					"FollowUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, id, accessorUserID, userID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			gotError := userService.ChangeFollowingState(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputUsernameToFollow,
+			)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+			}
+		})
+	}
+}
 
 // func TestGetAllThreadByUsername(t *testing.T) {
 // 	log.SetFlags(log.LstdFlags | log.Lshortfile)
