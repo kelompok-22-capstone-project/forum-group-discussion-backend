@@ -2787,7 +2787,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "moot-rest-api.herokuapp.com",
 	BasePath:         "/api/v1",
-	Schemes:          []string{},
+	Schemes:          []string{"https", "http"},
 	Title:            "Forum Group Discussion API",
 	Description:      "API for Forum Group Discussion",
 	InfoInstanceName: "swagger",
