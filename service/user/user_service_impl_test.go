@@ -701,6 +701,7 @@ func TestGetAll(t *testing.T) {
 			if testCase.expectedError != nil {
 				assert.ErrorIs(t, gotError, testCase.expectedError)
 			} else {
+				assert.NoError(t, testCase.expectedError)
 				assert.ElementsMatch(t, testCase.expectedResponse.List, gotPagination.List)
 				assert.Equal(t, testCase.expectedResponse.PageInfo, gotPagination.PageInfo)
 			}
@@ -833,6 +834,7 @@ func TestGetOwn(t *testing.T) {
 			if testCase.expectedError != nil {
 				assert.ErrorIs(t, gotError, testCase.expectedError)
 			} else {
+				assert.NoError(t, testCase.expectedError)
 				assert.Equal(t, testCase.expectedResponse, gotUser)
 			}
 		})
@@ -964,41 +966,237 @@ func TestGetByUsername(t *testing.T) {
 			if testCase.expectedError != nil {
 				assert.ErrorIs(t, gotError, testCase.expectedError)
 			} else {
+				assert.NoError(t, testCase.expectedError)
 				assert.Equal(t, testCase.expectedResponse, gotUser)
 			}
 		})
 	}
 }
 
-// func TestChangeBannedState(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func TestChangeBannedState(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	now := time.Now()
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	testCases := []struct {
+		name              string
+		inputAccessorRole string
+		inputUsername     string
+		expectedError     error
+		mockBehaviours    func()
+	}{
+		{
+			name:              "it should return service.ErrAccessForbidden, when accessor role is not admin",
+			inputAccessorRole: "user",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrAccessForbidden,
+			mockBehaviours:    func() {},
+		},
+		{
+			name:              "it should return service.ErrRepository, when user repository return a repository.ErrDatabase error",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:              "it should return service.ErrRepository, when banned user return a repository.ErrDatabase error",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       true,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	accessorRole := "admin"
-// 	username := "naruto"
+				mockUserRepository.On(
+					"BannedUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:              "it should return service.ErrRepository, when unbanned user return a repository.ErrDatabase error",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	if err := service.ChangeBannedState(context.Background(), accessorRole, username); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Successfully banned/unbanned a user with username %s", username)
-// 	}
-// }
+				mockUserRepository.On(
+					"UnbannedUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:              "it should return nil error, when no error is returned from user repository",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepository.On(
+					"UnbannedUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			gotError := userService.ChangeBannedState(
+				context.Background(),
+				testCase.inputAccessorRole,
+				testCase.inputUsername,
+			)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+			}
+		})
+	}
+}
 
 // func TestChangeFollowingState(t *testing.T) {
 // 	log.SetFlags(log.LstdFlags | log.Lshortfile)
