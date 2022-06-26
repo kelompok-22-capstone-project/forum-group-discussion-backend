@@ -1811,6 +1811,9 @@ paths:
       summary: Get Own Profile
       tags:
       - users
+schemes:
+- https
+- http
 securityDefinitions:
   ApiKey:
     in: header

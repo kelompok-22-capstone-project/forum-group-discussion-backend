@@ -522,187 +522,1223 @@ func TestLogin(t *testing.T) {
 	}
 }
 
-// func TestGetAll(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func TestGetAll(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	now := time.Now()
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	testCases := []struct {
+		name                string
+		inputAccessorUserID string
+		inputOrderBy        string
+		inputStatus         string
+		inputPage           uint
+		inputLimit          uint
+		inputKeyword        string
+		expectedResponse    response.Pagination[response.User]
+		expectedError       error
+		mockBehaviours      func()
+	}{
+		{
+			name:                "it should return service.ErrRepository, when user repository return an repository.ErrDatabase error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputOrderBy:        "ranking",
+			inputStatus:         "banned",
+			inputPage:           0,
+			inputLimit:          0,
+			inputKeyword:        "random keyword",
+			expectedResponse:    response.Pagination[response.User]{},
+			expectedError:       service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindAllWithStatusAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserOrderBy(entity.Ranking))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserStatus(entity.Banned))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) entity.Pagination[entity.User] {
+						return entity.Pagination[entity.User]{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return valid users pagination, when no error is returned",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputOrderBy:        "registered_date",
+			inputStatus:         "active",
+			inputPage:           1,
+			inputLimit:          35,
+			inputKeyword:        "random keyword",
+			expectedResponse: response.Pagination[response.User]{
+				List: []response.User{
+					{
+						UserID:         "u-ZrxmQS",
+						Username:       "erikrios",
+						Email:          "erikriosetiawan@gmail.com",
+						Name:           "Erik Rio Setiawan",
+						Role:           "user",
+						IsActive:       true,
+						RegisteredOn:   now.Format(time.RFC822),
+						TotalThread:    15,
+						TotalFollower:  200,
+						TotalFollowing: 2,
+						IsFollowed:     false,
+					},
+				},
+				PageInfo: response.PageInfo{
+					Limit:     35,
+					Page:      1,
+					PageTotal: 1,
+					Total:     29,
+				},
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindAllWithStatusAndPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserOrderBy(entity.Ranking))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.UserStatus(entity.Banned))),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) entity.Pagination[entity.User] {
+						return entity.Pagination[entity.User]{
+							List: []entity.User{
+								{
+									ID:             "u-ZrxmQS",
+									Username:       "erikrios",
+									Email:          "erikriosetiawan@gmail.com",
+									Name:           "Erik Rio Setiawan",
+									Role:           "user",
+									IsActive:       true,
+									TotalThread:    15,
+									TotalFollower:  200,
+									TotalFollowing: 2,
+									IsFollowed:     false,
+									CreatedAt:      now,
+									UpdatedAt:      now,
+								},
+							},
+							PageInfo: entity.PageInfo{
+								Limit:     35,
+								Page:      1,
+								PageTotal: 1,
+								Total:     29,
+							},
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						orderBy entity.UserOrderBy,
+						userStatus entity.UserStatus,
+						pageInfo entity.PageInfo,
+						keyword string,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
 
-// 	accessorUserID := "u-ZrxmQS"
-// 	orderBy := "registered_date"
-// 	status := "active"
-// 	page := 1
-// 	limit := 10
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
 
-// 	if pagination, err := service.GetAll(context.Background(), accessorUserID, orderBy, status, uint(page), uint(limit)); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Pagination: %+v", pagination)
-// 	}
-// }
+			gotPagination, gotError := userService.GetAll(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputOrderBy,
+				testCase.inputStatus,
+				testCase.inputPage,
+				testCase.inputLimit,
+				testCase.inputKeyword,
+			)
 
-// func TestGetOwn(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+				assert.ElementsMatch(t, testCase.expectedResponse.List, gotPagination.List)
+				assert.Equal(t, testCase.expectedResponse.PageInfo, gotPagination.PageInfo)
+			}
+		})
+	}
+}
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func TestGetOwn(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+	now := time.Now()
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	accessorUserID := "u-ZrxmQS"
-// 	accessorUsername := "erikrios"
+	testCases := []struct {
+		name                  string
+		inputAccessorUserID   string
+		inputAccessorUsername string
+		expectedResponse      response.User
+		expectedError         error
+		mockBehaviours        func()
+	}{
+		{
+			name:                  "it should return service.ErrRepository, when user repository return an repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputAccessorUsername: "erikrios",
+			expectedResponse:      response.User{},
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return valid user, when no error is returned",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputAccessorUsername: "erikrios",
+			expectedResponse: response.User{
+				UserID:         "u-ZrxmQS",
+				Username:       "erikrios",
+				Email:          "erikriosetiawan@gmail.com",
+				Name:           "Erik Rio Setiawan",
+				Role:           "user",
+				IsActive:       true,
+				RegisteredOn:   now.Format(time.RFC822),
+				TotalThread:    15,
+				TotalFollower:  200,
+				TotalFollowing: 2,
+				IsFollowed:     false,
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       true,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
 
-// 	if user, err := service.GetOwn(context.Background(), accessorUserID, accessorUsername); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("User: %+v", user)
-// 	}
-// }
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
 
-// func TestGetByUsername(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+			gotUser, gotError := userService.GetOwn(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputAccessorUsername,
+			)
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+				assert.Equal(t, testCase.expectedResponse, gotUser)
+			}
+		})
+	}
+}
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+func TestGetByUsername(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	now := time.Now()
 
-// 	accessorUserID := "u-ZrxmQS"
-// 	username := "rezana"
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	if user, err := service.GetByUsername(context.Background(), accessorUserID, username); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("User: %+v", user)
-// 	}
-// }
+	testCases := []struct {
+		name                  string
+		inputAccessorUserID   string
+		inputAccessorUsername string
+		expectedResponse      response.User
+		expectedError         error
+		mockBehaviours        func()
+	}{
+		{
+			name:                  "it should return service.ErrRepository, when user repository return an repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputAccessorUsername: "erikrios",
+			expectedResponse:      response.User{},
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return valid user, when no error is returned",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputAccessorUsername: "erikrios",
+			expectedResponse: response.User{
+				UserID:         "u-ZrxmQS",
+				Username:       "erikrios",
+				Email:          "erikriosetiawan@gmail.com",
+				Name:           "Erik Rio Setiawan",
+				Role:           "user",
+				IsActive:       true,
+				RegisteredOn:   now.Format(time.RFC822),
+				TotalThread:    15,
+				TotalFollower:  200,
+				TotalFollowing: 2,
+				IsFollowed:     false,
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       true,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
 
-// func TestChangeBannedState(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+			gotUser, gotError := userService.GetByUsername(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputAccessorUsername,
+			)
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+				assert.Equal(t, testCase.expectedResponse, gotUser)
+			}
+		})
+	}
+}
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+func TestChangeBannedState(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	accessorRole := "admin"
-// 	username := "naruto"
+	now := time.Now()
 
-// 	if err := service.ChangeBannedState(context.Background(), accessorRole, username); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Successfully banned/unbanned a user with username %s", username)
-// 	}
-// }
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// func TestChangeFollowingState(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+	testCases := []struct {
+		name              string
+		inputAccessorRole string
+		inputUsername     string
+		expectedError     error
+		mockBehaviours    func()
+	}{
+		{
+			name:              "it should return service.ErrAccessForbidden, when accessor role is not admin",
+			inputAccessorRole: "user",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrAccessForbidden,
+			mockBehaviours:    func() {},
+		},
+		{
+			name:              "it should return service.ErrRepository, when user repository return a repository.ErrDatabase error",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:              "it should return service.ErrRepository, when banned user return a repository.ErrDatabase error",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       true,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+				mockUserRepository.On(
+					"BannedUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:              "it should return service.ErrRepository, when unbanned user return a repository.ErrDatabase error",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+				mockUserRepository.On(
+					"UnbannedUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:              "it should return nil error, when no error is returned from user repository",
+			inputAccessorRole: "admin",
+			inputUsername:     "naruto",
+			expectedError:     nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+				mockUserRepository.On(
+					"UnbannedUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
 
-// 	accessorUserID := "u-kt56R1"
-// 	username := "erikrios"
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
 
-// 	if err := service.ChangeFollowingState(context.Background(), accessorUserID, username); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Successfully follow/unfollow a user with username %s", username)
-// 	}
-// }
+			gotError := userService.ChangeBannedState(
+				context.Background(),
+				testCase.inputAccessorRole,
+				testCase.inputUsername,
+			)
 
-// func TestGetAllThreadByUsername(t *testing.T) {
-// 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-// 	err := godotenv.Load("./../../.env.example")
-// 	if err != nil {
-// 		panic(err)
-// 	}
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+			}
+		})
+	}
+}
 
-// 	db, err := config.NewPostgreSQLDatabase()
-// 	if err != nil {
-// 		panic(err)
-// 	}
+func TestChangeFollowingState(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
 
-// 	var repo user.UserRepository = user.NewUserRepositoryImpl(db)
-// 	var tRepo thread.ThreadRepository = thread.NewThreadRepositoryImpl(db)
-// 	var idGen generator.IDGenerator = generator.NewNanoidIDGenerator()
-// 	var pwdGen generator.PasswordGenerator = generator.NewBcryptPasswordGenerator()
-// 	var tknGen generator.TokenGenerator = generator.NewJWTTokenGenerator()
+	now := time.Now()
 
-// 	var service UserService = NewUserServiceImpl(repo, tRepo, idGen, pwdGen, tknGen)
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
 
-// 	accessorUserID := "u-kt56R1"
-// 	username := "erikrios"
-// 	page := 1
-// 	limit := 20
+	testCases := []struct {
+		name                  string
+		inputAccessorUserID   string
+		inputUsernameToFollow string
+		expectedError         error
+		mockBehaviours        func()
+	}{
+		{
+			name:                  "it should return service.ErrRepository, when user repository return a repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "naruto",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return service.ErrRepository, when unfollow user return a repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     true,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
 
-// 	if pagination, err := service.GetAllThreadByUsername(context.Background(), accessorUserID, username, uint(page), uint(limit)); err != nil {
-// 		t.Logf("Error happened: %s", err)
-// 	} else {
-// 		t.Logf("Pagination: %+v", pagination)
-// 	}
-// }
+				mockUserRepository.On(
+					"UnfollowUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return service.ErrRepository, when generate id return an error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateUserFollowID",
+				).Return(
+					func() string {
+						return ""
+					},
+					func() error {
+						return errors.New("Something went wrong.")
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return service.ErrRepository, when follow user return a repository.ErrDatabase error",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateUserFollowID",
+				).Return(
+					func() string {
+						return "f-abcdefg"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepository.On(
+					"FollowUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, id, accessorUserID, userID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                  "it should return nil error, when no error is returned",
+			inputAccessorUserID:   "u-ZrxmQS",
+			inputUsernameToFollow: "erikrios",
+			expectedError:         nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsernameWithAccessor",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) entity.User {
+						return entity.User{
+							ID:             "u-ZrxmQS",
+							Username:       "erikrios",
+							Email:          "erikriosetiawan@gmail.com",
+							Name:           "Erik Rio Setiawan",
+							Role:           "user",
+							IsActive:       false,
+							TotalThread:    15,
+							TotalFollower:  200,
+							TotalFollowing: 2,
+							IsFollowed:     false,
+							CreatedAt:      now,
+							UpdatedAt:      now,
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						username string,
+					) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On(
+					"GenerateUserFollowID",
+				).Return(
+					func() string {
+						return "f-abcdefg"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepository.On(
+					"FollowUser",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, id, accessorUserID, userID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			gotError := userService.ChangeFollowingState(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputUsernameToFollow,
+			)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+			}
+		})
+	}
+}
+
+func TestGetAllThreadByUsername(t *testing.T) {
+	mockUserRepository := &mur.UserRepository{}
+	mockThreadRepository := &mtr.ThreadRepository{}
+	mockIDGen := &mig.IDGenerator{}
+	mockPwdGen := &mpg.PasswordGenerator{}
+	mockTokenGen := &mtg.TokenGenerator{}
+
+	var userService UserService = NewUserServiceImpl(
+		mockUserRepository,
+		mockThreadRepository,
+		mockIDGen,
+		mockPwdGen,
+		mockTokenGen,
+	)
+
+	now := time.Now()
+
+	testCases := []struct {
+		name                string
+		inputAccessorUserID string
+		inputUsername       string
+		inputPage           uint
+		inputLimit          uint
+		expectedResponse    response.Pagination[response.ManyThread]
+		expectedError       error
+		mockBehaviours      func()
+	}{
+		{
+			name:                "it should return service.ErrRepository, when user repository return repository.ErrDatabase error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputUsername:       "erikrios",
+			inputPage:           0,
+			inputLimit:          0,
+			expectedResponse:    response.Pagination[response.ManyThread]{},
+			expectedError:       service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{}
+					},
+					func(ctx context.Context, username string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when thread repository return repository.ErrDatabase error",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputUsername:       "erikrios",
+			inputPage:           0,
+			inputLimit:          0,
+			expectedResponse:    response.Pagination[response.ManyThread]{},
+			expectedError:       service.ErrRepository,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:       "u-ZrxmQS",
+							Username: "erikrios",
+							Name:     "Erik Rio Setiawan",
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepository.On(
+					"FindAllByUserIDWithPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						UserID string,
+						pageInfo entity.PageInfo,
+					) entity.Pagination[entity.Thread] {
+						return entity.Pagination[entity.Thread]{}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						UserID string,
+						pageInfo entity.PageInfo,
+					) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return nil error, when no error is returned",
+			inputAccessorUserID: "u-ZrxmQS",
+			inputUsername:       "erikrios",
+			inputPage:           1,
+			inputLimit:          20,
+			expectedResponse: response.Pagination[response.ManyThread]{
+				List: []response.ManyThread{
+					{
+						ID:              "t-Hz5Rzhi",
+						Title:           "Go Programming Going Hype",
+						CategoryID:      "c-GzH",
+						CategoryName:    "Tech",
+						PublishedOn:     now.Format(time.RFC822),
+						IsLiked:         true,
+						IsFollowed:      false,
+						Description:     "Recently, Go Programming going hype because it have huge community.",
+						TotalViewer:     350,
+						TotalLike:       124,
+						TotalFollower:   5,
+						TotalComment:    38,
+						CreatorID:       "u-RxUaN4",
+						CreatorUsername: "erikrios",
+						CreatorName:     "Erik Rio Setiawan",
+					},
+				},
+				PageInfo: response.PageInfo{
+					Limit:     20,
+					Page:      1,
+					PageTotal: 1,
+					Total:     15,
+				},
+			},
+			expectedError: nil,
+			mockBehaviours: func() {
+				mockUserRepository.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, username string) entity.User {
+						return entity.User{
+							ID:       "u-ZrxmQS",
+							Username: "erikrios",
+							Name:     "Erik Rio Setiawan",
+						}
+					},
+					func(ctx context.Context, username string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepository.On(
+					"FindAllByUserIDWithPagination",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.PageInfo{})),
+				).Return(
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						UserID string,
+						pageInfo entity.PageInfo,
+					) entity.Pagination[entity.Thread] {
+						return entity.Pagination[entity.Thread]{
+							List: []entity.Thread{
+								{
+									ID:            "t-Hz5Rzhi",
+									Title:         "Go Programming Going Hype",
+									Description:   "Recently, Go Programming going hype because it have huge community.",
+									TotalViewer:   350,
+									TotalLike:     124,
+									TotalFollower: 5,
+									TotalComment:  38,
+									Creator: entity.User{
+										ID:       "u-RxUaN4",
+										Username: "erikrios",
+										Name:     "Erik Rio Setiawan",
+									},
+									Category: entity.Category{
+										ID:   "c-GzH",
+										Name: "Tech",
+									},
+									IsLiked:    true,
+									IsFollowed: false,
+									CreatedAt:  now,
+								},
+							},
+							PageInfo: entity.PageInfo{
+								Limit:     20,
+								Page:      1,
+								PageTotal: 1,
+								Total:     15,
+							},
+						}
+					},
+					func(
+						ctx context.Context,
+						accessorUserID string,
+						UserID string,
+						pageInfo entity.PageInfo,
+					) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			gotPagination, gotError := userService.GetAllThreadByUsername(
+				context.Background(),
+				testCase.inputAccessorUserID,
+				testCase.inputUsername,
+				testCase.inputPage,
+				testCase.inputLimit,
+			)
+
+			if testCase.expectedError != nil {
+				assert.ErrorIs(t, gotError, testCase.expectedError)
+			} else {
+				assert.NoError(t, testCase.expectedError)
+				assert.ElementsMatch(t, testCase.expectedResponse.List, gotPagination.List)
+				assert.Equal(t, testCase.expectedResponse.PageInfo, gotPagination.PageInfo)
+			}
+		})
+	}
+}
