@@ -45,7 +45,7 @@ import (
 // @in                          header
 // @name                        Authorization
 
-// @host      ugly-frog-89.a276.dcdg.xyz
+// @host      moot-rest-api.herokuapp.com
 // @BasePath  /api/v1
 // @schemes   https http
 func main() {
