@@ -2787,7 +2787,7 @@ var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
 	Host:             "ugly-frog-89.a276.dcdg.xyz",
 	BasePath:         "/api/v1",
-	Schemes:          []string{"http", "https"},
+	Schemes:          []string{"https", "http"},
 	Title:            "Forum Group Discussion API",
 	Description:      "API for Forum Group Discussion",
 	InfoInstanceName: "swagger",

@@ -1812,8 +1812,8 @@ paths:
       tags:
       - users
 schemes:
-- http
 - https
+- http
 securityDefinitions:
   ApiKey:
     in: header

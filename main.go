@@ -47,7 +47,7 @@ import (
 
 // @host      ugly-frog-89.a276.dcdg.xyz
 // @BasePath  /api/v1
-// @schemes   http https
+// @schemes   https http
 func main() {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	if err := godotenv.Load(".env"); err != nil {
