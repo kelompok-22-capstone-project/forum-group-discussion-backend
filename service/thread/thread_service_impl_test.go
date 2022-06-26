@@ -593,15 +593,15 @@ func TestGetByID(t *testing.T) {
 		inputAccessorUserID string
 		inputID             string
 		expectedError       error
-		expectedThread      []response.Thread
+		expectedThread      response.Thread
 		mockBehaviour       func()
 	}{
 		{
 			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
 			inputAccessorUserID: "S-MKbduK",
-			inputID:             "",
+			inputID:             "t-123",
 			expectedError:       service.ErrRepository,
-			expectedThread:      []response.Thread{},
+			expectedThread:      response.Thread{},
 			mockBehaviour: func() {
 				mockThreadRepo.On(
 					"FindByID",
@@ -621,27 +621,9 @@ func TestGetByID(t *testing.T) {
 		{
 			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
 			inputAccessorUserID: "S-MKbduK",
-			inputID:             "",
+			inputID:             "t-123",
 			expectedError:       service.ErrRepository,
-			expectedThread: []response.Thread{
-				{
-					ID:              "d-Casfkj",
-					Title:           "Technology",
-					CategoryID:      "g-jMds",
-					CategoryName:    "Tech",
-					PublishedOn:     now.Format(time.RFC822),
-					IsLiked:         false,
-					IsFollowed:      false,
-					Description:     "Technology is the result of accumulated knowledge and application of skills, methods, and processes used in industrial production and scientific research.",
-					TotalViewer:     234,
-					TotalLike:       243,
-					TotalFollower:   674,
-					TotalComment:    23,
-					CreatorID:       "d-MDje",
-					CreatorUsername: "budi",
-					CreatorName:     "budiman",
-				},
-			},
+			expectedThread:      response.Thread{},
 			mockBehaviour: func() {
 				mockThreadRepo.On(
 					"FindByID",
@@ -673,39 +655,37 @@ func TestGetByID(t *testing.T) {
 		},
 		{
 			name:                "it should be valid id, when the repository return nil error",
-			inputAccessorUserID: "",
-			inputID:             "",
+			inputAccessorUserID: "u-123",
+			inputID:             "t-123",
 			expectedError:       nil,
-			expectedThread: []response.Thread{
-				{
-					ID:           "d-Casfkj",
-					Title:        "Technology",
-					CategoryID:   "g-jMds",
-					CategoryName: "Tech",
-					PublishedOn:  now.Format(time.RFC822),
-					IsLiked:      false,
-					IsFollowed:   false,
-					Moderators: []response.Moderator{
-						{
-							ID:           "j-Ksmdh",
-							UserID:       "d-Casfkj",
-							Username:     "tomo12",
-							Email:        "tomo@gmail.com",
-							Name:         "tomo",
-							Role:         "user",
-							IsActive:     false,
-							RegisteredOn: now.Format(time.RFC822),
-						},
+			expectedThread: response.Thread{
+				ID:           "d-Casfkj",
+				Title:        "Technology",
+				CategoryID:   "g-jMds",
+				CategoryName: "Tech",
+				PublishedOn:  now.Format(time.RFC822),
+				IsLiked:      false,
+				IsFollowed:   false,
+				Moderators: []response.Moderator{
+					{
+						ID:           "j-Ksmdh",
+						UserID:       "d-Casfkj",
+						Username:     "tomo12",
+						Email:        "tomo@gmail.com",
+						Name:         "tomo",
+						Role:         "user",
+						IsActive:     false,
+						RegisteredOn: now.Format(time.RFC822),
 					},
-					Description:     "Technology is the result of accumulated knowledge and application of skills, methods, and processes used in industrial production and scientific research.",
-					TotalViewer:     320,
-					TotalLike:       243,
-					TotalFollower:   674,
-					TotalComment:    23,
-					CreatorID:       "d-MDje",
-					CreatorUsername: "budi",
-					CreatorName:     "budiman",
 				},
+				Description:     "Technology is the result of accumulated knowledge and application of skills, methods, and processes used in industrial production and scientific research.",
+				TotalViewer:     320,
+				TotalLike:       243,
+				TotalFollower:   674,
+				TotalComment:    23,
+				CreatorID:       "d-MDje",
+				CreatorUsername: "budi",
+				CreatorName:     "budiman",
 			},
 			mockBehaviour: func() {
 				mockThreadRepo.On(
@@ -719,7 +699,7 @@ func TestGetByID(t *testing.T) {
 							ID:            "d-Casfkj",
 							Title:         "Technology",
 							Description:   "Technology is the result of accumulated knowledge and application of skills, methods, and processes used in industrial production and scientific research.",
-							TotalViewer:   234,
+							TotalViewer:   320,
 							TotalLike:     243,
 							TotalFollower: 674,
 							TotalComment:  23,
@@ -801,7 +781,7 @@ func TestGetByID(t *testing.T) {
 			if testCase.expectedError != nil {
 				assert.ErrorIs(t, err, testCase.expectedError)
 			} else {
-				assert.ElementsMatch(t, rs, testCase.expectedThread)
+				assert.Equal(t, rs, testCase.expectedThread)
 			}
 		})
 	}
@@ -2090,16 +2070,16 @@ func TestAddModerator(t *testing.T) {
 	}{
 		{
 			name:                "it should return service.ErrInvalidPayload, when payload is invalid",
-			inputThreadID:       "",
-			inputAccessorUserID: "",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-1243",
 			expectedError:       service.ErrInvalidPayload,
 			inputPayload:        payload.AddRemoveModerator{},
 			mockBehaviour:       func() {},
 		},
 		{
 			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
-			inputThreadID:       "",
-			inputAccessorUserID: "",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-1243",
 			expectedError:       service.ErrRepository,
 			expectedID:          "",
 			inputPayload: payload.AddRemoveModerator{
@@ -2331,6 +2311,215 @@ func TestAddModerator(t *testing.T) {
 						return entity.User{ID: "u-1244"}
 					},
 					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when generate ID return an error",
+			inputThreadID:       "t-xyz",
+			inputAccessorUserID: "u-1243",
+			expectedError:       service.ErrRepository,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "tomo12",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-1243"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{ID: "u-1244"},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-1245"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On("GenerateModeratorID").Return(
+					func() string {
+						return ""
+					},
+					func() error {
+						return errors.New("Something went wrong.")
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when insert moderator return repository.ErrDatabase error",
+			inputThreadID:       "t-xyz",
+			inputAccessorUserID: "u-1243",
+			expectedError:       service.ErrRepository,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "tomo12",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-1243"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{ID: "u-1244"},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-1245"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On("GenerateModeratorID").Return(
+					func() string {
+						return "m-123"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"InsertModerator",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Moderator{})),
+				).Return(
+					func(ctx context.Context, moderator entity.Moderator) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return valid ID, when no error is returned",
+			inputThreadID:       "t-xyz",
+			inputAccessorUserID: "u-1243",
+			expectedError:       nil,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "tomo12",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-1243"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{
+							{
+								User: entity.User{ID: "u-1244"},
+							},
+						}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-1245"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+
+				mockIDGen.On("GenerateModeratorID").Return(
+					func() string {
+						return "m-123"
+					},
+					func() error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"InsertModerator",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Moderator{})),
+				).Return(
+					func(ctx context.Context, moderator entity.Moderator) error {
 						return nil
 					},
 				).Once()
