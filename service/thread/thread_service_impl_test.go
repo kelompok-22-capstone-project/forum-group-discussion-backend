@@ -764,6 +764,15 @@ func TestGetByID(t *testing.T) {
 						return nil
 					},
 				).Once()
+
+				mockThreadRepo.On(
+					"IncrementTotalViewer",
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ID string) error {
+						return nil
+					},
+				).Once()
 			},
 		},
 	}
