@@ -2785,7 +2785,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "ugly-frog-89.a276.dcdg.xyz",
+	Host:             "moot-rest-api.herokuapp.com",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"https", "http"},
 	Title:            "Forum Group Discussion API",

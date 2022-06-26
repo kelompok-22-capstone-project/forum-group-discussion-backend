@@ -609,7 +609,7 @@ definitions:
         type: string
         x-order: "1"
     type: object
-host: ugly-frog-89.a276.dcdg.xyz
+host: moot-rest-api.herokuapp.com
 info:
   contact:
     email: erikriosetiawan15@gmail.com
