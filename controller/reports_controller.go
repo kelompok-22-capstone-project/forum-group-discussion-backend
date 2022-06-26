@@ -12,7 +12,6 @@ func (r *reportsController) Route(g *echo.Group) {
 	group := g.Group("/reports")
 	group.POST("", r.postCreateReport)
 	group.GET("", r.getReports)
-	group.PUT("/:id/status", r.putUpdateReportStatus)
 }
 
 // postCreateReport godoc
@@ -39,7 +38,7 @@ func (r *reportsController) postCreateReport(c echo.Context) error {
 // @Description  This endpoint is used to get all report
 // @Tags         reports
 // @Produce      json
-// @Param        status  query  string  false  "options: all, review, rejected, accepted, default all"
+// @Param        status  query  string  false  "options: review, accepted, default review"
 // @Param        page    query  int     false  "page, default 1"
 // @Param        limit   query  int     false  "limit, default 20"
 // @Security     ApiKey
@@ -51,27 +50,6 @@ func (r *reportsController) getReports(c echo.Context) error {
 	_ = c.QueryParam("status")
 	_ = c.QueryParam("page")
 	_ = c.QueryParam("limit")
-	return nil
-}
-
-// putUpdateReportStatus godoc
-// @Summary      Update a Report Status
-// @Description  This endpoint is used to update a report status
-// @Tags         reports
-// @Accept       json
-// @Produce      json
-// @Param        default  body  payload.UpdateReportStatus  true  "request body"
-// @Param        id       path  string                      true  "report ID"
-// @Security     ApiKey
-// @Security     ApiKeyAuth
-// @Success      204
-// @Failure      400  {object}  echo.HTTPError
-// @Failure      401  {object}  echo.HTTPError
-// @Failure      404  {object}  echo.HTTPError
-// @Failure      500  {object}  echo.HTTPError
-// @Router       /reports/{id}/status [put]
-func (r *reportsController) putUpdateReportStatus(c echo.Context) error {
-	_ = c.Param("id")
 	return nil
 }
 
