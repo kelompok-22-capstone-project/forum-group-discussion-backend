@@ -60,25 +60,10 @@ definitions:
       ID:
         type: string
     type: object
-  controller.infoData:
-    properties:
-      totalModerator:
-        type: integer
-        x-order: "2"
-      totalReport:
-        type: integer
-        x-order: "3"
-      totalThread:
-        type: integer
-        x-order: "1"
-      totalUser:
-        type: integer
-        x-order: "0"
-    type: object
   controller.infoResponse:
     properties:
       data:
-        $ref: '#/definitions/controller.infoData'
+        $ref: '#/definitions/response.DashboardInfo'
         x-order: "2"
       message:
         type: string
@@ -161,45 +146,11 @@ definitions:
         type: string
         x-order: "0"
     type: object
-  controller.reportData:
-    properties:
-      ID:
-        type: string
-        x-order: "0"
-      moderatorID:
-        type: string
-        x-order: "1"
-      moderatorName:
-        type: string
-        x-order: "3"
-      moderatorUsername:
-        type: string
-        x-order: "2"
-      name:
-        type: string
-        x-order: "6"
-      reason:
-        type: string
-        x-order: "7"
-      reportedOn:
-        description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
-        type: string
-        x-order: "9"
-      status:
-        type: string
-        x-order: "8"
-      userID:
-        type: string
-        x-order: "4"
-      username:
-        type: string
-        x-order: "5"
-    type: object
   controller.reportsData:
     properties:
       list:
         items:
-          $ref: '#/definitions/controller.reportData'
+          $ref: '#/definitions/response.Report'
         type: array
         x-order: "0"
       pageInfo:
@@ -300,7 +251,7 @@ definitions:
         minLength: 2
         type: string
         x-order: "1"
-      userID:
+      username:
         maxLength: 10
         minLength: 2
         type: string
@@ -426,6 +377,21 @@ definitions:
         type: string
         x-order: "2"
     type: object
+  response.DashboardInfo:
+    properties:
+      totalModerator:
+        type: integer
+        x-order: "2"
+      totalReport:
+        type: integer
+        x-order: "3"
+      totalThread:
+        type: integer
+        x-order: "1"
+      totalUser:
+        type: integer
+        x-order: "0"
+    type: object
   response.Login:
     properties:
       role:
@@ -512,6 +478,46 @@ definitions:
         type: string
         x-order: "2"
     type: object
+  response.Report:
+    properties:
+      ID:
+        type: string
+        x-order: "0"
+      moderatorID:
+        type: string
+        x-order: "1"
+      moderatorName:
+        type: string
+        x-order: "3"
+      moderatorUsername:
+        type: string
+        x-order: "2"
+      name:
+        type: string
+        x-order: "6"
+      reason:
+        type: string
+        x-order: "7"
+      reportedOn:
+        description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "11"
+      status:
+        type: string
+        x-order: "8"
+      threadID:
+        type: string
+        x-order: "9"
+      threadTitle:
+        type: string
+        x-order: "10"
+      userID:
+        type: string
+        x-order: "4"
+      username:
+        type: string
+        x-order: "5"
+    type: object
   response.Thread:
     properties:
       ID:
@@ -576,7 +582,7 @@ definitions:
         x-order: "5"
       isFollowed:
         type: boolean
-        x-order: "9"
+        x-order: "10"
       name:
         type: string
         x-order: "3"
@@ -590,6 +596,9 @@ definitions:
       totalFollower:
         type: integer
         x-order: "8"
+      totalFollowing:
+        type: integer
+        x-order: "9"
       totalThread:
         type: integer
         x-order: "7"
@@ -815,6 +824,214 @@ paths:
       summary: Get Category Threads
       tags:
       - categories
+  /guest/threads:
+    get:
+      description: This endpoint is used to get all threads
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      - description: search by keyword, default empty string
+        in: query
+        name: search
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Threads
+      tags:
+      - guest
+  /guest/threads/{id}:
+    get:
+      description: This endpoint is used to get thread by ID
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Thread by ID
+      tags:
+      - guest
+  /guest/threads/{id}/comments:
+    get:
+      description: This endpoint is used to get the thread comments
+      parameters:
+      - description: thread ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.commentsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Thread Comments
+      tags:
+      - guest
+  /guest/users:
+    get:
+      description: This endpoint is used to get all users
+      parameters:
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 20
+        in: query
+        name: limit
+        type: integer
+      - description: 'options: registered_date, ranking, default registered_date'
+        in: query
+        name: order_by
+        type: string
+      - description: 'options: active, banned, default active'
+        in: query
+        name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profilesResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get Users
+      tags:
+      - guest
+  /guest/users/{username}:
+    get:
+      description: This endpoint is used to get the another user by username
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.profileResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get User by Username
+      tags:
+      - guest
+  /guest/users/{username}/threads:
+    get:
+      description: This endpoint is used to get the user threads
+      parameters:
+      - description: username
+        in: path
+        name: username
+        required: true
+        type: string
+      - description: page, default 1
+        in: query
+        name: page
+        type: integer
+      - description: limit, default 10
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/controller.threadsResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/echo.HTTPError'
+      security:
+      - ApiKey: []
+      summary: Get User Threads
+      tags:
+      - guest
   /login:
     post:
       consumes:
@@ -1400,6 +1617,10 @@ paths:
       - description: 'options: active, banned, default active'
         in: query
         name: status
+        type: string
+      - description: search by keyword, default empty string
+        in: query
+        name: keyword
         type: string
       produces:
       - application/json

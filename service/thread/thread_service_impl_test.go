@@ -2547,7 +2547,6 @@ func TestRemoveModerator(t *testing.T) {
 	mockCategoryRepo := &mcr.CategoryRepository{}
 	mockUserRepo := &mur.UserRepository{}
 	mockIDGen := &mig.IDGenerator{}
-	// now := time.Now()
 
 	var threadService ThreadService = NewThreadServiceImpl(mockThreadRepo, mockCategoryRepo, mockUserRepo, mockIDGen)
 
