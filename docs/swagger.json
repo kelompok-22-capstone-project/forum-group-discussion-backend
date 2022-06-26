@@ -19,7 +19,7 @@
         },
         "version": "1.0"
     },
-    "host": "moot-rest-api.herokuapp.com",
+    "host": "ugly-frog-89.a276.dcdg.xyz",
     "basePath": "/api/v1",
     "paths": {
         "/admin/dashboard": {

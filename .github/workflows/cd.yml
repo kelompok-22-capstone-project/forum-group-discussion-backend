@@ -28,13 +28,12 @@ jobs:
           tags: erikrios/moot:latest
 
       - name: SSH to VM instance and redeploy Docker
-        uses: appleboy/ssh-action@master
+        uses: fifsky/ssh-action@master
         with:
           host: ${{ secrets.HOST }}
-          username: ${{ secrets.USERNAME }}
+          user: ${{ secrets.USERNAME }}
           key: ${{ secrets.KEY }}
-          port: ${{ secrets.PORT }}
-          script: |
-            docker-compose down
+          command: |
+            docker compose down
             docker image rm erikrios/moot:latest
-            docker-compose up -d
+            docker compose up -d
