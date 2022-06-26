@@ -459,14 +459,20 @@ func (t *threadServiceImpl) AddModerator(
 		return
 	}
 
-	thread, serviceErr := t.GetByID(ctx, accessorUserID, threadID)
-	if serviceErr != nil {
-		err = serviceErr
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
 		return
 	}
 
-	if accessorUserID != thread.CreatorID {
+	if accessorUserID != thread.Creator.ID {
 		err = service.ErrAccessForbidden
+		return
+	}
+
+	moderators, repoErr := t.threadRepository.FindAllModeratorByThreadID(ctx, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
 		return
 	}
 
@@ -481,8 +487,8 @@ func (t *threadServiceImpl) AddModerator(
 		return
 	}
 
-	for _, mod := range thread.Moderators {
-		if mod.UserID == userToAdded.ID {
+	for _, mod := range moderators {
+		if mod.User.ID == userToAdded.ID {
 			err = service.ErrDataAlreadyExists
 			return
 		}
@@ -521,14 +527,20 @@ func (t *threadServiceImpl) RemoveModerator(
 		return
 	}
 
-	thread, serviceErr := t.GetByID(ctx, accessorUserID, threadID)
-	if serviceErr != nil {
-		err = serviceErr
+	thread, repoErr := t.threadRepository.FindByID(ctx, accessorUserID, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
 		return
 	}
 
-	if accessorUserID != thread.CreatorID {
+	if accessorUserID != thread.Creator.ID {
 		err = service.ErrAccessForbidden
+		return
+	}
+
+	moderators, repoErr := t.threadRepository.FindAllModeratorByThreadID(ctx, threadID)
+	if repoErr != nil {
+		err = service.MapError(repoErr)
 		return
 	}
 
@@ -544,8 +556,8 @@ func (t *threadServiceImpl) RemoveModerator(
 	}
 
 	var isExists bool
-	for _, mod := range thread.Moderators {
-		if mod.UserID == userToRemoved.ID {
+	for _, mod := range moderators {
+		if mod.User.ID == userToRemoved.ID {
 			isExists = true
 			break
 		}
