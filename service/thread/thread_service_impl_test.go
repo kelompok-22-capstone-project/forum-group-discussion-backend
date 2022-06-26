@@ -2561,16 +2561,16 @@ func TestRemoveModerator(t *testing.T) {
 	}{
 		{
 			name:                "it should return service.ErrInvalidPayload, when payload is invalid",
-			inputThreadID:       "",
-			inputAccessorUserID: "",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
 			expectedError:       service.ErrInvalidPayload,
 			inputPayload:        payload.AddRemoveModerator{},
 			mockBehaviour:       func() {},
 		},
 		{
 			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase error",
-			inputThreadID:       "",
-			inputAccessorUserID: "",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
 			expectedError:       service.ErrRepository,
 			inputPayload: payload.AddRemoveModerator{
 				Username: "tomo12",
@@ -2593,8 +2593,8 @@ func TestRemoveModerator(t *testing.T) {
 		},
 		{
 			name:                "it should return service.ErrAccessForbidden, when accessor user ID is not thread creator ID",
-			inputThreadID:       "U-abcd",
-			inputAccessorUserID: "b-123",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
 			expectedError:       service.ErrAccessForbidden,
 			inputPayload: payload.AddRemoveModerator{
 				Username: "Jody",
@@ -2607,7 +2607,68 @@ func TestRemoveModerator(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
 					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
-						return entity.Thread{}
+						return entity.Thread{Creator: entity.User{ID: "u-abcdd"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
+			expectedError:       service.ErrRepository,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "Jody",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-abcde"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{}
+					},
+					func(ctx context.Context, threadID string) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when user repository return a repository.ErrDatabase",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
+			expectedError:       service.ErrRepository,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "Jody",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-abcde"}}
 					},
 					func(ctx context.Context, accessorUserID string, ID string) error {
 						return nil
@@ -2636,15 +2697,15 @@ func TestRemoveModerator(t *testing.T) {
 						return entity.User{}
 					},
 					func(ctx context.Context, userName string) error {
-						return nil
+						return repository.ErrDatabase
 					},
 				).Once()
 			},
 		},
 		{
-			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase",
-			inputThreadID:       "",
-			inputAccessorUserID: "",
+			name:                "it should return service.ErrAccessForbidden, when accessor want to remove itself",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
 			expectedError:       service.ErrAccessForbidden,
 			inputPayload: payload.AddRemoveModerator{
 				Username: "Jody",
@@ -2657,7 +2718,7 @@ func TestRemoveModerator(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
 					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
-						return entity.Thread{}
+						return entity.Thread{Creator: entity.User{ID: "u-abcde"}}
 					},
 					func(ctx context.Context, accessorUserID string, ID string) error {
 						return nil
@@ -2673,28 +2734,82 @@ func TestRemoveModerator(t *testing.T) {
 						return []entity.Moderator{}
 					},
 					func(ctx context.Context, threadID string) error {
-						return repository.ErrDatabase
+						return nil
 					},
 				).Once()
 
-				// mockUserRepo.On(
-				// 	"FindByUsername",
-				// 	mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
-				// 	mock.AnythingOfType(fmt.Sprintf("%T", "")),
-				// ).Return(
-				// 	func(ctx context.Context, userName string) entity.User {
-				// 		return entity.User{}
-				// 	},
-				// 	func(ctx context.Context, userName string) error {
-				// 		return repository.ErrDatabase
-				// 	},
-				// ).Once()
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-abcde"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
 			},
 		},
 		{
-			name:                "it should return service.ErrRepository, when thread repository return a repository.ErrDatabase",
-			inputThreadID:       "",
-			inputAccessorUserID: "",
+			name:                "it should return service.ErrUsernameNotFound, when user is not moderator",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
+			expectedError:       service.ErrUsernameNotFound,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "Jody",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-abcde"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{{
+							User: entity.User{
+								ID: "u-abcde",
+							},
+						}}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-abcdf"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return service.ErrRepository, when delete moderator return repository.ErrDatabase error",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
 			expectedError:       service.ErrRepository,
 			inputPayload: payload.AddRemoveModerator{
 				Username: "Jody",
@@ -2707,7 +2822,7 @@ func TestRemoveModerator(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
 					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
-						return entity.Thread{}
+						return entity.Thread{Creator: entity.User{ID: "u-abcde"}}
 					},
 					func(ctx context.Context, accessorUserID string, ID string) error {
 						return nil
@@ -2720,25 +2835,103 @@ func TestRemoveModerator(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
 					func(ctx context.Context, threadID string) []entity.Moderator {
-						return []entity.Moderator{}
+						return []entity.Moderator{{
+							User: entity.User{
+								ID: "u-abcdf",
+							},
+						}}
 					},
 					func(ctx context.Context, threadID string) error {
-						return repository.ErrDatabase
+						return nil
 					},
 				).Once()
 
-				// mockUserRepo.On(
-				// 	"FindByUsername",
-				// 	mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
-				// 	mock.AnythingOfType(fmt.Sprintf("%T", "")),
-				// ).Return(
-				// 	func(ctx context.Context, userName string) entity.User {
-				// 		return entity.User{}
-				// 	},
-				// 	func(ctx context.Context, userName string) error {
-				// 		return repository.ErrDatabase
-				// 	},
-				// ).Once()
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-abcdf"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"DeleteModerator",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Moderator{})),
+				).Return(
+					func(ctx context.Context, moderator entity.Moderator) error {
+						return repository.ErrDatabase
+					},
+				).Once()
+			},
+		},
+		{
+			name:                "it should return nil error, when no error is returned",
+			inputThreadID:       "t-123",
+			inputAccessorUserID: "u-abcde",
+			expectedError:       nil,
+			inputPayload: payload.AddRemoveModerator{
+				Username: "Jody",
+			},
+			mockBehaviour: func() {
+				mockThreadRepo.On(
+					"FindByID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, ID string) entity.Thread {
+						return entity.Thread{Creator: entity.User{ID: "u-abcde"}}
+					},
+					func(ctx context.Context, accessorUserID string, ID string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"FindAllModeratorByThreadID",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, threadID string) []entity.Moderator {
+						return []entity.Moderator{{
+							User: entity.User{
+								ID: "u-abcdf",
+							},
+						}}
+					},
+					func(ctx context.Context, threadID string) error {
+						return nil
+					},
+				).Once()
+
+				mockUserRepo.On(
+					"FindByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, userName string) entity.User {
+						return entity.User{ID: "u-abcdf"}
+					},
+					func(ctx context.Context, userName string) error {
+						return nil
+					},
+				).Once()
+
+				mockThreadRepo.On(
+					"DeleteModerator",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", entity.Moderator{})),
+				).Return(
+					func(ctx context.Context, moderator entity.Moderator) error {
+						return nil
+					},
+				).Once()
 			},
 		},
 	}
