@@ -8,9 +8,11 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	mcs "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/category/mocks"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/utils/generator"
@@ -163,6 +165,146 @@ func TestPostCreateCategory(t *testing.T) {
 				c := e.NewContext(req, rec)
 
 				gotErr := controller.postCreateCategory(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
+}
+
+func TestGetCategories(t *testing.T) {
+	mockCategoryService := &mcs.CategoryService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenarion", func(t *testing.T) {
+		now := time.Now().Format(time.RFC822)
+		dummyCategories := []response.Category{
+			{
+				ID:          "c-xyz",
+				Name:        "Tech",
+				Description: "Technology is used to make everything easier.",
+				CreatedOn:   now,
+			},
+		}
+		dummyIDResponse := map[string][]response.Category{"categories": dummyCategories}
+		dummyResp := model.NewResponse("success", "Get categories successful.", dummyIDResponse)
+
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "u-abcdefg",
+					Username: "erikrios",
+					Role:     "user",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockCategoryService.On(
+			"GetAll",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+		).Return(
+			func(ctx context.Context) []response.Category {
+				return dummyCategories
+			},
+			func(ctx context.Context) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 200 status code with valid response, when there is no error", func(t *testing.T) {
+			controller := NewCategoriesController(mockCategoryService, mockTokenGenerator)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/categories", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			if assert.NoError(t, controller.getCategories(c)) {
+				assert.Equal(t, http.StatusOK, rec.Code)
+
+				body := rec.Body.String()
+
+				gotResponse := make(map[string]any)
+
+				if err := json.Unmarshal([]byte(body), &gotResponse); assert.NoError(t, err) {
+					gotCategories := gotResponse["data"].(map[string]any)["categories"].([]any)
+					assert.Equal(t, len(dummyResp.Data["categories"]), len(gotCategories))
+
+					for i, gotCategory := range gotCategories {
+						gotID := gotCategory.(map[string]any)["ID"]
+						gotName := gotCategory.(map[string]any)["name"]
+						gotDescription := gotCategory.(map[string]any)["description"]
+						gotCreatedOn := gotCategory.(map[string]any)["createdOn"]
+						assert.Equal(t, dummyResp.Data["categories"][i].ID, gotID)
+						assert.Equal(t, dummyResp.Data["categories"][i].Name, gotName)
+						assert.Equal(t, dummyResp.Data["categories"][i].Description, gotDescription)
+						assert.Equal(t, dummyResp.Data["categories"][i].CreatedOn, gotCreatedOn)
+					}
+				}
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		testCases := []struct {
+			name                 string
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "u-abcdefg",
+								Username: "erikrios",
+								Role:     "user",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockCategoryService.On(
+						"GetAll",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					).Return(
+						func(ctx context.Context) []response.Category {
+							return []response.Category{}
+						},
+						func(ctx context.Context) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewCategoriesController(mockCategoryService, mockTokenGenerator)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodGet, "/api/v1/categories", nil)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+
+				gotErr := controller.getCategories(c)
 				if assert.Error(t, gotErr) {
 					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
 						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
