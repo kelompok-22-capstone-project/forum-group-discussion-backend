@@ -315,3 +315,136 @@ func TestGetCategories(t *testing.T) {
 		}
 	})
 }
+
+func TestPutUpdateCategory(t *testing.T) {
+	mockCategoryService := &mcs.CategoryService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenarion", func(t *testing.T) {
+		dummyReq := payload.UpdateCategory{
+			Name:        "Tech",
+			Description: "Technology is used to make everything easier.",
+		}
+
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "u-abcdefg",
+					Username: "admin",
+					Role:     "admin",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockCategoryService.On(
+			"Update",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", payload.UpdateCategory{})),
+		).Return(
+			func(ctx context.Context, accessorRole string, id string, p payload.UpdateCategory) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 204 status code, when there is no error", func(t *testing.T) {
+			controller := NewCategoriesController(mockCategoryService, mockTokenGenerator)
+			requestBody, err := json.Marshal(dummyReq)
+			assert.NoError(t, err)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "/api/v1/categories", strings.NewReader(string(requestBody)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:id")
+			c.SetParamNames("id")
+			c.SetParamValues("c-xyz")
+
+			if assert.NoError(t, controller.putUpdateCategory(c)) {
+				assert.Equal(t, http.StatusNoContent, rec.Code)
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		dummyReq := payload.UpdateCategory{
+			Name:        "Tech",
+			Description: "Technology is used to make everything easier.",
+		}
+
+		testCases := []struct {
+			name                 string
+			inputPayload         payload.UpdateCategory
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				inputPayload:         dummyReq,
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "u-abcdefg",
+								Username: "admin",
+								Role:     "admin",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockCategoryService.On(
+						"Update",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", payload.UpdateCategory{})),
+					).Return(
+						func(ctx context.Context, accessorRole string, id string, p payload.UpdateCategory) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewCategoriesController(mockCategoryService, mockTokenGenerator)
+				requestBody, err := json.Marshal(dummyReq)
+				assert.NoError(t, err)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPut, "/api/v1/categories", strings.NewReader(string(requestBody)))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+				c.SetPath("/:id")
+				c.SetParamNames("id")
+				c.SetParamValues("c-xyz")
+
+				gotErr := controller.putUpdateCategory(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
+}
