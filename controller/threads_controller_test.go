@@ -232,8 +232,8 @@ func TestPostCreateThread(t *testing.T) {
 			func(c echo.Context) generator.TokenPayload {
 				return generator.TokenPayload{
 					ID:       "u-abcdefg",
-					Username: "admin",
-					Role:     "admin",
+					Username: "erikrios",
+					Role:     "user",
 					IsActive: true,
 				}
 			},
@@ -306,8 +306,8 @@ func TestPostCreateThread(t *testing.T) {
 						func(c echo.Context) generator.TokenPayload {
 							return generator.TokenPayload{
 								ID:       "u-abcdefg",
-								Username: "admin",
-								Role:     "admin",
+								Username: "erikrios",
+								Role:     "erikrios",
 								IsActive: true,
 							}
 						},
@@ -921,4 +921,154 @@ func TestGetThreadComments(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPostCreateThreadComments(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenarion", func(t *testing.T) {
+		dummyReq := payload.CreateComment{
+			Comment: "Nice thread, good job.",
+		}
+
+		dummyID := "c-XyzAbce"
+		dummyIDResponse := map[string]any{"ID": dummyID}
+		dummyResp := model.NewResponse("success", "Create comment successful.", dummyIDResponse)
+
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "u-abcdefg",
+					Username: "erikrios",
+					Role:     "user",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockThreadService.On(
+			"CreateComment",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", payload.CreateComment{})),
+		).Return(
+			func(ctx context.Context, threadID, accessorUserID string, p payload.CreateComment) string {
+				return dummyID
+			},
+			func(ctx context.Context, threadID, accessorUserID string, p payload.CreateComment) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 201 status code with valid response, when there is no error", func(t *testing.T) {
+			controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+			requestBody, err := json.Marshal(dummyReq)
+			assert.NoError(t, err)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/threads", strings.NewReader(string(requestBody)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:id/comments")
+			c.SetParamNames("id")
+			c.SetParamValues("t-XyzAbc")
+
+			if assert.NoError(t, controller.postCreateThreadComments(c)) {
+				assert.Equal(t, http.StatusCreated, rec.Code)
+
+				body := rec.Body.String()
+
+				gotResponse := make(map[string]any)
+
+				if err := json.Unmarshal([]byte(body), &gotResponse); assert.NoError(t, err) {
+					gotID := gotResponse["data"].(map[string]any)["ID"].(string)
+					assert.Equal(t, dummyResp.Data["ID"], gotID)
+				}
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		dummyReq := payload.CreateComment{
+			Comment: "Nice thread, good job.",
+		}
+
+		testCases := []struct {
+			name                 string
+			inputPayload         payload.CreateComment
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				inputPayload:         dummyReq,
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "u-abcdefg",
+								Username: "erikrios",
+								Role:     "user",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockThreadService.On(
+						"CreateComment",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", payload.CreateComment{})),
+					).Return(
+						func(ctx context.Context, threadID, accessorUserID string, p payload.CreateComment) string {
+							return ""
+						},
+						func(ctx context.Context, threadID, accessorUserID string, p payload.CreateComment) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+				requestBody, err := json.Marshal(dummyReq)
+				assert.NoError(t, err)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPost, "/api/v1/threads", strings.NewReader(string(requestBody)))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+				c.SetPath("/:id/comments")
+				c.SetParamNames("id")
+				c.SetParamValues("t-XyzAbc")
+
+				gotErr := controller.postCreateThreadComments(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
 }
