@@ -1435,3 +1435,136 @@ func TestPutThreadAddModerator(t *testing.T) {
 		}
 	})
 }
+
+func TestPutThreadRemoveModerator(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenario", func(t *testing.T) {
+		dummyReq := payload.AddRemoveModerator{
+			Username: "naruto",
+		}
+
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "u-abcdefg",
+					Username: "erikrios",
+					Role:     "user",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockThreadService.On(
+			"RemoveModerator",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", payload.AddRemoveModerator{})),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+		).Return(
+			func(ctx context.Context, p payload.AddRemoveModerator, threadID, accessorUserID string) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 204 status code, when there is no error", func(t *testing.T) {
+			controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+			requestBody, err := json.Marshal(dummyReq)
+			assert.NoError(t, err)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "/api/v1/threads", strings.NewReader(string(requestBody)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:id/moderators/remove")
+			c.SetParamNames("id")
+			c.SetParamValues("t-XyzAbc")
+
+			if assert.NoError(t, controller.putThreadRemoveModerator(c)) {
+				assert.Equal(t, http.StatusNoContent, rec.Code)
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		dummyReq := payload.UpdateThread{
+			Title:       "Go Programming Going Hype",
+			CategoryID:  "c-xyz",
+			Description: "Currently Go Programming going hype because it's popularity",
+		}
+
+		testCases := []struct {
+			name                 string
+			inputPayload         payload.UpdateThread
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				inputPayload:         dummyReq,
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "u-abcdefg",
+								Username: "erikrios",
+								Role:     "user",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockThreadService.On(
+						"RemoveModerator",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", payload.AddRemoveModerator{})),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					).Return(
+						func(ctx context.Context, p payload.AddRemoveModerator, threadID, accessorUserID string) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+				requestBody, err := json.Marshal(dummyReq)
+				assert.NoError(t, err)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPut, "/api/v1/threads", strings.NewReader(string(requestBody)))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+				c.SetPath("/:id/moderators/remove")
+				c.SetParamNames("id")
+				c.SetParamValues("t-XyzAbc")
+
+				gotErr := controller.putThreadRemoveModerator(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
+}
