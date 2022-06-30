@@ -663,3 +663,119 @@ func TestPutUpdateThread(t *testing.T) {
 		}
 	})
 }
+
+func TestDeleteThread(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenarion", func(t *testing.T) {
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "u-abcdefg",
+					Username: "admin",
+					Role:     "admin",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockThreadService.On(
+			"Delete",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+		).Return(
+			func(ctx context.Context, accessorUserID string, role string, id string) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 204 status code, when there is no error", func(t *testing.T) {
+			controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "/api/v1/categories", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:id")
+			c.SetParamNames("id")
+			c.SetParamValues("c-xyz")
+
+			if assert.NoError(t, controller.deleteThread(c)) {
+				assert.Equal(t, http.StatusNoContent, rec.Code)
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		testCases := []struct {
+			name                 string
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "u-abcdefg",
+								Username: "admin",
+								Role:     "admin",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockThreadService.On(
+						"Delete",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					).Return(
+						func(ctx context.Context, accessorUserID string, role string, id string) error {
+							return service.ErrRepository
+						},
+					).Once()
+
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPut, "/api/v1/threads", nil)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+				c.SetPath("/:id")
+				c.SetParamNames("id")
+				c.SetParamValues("c-xyz")
+
+				gotErr := controller.deleteThread(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
+}
