@@ -6,10 +6,12 @@ import (
 	"fmt"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model"
+	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/payload"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/model/response"
 	"github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service"
 	mts "github.com/kelompok-22-capstone-project/forum-group-discussion-backend/service/thread/mocks"
@@ -206,4 +208,150 @@ func TestGetThreads(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestPostCreateThread(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenarion", func(t *testing.T) {
+		dummyReq := payload.CreateThread{
+			Title:       "Go Programming Going Hype",
+			Description: "Currently Go Programming going hype because it's popularity",
+			CategoryID:  "c-xyz",
+		}
+
+		dummyID := "t-XyzAbc"
+		dummyIDResponse := map[string]any{"ID": dummyID}
+		dummyResp := model.NewResponse("success", "Create thread successful.", dummyIDResponse)
+
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "u-abcdefg",
+					Username: "admin",
+					Role:     "admin",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockThreadService.On(
+			"Create",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", payload.CreateThread{})),
+		).Return(
+			func(ctx context.Context, accessorUserID string, p payload.CreateThread) string {
+				return dummyID
+			},
+			func(ctx context.Context, accessorUserID string, p payload.CreateThread) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 201 status code with valid response, when there is no error", func(t *testing.T) {
+			controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+			requestBody, err := json.Marshal(dummyReq)
+			assert.NoError(t, err)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/threads", strings.NewReader(string(requestBody)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			if assert.NoError(t, controller.postCreateThread(c)) {
+				assert.Equal(t, http.StatusCreated, rec.Code)
+
+				body := rec.Body.String()
+
+				gotResponse := make(map[string]any)
+
+				if err := json.Unmarshal([]byte(body), &gotResponse); assert.NoError(t, err) {
+					gotID := gotResponse["data"].(map[string]any)["ID"].(string)
+					assert.Equal(t, dummyResp.Data["ID"], gotID)
+				}
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		dummyReq := payload.CreateThread{
+			Title:       "Go Programming Going Hype",
+			Description: "Currently Go Programming going hype because it's popularity",
+			CategoryID:  "c-xyz",
+		}
+
+		testCases := []struct {
+			name                 string
+			inputPayload         payload.CreateThread
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				inputPayload:         dummyReq,
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "u-abcdefg",
+								Username: "admin",
+								Role:     "admin",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockThreadService.On(
+						"Create",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", payload.CreateThread{})),
+					).Return(
+						func(ctx context.Context, accessorUserID string, p payload.CreateThread) string {
+							return ""
+						},
+						func(ctx context.Context, accessorUserID string, p payload.CreateThread) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewThreadsController(mockThreadService, mockTokenGenerator)
+				requestBody, err := json.Marshal(dummyReq)
+				assert.NoError(t, err)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPost, "/api/v1/threads", strings.NewReader(string(requestBody)))
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+
+				gotErr := controller.postCreateThread(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
 }
