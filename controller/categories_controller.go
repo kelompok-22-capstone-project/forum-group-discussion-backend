@@ -122,7 +122,7 @@ func (c *categoriesController) putUpdateCategory(e echo.Context) error {
 		return newErrorResponse(service.ErrInvalidPayload)
 	}
 
-	if err := c.categoryService.Update(e.Request().Context(), tp.ID, id, *p); err != nil {
+	if err := c.categoryService.Update(e.Request().Context(), tp.Role, id, *p); err != nil {
 		return newErrorResponse(err)
 	}
 
@@ -147,7 +147,7 @@ func (c *categoriesController) deleteCategory(e echo.Context) error {
 
 	tp := c.tokenGenerator.ExtractToken(e)
 
-	if err := c.categoryService.Delete(e.Request().Context(), tp.ID, id); err != nil {
+	if err := c.categoryService.Delete(e.Request().Context(), tp.Role, id); err != nil {
 		return newErrorResponse(err)
 	}
 
