@@ -483,11 +483,11 @@ func TestGetUserByUsername(t *testing.T) {
 	}
 }
 
-func TestGetUserThreads(t *testing.T){
+func TestGetUserThreads(t *testing.T) {
 	mockUserService := &mus.UserService{}
 	mockTokenGenerator := &mtg.TokenGenerator{}
 
-	t.Run("success scenario", func(t *testing.T){
+	t.Run("success scenario", func(t *testing.T) {
 		now := time.Now().Format(time.RFC822)
 		dummyThreads := []response.ManyThread{
 			{
@@ -658,4 +658,230 @@ func TestGetUserThreads(t *testing.T){
 			}
 		})
 	}
+}
+
+func TestPutUserFollow(t *testing.T) {
+	mockUserService := &mus.UserService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenario", func(t *testing.T) {
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "a-abcd",
+					Username: "sarifaturr",
+					Role:     "admin",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockUserService.On(
+			"ChangeFollowingState",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+		).Return(
+			func(ctx context.Context, accessorUserID string, usernameToFollow string) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 204 status code, when there is no error", func(t *testing.T) {
+			controller := NewUsersController(mockUserService, mockTokenGenerator)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "/api/v1/users", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:username/follow")
+			c.SetParamNames("username")
+			c.SetParamValues("sarifaturr")
+
+			if assert.NoError(t, controller.putUserFollow(c)) {
+				assert.Equal(t, http.StatusNoContent, rec.Code)
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		testCases := []struct {
+			name                 string
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "a-abcd",
+								Username: "sarifaturr",
+								Role:     "admin",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockUserService.On(
+						"ChangeFollowingState",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					).Return(
+						func(ctx context.Context, accessorUserID string, usernameToFollow string) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewUsersController(mockUserService, mockTokenGenerator)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPut, "/api/v1/users", nil)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+				c.SetPath("/:username/follow")
+				c.SetParamNames("username")
+				c.SetParamValues("sarifaturr")
+
+				gotErr := controller.putUserFollow(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
+}
+
+func TestPutUserBanned(t *testing.T){
+	mockUserService := &mus.UserService{}
+	mockTokenGenerator := &mtg.TokenGenerator{}
+
+	t.Run("success scenario", func(t *testing.T) {
+		mockTokenGenerator.On(
+			"ExtractToken",
+			mock.AnythingOfType("*echo.context"),
+		).Return(
+			func(c echo.Context) generator.TokenPayload {
+				return generator.TokenPayload{
+					ID:       "a-abcd",
+					Username: "sarifaturr",
+					Role:     "admin",
+					IsActive: true,
+				}
+			},
+		).Once()
+
+		mockUserService.On(
+			"ChangeBannedState",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+		).Return(
+			func(ctx context.Context, accessorRole string, username string) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 204 status code, when there is no error", func(t *testing.T) {
+			controller := NewUsersController(mockUserService, mockTokenGenerator)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodPut, "/api/v1/users", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:username/banned")
+			c.SetParamNames("username")
+			c.SetParamValues("sarifaturr")
+
+			if assert.NoError(t, controller.putUserBanned(c)) {
+				assert.Equal(t, http.StatusNoContent, rec.Code)
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {
+		testCases := []struct {
+			name                 string
+			expectedStatusCode   int
+			expectedErrorMessage string
+			mockBehaviours       func()
+		}{
+			{
+				name:                 "it should return 500 status code, when error happened",
+				expectedStatusCode:   http.StatusInternalServerError,
+				expectedErrorMessage: "Something went wrong.",
+				mockBehaviours: func() {
+					mockTokenGenerator.On(
+						"ExtractToken",
+						mock.AnythingOfType("*echo.context"),
+					).Return(
+						func(c echo.Context) generator.TokenPayload {
+							return generator.TokenPayload{
+								ID:       "a-abcd",
+								Username: "sarifaturr",
+								Role:     "admin",
+								IsActive: true,
+							}
+						},
+					).Once()
+
+					mockUserService.On(
+						"ChangeBannedState",
+						mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+						mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					).Return(
+						func(ctx context.Context, accessorRole string, username string) error {
+							return service.ErrRepository
+						},
+					).Once()
+				},
+			},
+		}
+
+		for _, testCase := range testCases {
+			t.Run(testCase.name, func(t *testing.T) {
+				testCase.mockBehaviours()
+
+				controller := NewUsersController(mockUserService, mockTokenGenerator)
+
+				e := echo.New()
+				req := httptest.NewRequest(http.MethodPut, "/api/v1/users", nil)
+				rec := httptest.NewRecorder()
+				c := e.NewContext(req, rec)
+				c.SetPath("/:username/banned")
+				c.SetParamNames("username")
+				c.SetParamValues("sarifaturr")
+
+				gotErr := controller.putUserBanned(c)
+				if assert.Error(t, gotErr) {
+					if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+						assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+						assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+					}
+				}
+			})
+		}
+	})
 }
