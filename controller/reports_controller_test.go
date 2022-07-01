@@ -159,7 +159,8 @@ func TestPostCreateReport(t *testing.T) {
 			assert.NoError(t, err)
 
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/v1/reports", strings.NewReader(string(requestBody)))
+			req := httptest.NewRequest(http.MethodPost, "/api/v1/reports", strings.NewReader(string(requestBody)))
+			req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 
