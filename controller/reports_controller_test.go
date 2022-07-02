@@ -37,9 +37,9 @@ func TestPostCreateReport(t *testing.T) {
 
 	t.Run("success scenario", func(t *testing.T) {
 		dummyReq := payload.CreateReport{
-			Username: "sarifaturr",
-			ThreadID: "t-123",
-			Reason:   "spam",
+			Username:  "sarifaturr",
+			CommentID: "t-123",
+			Reason:    "spam",
 		}
 
 		dummyID := "u-123"
@@ -102,9 +102,9 @@ func TestPostCreateReport(t *testing.T) {
 
 	t.Run("failed scenario", func(t *testing.T) {})
 	dummyReq := payload.CreateReport{
-		Username: "sarifaturr",
-		ThreadID: "t-123",
-		Reason:   "spam",
+		Username:  "sarifaturr",
+		CommentID: "t-123",
+		Reason:    "spam",
 	}
 
 	testCases := []struct {
