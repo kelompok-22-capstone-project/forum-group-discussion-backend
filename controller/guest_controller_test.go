@@ -621,3 +621,110 @@ func TestGuestGetUsers(t *testing.T) {
 		})
 	}
 }
+
+func TestGuestGetUserByUsername(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockUserService := &mus.UserService{}
+
+	t.Run("success scenario", func(t *testing.T) {
+		now := time.Now()
+		dummyUser := response.User{
+			UserID:         "u-xyz",
+			Username:       "sarifaturr",
+			Email:          "sarifaturr@gmail.com",
+			Name:           "sari faturr",
+			Role:           "user",
+			IsActive:       true,
+			RegisteredOn:   now.Format(time.RFC822),
+			TotalThread:    10,
+			TotalFollower:  500,
+			TotalFollowing: 324,
+			IsFollowed:     true,
+		}
+		dummyResp := model.NewResponse("success", "Get user successful.", dummyUser)
+
+		mockUserService.On(
+			"GetByUsername",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+		).Return(
+			func(ctx context.Context, accessorUserID string, username string) response.User {
+				return dummyUser
+			},
+			func(ctx context.Context, accessorUserID string, username string) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 200 status code with valid response, when there is no error", func(t *testing.T) {
+			controller := NewGuestController(mockThreadService, mockUserService)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/users", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			if assert.NoError(t, controller.getUserByUsername(c)) {
+				assert.Equal(t, http.StatusOK, rec.Code)
+
+				body := rec.Body.String()
+
+				gotResponse := model.NewResponse("", "", response.User{})
+
+				if err := json.Unmarshal([]byte(body), &gotResponse); assert.NoError(t, err) {
+					assert.Equal(t, dummyResp.Data, gotResponse.Data)
+				}
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {})
+	testCases := []struct {
+		name                 string
+		expectedStatusCode   int
+		expectedErrorMessage string
+		mockBehaviours       func()
+	}{
+		{
+			name:                 "it should return 500 status code, when error happened",
+			expectedStatusCode:   http.StatusInternalServerError,
+			expectedErrorMessage: "Something went wrong.",
+			mockBehaviours: func() {
+				mockUserService.On(
+					"GetByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+				).Return(
+					func(ctx context.Context, accessorUserID string, username string) response.User {
+						return response.User{}
+					},
+					func(ctx context.Context, accessorUserID string, username string) error {
+						return service.ErrRepository
+					},
+				).Once()
+			},
+		},
+	}
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			controller := NewGuestController(mockThreadService, mockUserService)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/users", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			gotErr := controller.getUserByUsername(c)
+			if assert.Error(t, gotErr) {
+				if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+					assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+					assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+				}
+			}
+		})
+	}
+}
