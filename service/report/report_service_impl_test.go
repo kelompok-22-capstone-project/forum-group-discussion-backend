@@ -213,9 +213,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrInvalidPayload, when the payload is invalid",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "",
 			},
 			expectedID:     "",
 			expectedError:  service.ErrInvalidPayload,
@@ -225,9 +225,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrDataNotFound, when find by username return repository.ErrRecordNotFound error",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "",
 			expectedError: service.ErrDataNotFound,
@@ -250,9 +250,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrDataNotFound, when find thread by ID return repository.ErrRecordNotFound error",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "",
 			expectedError: service.ErrDataNotFound,
@@ -281,13 +281,12 @@ func TestCreate(t *testing.T) {
 				).Once()
 
 				mockThreadRepo.On(
-					"FindByID",
+					"FindCommentByID",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
-						return entity.Thread{}
+					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+						return entity.Comment{}
 					},
 					func(ctx context.Context, accessorUserID, threadID string) error {
 						return repository.ErrRecordNotFound
@@ -299,9 +298,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrRepository, when find all moderators by thread ID return repository.ErrDatabase error",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "",
 			expectedError: service.ErrRepository,
@@ -330,13 +329,12 @@ func TestCreate(t *testing.T) {
 				).Once()
 
 				mockThreadRepo.On(
-					"FindByID",
+					"FindCommentByID",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
-						return entity.Thread{}
+					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+						return entity.Comment{}
 					},
 					func(ctx context.Context, accessorUserID, threadID string) error {
 						return nil
@@ -361,9 +359,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrAccessForbidden, when accessor is not moderator",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "",
 			expectedError: service.ErrAccessForbidden,
@@ -392,13 +390,12 @@ func TestCreate(t *testing.T) {
 				).Once()
 
 				mockThreadRepo.On(
-					"FindByID",
+					"FindCommentByID",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
-						return entity.Thread{}
+					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+						return entity.Comment{}
 					},
 					func(ctx context.Context, accessorUserID, threadID string) error {
 						return nil
@@ -429,9 +426,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrRepository, when generate report ID return an error",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "",
 			expectedError: service.ErrRepository,
@@ -460,13 +457,12 @@ func TestCreate(t *testing.T) {
 				).Once()
 
 				mockThreadRepo.On(
-					"FindByID",
+					"FindCommentByID",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
-						return entity.Thread{}
+					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+						return entity.Comment{}
 					},
 					func(ctx context.Context, accessorUserID, threadID string) error {
 						return nil
@@ -508,9 +504,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return service.ErrRepository, when insert report return repository.ErrDatabase",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "",
 			expectedError: service.ErrRepository,
@@ -539,13 +535,12 @@ func TestCreate(t *testing.T) {
 				).Once()
 
 				mockThreadRepo.On(
-					"FindByID",
+					"FindCommentByID",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
-						return entity.Thread{}
+					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+						return entity.Comment{}
 					},
 					func(ctx context.Context, accessorUserID, threadID string) error {
 						return nil
@@ -608,9 +603,9 @@ func TestCreate(t *testing.T) {
 			name:                "it should return valid ID, when no error is returned",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
-				Username: "erikrios",
-				ThreadID: "t-Ku7Pi",
-				Reason:   "Harrashment",
+				Username:  "erikrios",
+				CommentID: "c-Ku7Pi",
+				Reason:    "Harrashment",
 			},
 			expectedID:    "r-ErLN4lS",
 			expectedError: nil,
@@ -639,13 +634,12 @@ func TestCreate(t *testing.T) {
 				).Once()
 
 				mockThreadRepo.On(
-					"FindByID",
+					"FindCommentByID",
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
-					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Thread {
-						return entity.Thread{}
+					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+						return entity.Comment{}
 					},
 					func(ctx context.Context, accessorUserID, threadID string) error {
 						return nil
