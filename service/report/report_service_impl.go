@@ -78,18 +78,20 @@ func (r *reportServiceImpl) GetAll(
 
 	for i, item := range reports.List {
 		report := response.Report{
-			ID:                item.ID,
-			ModeratorID:       item.Moderator.ID,
-			ModeratorUsername: item.Moderator.User.Username,
-			ModeratorName:     item.Moderator.User.Name,
-			UserID:            item.User.ID,
-			Username:          item.User.Username,
-			ThreadID:          item.Thread.ID,
-			ThreadTitle:       item.Thread.Title,
-			Name:              item.User.Name,
-			Reason:            item.Reason,
-			Status:            item.Status,
-			ReportedOn:        item.CreatedAt.Format(time.RFC822),
+			ID:                 item.ID,
+			ModeratorID:        item.Moderator.ID,
+			ModeratorUsername:  item.Moderator.User.Username,
+			ModeratorName:      item.Moderator.User.Name,
+			UserID:             item.User.ID,
+			Username:           item.User.Username,
+			Name:               item.User.Name,
+			Reason:             item.Reason,
+			Status:             item.Status,
+			ThreadID:           item.Thread.ID,
+			ThreadTitle:        item.Thread.Title,
+			ReportedOn:         item.CreatedAt.Format(time.RFC822),
+			Comment:            item.Comment.Comment,
+			CommentPublishedOn: item.Comment.CreatedAt.Format(time.RFC822),
 		}
 		rs.List[i] = report
 	}
