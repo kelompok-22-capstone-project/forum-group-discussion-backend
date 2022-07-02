@@ -91,18 +91,20 @@ func TestGetAll(t *testing.T) {
 			expectedResponse: response.Pagination[response.Report]{
 				List: []response.Report{
 					{
-						ID:                "r-ErLN4lS",
-						ModeratorID:       "m-QwROlyYS",
-						ModeratorUsername: "erikrios",
-						ModeratorName:     "Erik Rio Setiawan",
-						UserID:            "u-ZrxmQq",
-						Username:          "naruto",
-						Name:              "Naruto Uzumaki",
-						Reason:            "Harrashment",
-						Status:            "review",
-						ThreadID:          "t-Ku7Pi",
-						ThreadTitle:       "Go Programming Going Hype",
-						ReportedOn:        now.Format(time.RFC822),
+						ID:                 "r-ErLN4lS",
+						ModeratorID:        "m-QwROlyYS",
+						ModeratorUsername:  "erikrios",
+						ModeratorName:      "Erik Rio Setiawan",
+						UserID:             "u-ZrxmQq",
+						Username:           "naruto",
+						Name:               "Naruto Uzumaki",
+						Reason:             "Harrashment",
+						Status:             "review",
+						ThreadID:           "t-Ku7Pi",
+						ThreadTitle:        "Go Programming Going Hype",
+						ReportedOn:         now.Format(time.RFC822),
+						Comment:            "Bocil ini sangat meresahkan",
+						CommentPublishedOn: now.Format(time.RFC822),
 					},
 				},
 				PageInfo: response.PageInfo{
@@ -148,6 +150,11 @@ func TestGetAll(t *testing.T) {
 									Reason:    "Harrashment",
 									Status:    "review",
 									CreatedAt: now,
+									Comment: entity.Comment{
+										Comment:   "Bocil ini sangat meresahkan",
+										CreatedAt: now,
+										UpdatedAt: now,
+									},
 								},
 							},
 							PageInfo: entity.PageInfo{
@@ -247,7 +254,7 @@ func TestCreate(t *testing.T) {
 			},
 		},
 		{
-			name:                "it should return service.ErrDataNotFound, when find thread by ID return repository.ErrRecordNotFound error",
+			name:                "it should return service.ErrDataNotFound, when find comment by ID return repository.ErrRecordNotFound error",
 			inputAccessorUserID: "u-ZrxmQS",
 			inputPayload: payload.CreateReport{
 				Username:  "erikrios",
@@ -285,10 +292,10 @@ func TestCreate(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+					func(ctx context.Context, commentID string) entity.Comment {
 						return entity.Comment{}
 					},
-					func(ctx context.Context, accessorUserID, threadID string) error {
+					func(ctx context.Context, commentID string) error {
 						return repository.ErrRecordNotFound
 					},
 				).Once()
@@ -333,10 +340,10 @@ func TestCreate(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+					func(ctx context.Context, commentID string) entity.Comment {
 						return entity.Comment{}
 					},
-					func(ctx context.Context, accessorUserID, threadID string) error {
+					func(ctx context.Context, commentID string) error {
 						return nil
 					},
 				).Once()
@@ -394,10 +401,10 @@ func TestCreate(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+					func(ctx context.Context, commentID string) entity.Comment {
 						return entity.Comment{}
 					},
-					func(ctx context.Context, accessorUserID, threadID string) error {
+					func(ctx context.Context, commentID string) error {
 						return nil
 					},
 				).Once()
@@ -461,10 +468,10 @@ func TestCreate(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+					func(ctx context.Context, commentID string) entity.Comment {
 						return entity.Comment{}
 					},
-					func(ctx context.Context, accessorUserID, threadID string) error {
+					func(ctx context.Context, commentID string) error {
 						return nil
 					},
 				).Once()
@@ -539,10 +546,10 @@ func TestCreate(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+					func(ctx context.Context, commentID string) entity.Comment {
 						return entity.Comment{}
 					},
-					func(ctx context.Context, accessorUserID, threadID string) error {
+					func(ctx context.Context, commentID string) error {
 						return nil
 					},
 				).Once()
@@ -638,10 +645,10 @@ func TestCreate(t *testing.T) {
 					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
 					mock.AnythingOfType(fmt.Sprintf("%T", "")),
 				).Return(
-					func(ctx context.Context, accessorUserID, threadID string) entity.Comment {
+					func(ctx context.Context, commentID string) entity.Comment {
 						return entity.Comment{}
 					},
-					func(ctx context.Context, accessorUserID, threadID string) error {
+					func(ctx context.Context, commentID string) error {
 						return nil
 					},
 				).Once()
