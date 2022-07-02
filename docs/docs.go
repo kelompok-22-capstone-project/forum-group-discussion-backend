@@ -2281,7 +2281,7 @@ const docTemplate = `{
                     "minLength": 2,
                     "x-order": "0"
                 },
-                "threadID": {
+                "commentID": {
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 2,

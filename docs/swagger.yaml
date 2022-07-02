@@ -242,15 +242,15 @@ definitions:
     type: object
   payload.CreateReport:
     properties:
-      reason:
-        minLength: 2
-        type: string
-        x-order: "2"
-      threadID:
+      commentID:
         maxLength: 10
         minLength: 2
         type: string
         x-order: "1"
+      reason:
+        minLength: 2
+        type: string
+        x-order: "2"
       username:
         maxLength: 10
         minLength: 2
