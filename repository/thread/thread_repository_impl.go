@@ -1014,3 +1014,38 @@ func (t *threadRepositoryImpl) IncrementTotalViewer(
 
 	return
 }
+
+func (t *threadRepositoryImpl) FindCommentByID(
+	ctx context.Context,
+	ID string,
+) (comment entity.Comment, err error) {
+	statement := `SELECT id, user_id, thread_id, comment, created_at, updated_at
+FROM comments WHERE id = $1;`
+
+	row := t.db.QueryRowContext(ctx, statement, ID)
+
+	switch dbErr := row.Scan(
+		&comment.ID,
+		&comment.User.ID,
+		&comment.Thread.ID,
+		&comment.Comment,
+		&comment.CreatedAt,
+		&comment.UpdatedAt,
+	); dbErr {
+	case sql.ErrNoRows:
+		{
+			err = repository.ErrRecordNotFound
+			return
+		}
+	case nil:
+		{
+			return
+		}
+	default:
+		{
+			log.Println(repository.ErrDatabase)
+			err = repository.ErrDatabase
+			return
+		}
+	}
+}
