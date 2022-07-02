@@ -118,13 +118,13 @@ func (r *reportServiceImpl) Create(
 		return
 	}
 
-	_, repoErr = r.threadRepository.FindByID(ctx, accessorUserID, p.ThreadID)
+	comment, repoErr := r.threadRepository.FindCommentByID(ctx, p.CommentID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
 
-	moderators, repoErr := r.threadRepository.FindAllModeratorByThreadID(ctx, p.ThreadID)
+	moderators, repoErr := r.threadRepository.FindAllModeratorByThreadID(ctx, comment.Thread.ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
@@ -152,7 +152,7 @@ func (r *reportServiceImpl) Create(
 		return
 	}
 
-	if repoErr := r.reportRepository.Insert(ctx, id, moderatorID, reportedUser.ID, p.ThreadID, p.Reason); repoErr != nil {
+	if repoErr := r.reportRepository.Insert(ctx, id, moderatorID, reportedUser.ID, comment.ID, p.Reason); repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
