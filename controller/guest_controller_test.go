@@ -306,7 +306,7 @@ func TestGuestGetThread(t *testing.T) {
 			controller := NewGuestController(mockThreadService, mockUserService)
 
 			e := echo.New()
-			req := httptest.NewRequest(http.MethodGet, "/api/v1/threads", nil)
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/threads", nil)
 			rec := httptest.NewRecorder()
 			c := e.NewContext(req, rec)
 			c.SetPath("/:id")
@@ -314,6 +314,149 @@ func TestGuestGetThread(t *testing.T) {
 			c.SetParamValues("t-XyzAbc")
 
 			gotErr := controller.getThread(c)
+			if assert.Error(t, gotErr) {
+				if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+					assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+					assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+				}
+			}
+		})
+	}
+}
+
+func TestGuestGetThreadComments(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockUserService := &mus.UserService{}
+
+	t.Run("success scenario", func(t *testing.T) {
+		now := time.Now().Format(time.RFC822)
+		dummyComments := []response.Comment{
+			{
+				ID:          "c-EtILo81",
+				UserID:      "u-abcdefg",
+				Username:    "erikrios",
+				Name:        "Erik Rio Setiawan",
+				Comment:     "Nice thread, good job.",
+				PublishedOn: now,
+			},
+		}
+		dummyPagination := response.Pagination[response.Comment]{
+			List: dummyComments,
+			PageInfo: response.PageInfo{
+				Limit:     20,
+				Page:      1,
+				PageTotal: 1,
+				Total:     15,
+			},
+		}
+		dummyResp := model.NewResponse("success", "Get comments successful", dummyPagination)
+
+		mockThreadService.On(
+			"GetComments",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+			mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+		).Return(
+			func(
+				ctx context.Context,
+				threadID string,
+				page uint,
+				limit uint,
+			) response.Pagination[response.Comment] {
+				return dummyPagination
+			},
+			func(
+				ctx context.Context,
+				threadID string,
+				page uint,
+				limit uint,
+			) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 200 status code with valid response, when there is no error", func(t *testing.T) {
+			controller := NewGuestController(mockThreadService, mockUserService)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/threads", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:id/comments")
+			c.SetParamNames("id")
+			c.SetParamValues("t-XyzAbc")
+
+			if assert.NoError(t, controller.getThreadComments(c)) {
+				assert.Equal(t, http.StatusOK, rec.Code)
+
+				body := rec.Body.String()
+
+				gotResponse := model.NewResponse("", "", response.Pagination[response.Comment]{})
+
+				if err := json.Unmarshal([]byte(body), &gotResponse); assert.NoError(t, err) {
+					assert.Equal(t, dummyResp.Data.PageInfo, gotResponse.Data.PageInfo)
+					assert.ElementsMatch(t, dummyResp.Data.List, gotResponse.Data.List)
+				}
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {})
+	testCases := []struct {
+		name                 string
+		expectedStatusCode   int
+		expectedErrorMessage string
+		mockBehaviours       func()
+	}{
+		{
+			name:                 "it should return 500 status code, when error happened",
+			expectedStatusCode:   http.StatusInternalServerError,
+			expectedErrorMessage: "Something went wrong.",
+			mockBehaviours: func() {
+				mockThreadService.On(
+					"GetComments",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+					mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+				).Return(
+					func(
+						ctx context.Context,
+						threadID string,
+						page uint,
+						limit uint,
+					) response.Pagination[response.Comment] {
+						return response.Pagination[response.Comment]{}
+					},
+					func(
+						ctx context.Context,
+						threadID string,
+						page uint,
+						limit uint,
+					) error {
+						return service.ErrRepository
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			controller := NewGuestController(mockThreadService, mockUserService)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/threads", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+			c.SetPath("/:id/comments")
+			c.SetParamNames("id")
+			c.SetParamValues("t-XyzAbc")
+
+			gotErr := controller.getThreadComments(c)
 			if assert.Error(t, gotErr) {
 				if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
 					assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
