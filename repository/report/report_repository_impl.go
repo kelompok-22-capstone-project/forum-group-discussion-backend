@@ -49,7 +49,7 @@ FROM user_banneds t
          INNER JOIN users u1 on m.user_id = u1.id
          INNER JOIN users u2 on t.user_id = u2.id
          INNER JOIN comments c on c.id = t.comment_id
-         INNER JOIN threads th on c.thread_id = th.id;
+         INNER JOIN threads th on c.thread_id = th.id
 WHERE t.status = $1
 OFFSET $2 LIMIT $3;`
 
