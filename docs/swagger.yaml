@@ -242,15 +242,15 @@ definitions:
     type: object
   payload.CreateReport:
     properties:
-      reason:
-        minLength: 2
-        type: string
-        x-order: "2"
-      threadID:
+      commentID:
         maxLength: 10
         minLength: 2
         type: string
         x-order: "1"
+      reason:
+        minLength: 2
+        type: string
+        x-order: "2"
       username:
         maxLength: 10
         minLength: 2
@@ -483,40 +483,47 @@ definitions:
       ID:
         type: string
         x-order: "0"
+      comment:
+        type: string
+        x-order: "20"
+      commentPublishedOn:
+        description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
+        type: string
+        x-order: "21"
       moderatorID:
         type: string
         x-order: "1"
       moderatorName:
         type: string
-        x-order: "3"
+        x-order: "11"
       moderatorUsername:
         type: string
-        x-order: "2"
+        x-order: "10"
       name:
         type: string
-        x-order: "6"
+        x-order: "14"
       reason:
         type: string
-        x-order: "7"
+        x-order: "15"
       reportedOn:
         description: 'ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)'
         type: string
-        x-order: "11"
+        x-order: "19"
       status:
         type: string
-        x-order: "8"
+        x-order: "16"
       threadID:
         type: string
-        x-order: "9"
+        x-order: "17"
       threadTitle:
         type: string
-        x-order: "10"
+        x-order: "18"
       userID:
         type: string
-        x-order: "4"
+        x-order: "12"
       username:
         type: string
-        x-order: "5"
+        x-order: "13"
     type: object
   response.Thread:
     properties:
@@ -609,7 +616,7 @@ definitions:
         type: string
         x-order: "1"
     type: object
-host: ugly-frog-89.a276.dcdg.xyz
+host: erik.my.id
 info:
   contact:
     email: erikriosetiawan15@gmail.com

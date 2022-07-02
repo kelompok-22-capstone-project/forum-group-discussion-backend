@@ -198,6 +198,27 @@ func (_m *ThreadRepository) FindByID(ctx context.Context, accessorUserID string,
 	return r0, r1
 }
 
+// FindCommentByID provides a mock function with given fields: ctx, ID
+func (_m *ThreadRepository) FindCommentByID(ctx context.Context, ID string) (entity.Comment, error) {
+	ret := _m.Called(ctx, ID)
+
+	var r0 entity.Comment
+	if rf, ok := ret.Get(0).(func(context.Context, string) entity.Comment); ok {
+		r0 = rf(ctx, ID)
+	} else {
+		r0 = ret.Get(0).(entity.Comment)
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(context.Context, string) error); ok {
+		r1 = rf(ctx, ID)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
+
 // IncrementTotalViewer provides a mock function with given fields: ID
 func (_m *ThreadRepository) IncrementTotalViewer(ID string) error {
 	ret := _m.Called(ID)

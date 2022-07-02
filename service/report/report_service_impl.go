@@ -78,18 +78,20 @@ func (r *reportServiceImpl) GetAll(
 
 	for i, item := range reports.List {
 		report := response.Report{
-			ID:                item.ID,
-			ModeratorID:       item.Moderator.ID,
-			ModeratorUsername: item.Moderator.User.Username,
-			ModeratorName:     item.Moderator.User.Name,
-			UserID:            item.User.ID,
-			Username:          item.User.Username,
-			ThreadID:          item.Thread.ID,
-			ThreadTitle:       item.Thread.Title,
-			Name:              item.User.Name,
-			Reason:            item.Reason,
-			Status:            item.Status,
-			ReportedOn:        item.CreatedAt.Format(time.RFC822),
+			ID:                 item.ID,
+			ModeratorID:        item.Moderator.ID,
+			ModeratorUsername:  item.Moderator.User.Username,
+			ModeratorName:      item.Moderator.User.Name,
+			UserID:             item.User.ID,
+			Username:           item.User.Username,
+			Name:               item.User.Name,
+			Reason:             item.Reason,
+			Status:             item.Status,
+			ThreadID:           item.Thread.ID,
+			ThreadTitle:        item.Thread.Title,
+			ReportedOn:         item.CreatedAt.Format(time.RFC822),
+			Comment:            item.Comment.Comment,
+			CommentPublishedOn: item.Comment.CreatedAt.Format(time.RFC822),
 		}
 		rs.List[i] = report
 	}
@@ -118,13 +120,13 @@ func (r *reportServiceImpl) Create(
 		return
 	}
 
-	_, repoErr = r.threadRepository.FindByID(ctx, accessorUserID, p.ThreadID)
+	comment, repoErr := r.threadRepository.FindCommentByID(ctx, p.CommentID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}
 
-	moderators, repoErr := r.threadRepository.FindAllModeratorByThreadID(ctx, p.ThreadID)
+	moderators, repoErr := r.threadRepository.FindAllModeratorByThreadID(ctx, comment.Thread.ID)
 	if repoErr != nil {
 		err = service.MapError(repoErr)
 		return
@@ -152,7 +154,7 @@ func (r *reportServiceImpl) Create(
 		return
 	}
 
-	if repoErr := r.reportRepository.Insert(ctx, id, moderatorID, reportedUser.ID, p.ThreadID, p.Reason); repoErr != nil {
+	if repoErr := r.reportRepository.Insert(ctx, id, moderatorID, reportedUser.ID, comment.ID, p.Reason); repoErr != nil {
 		err = service.MapError(repoErr)
 		return
 	}

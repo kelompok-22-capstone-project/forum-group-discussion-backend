@@ -96,4 +96,9 @@ type ThreadRepository interface {
 	IncrementTotalViewer(
 		ID string,
 	) (err error)
+
+	FindCommentByID(
+		ctx context.Context,
+		ID string,
+	) (comment entity.Comment, err error)
 }
