@@ -728,3 +728,152 @@ func TestGuestGetUserByUsername(t *testing.T) {
 		})
 	}
 }
+
+func TestGuestGetUserThreads(t *testing.T) {
+	mockThreadService := &mts.ThreadService{}
+	mockUserService := &mus.UserService{}
+
+	t.Run("success scenario", func(t *testing.T) {
+		now := time.Now().Format(time.RFC822)
+		dummyThreads := []response.ManyThread{
+			{
+				ID:              "t-abc",
+				Title:           "Go Programming Going Hype",
+				CategoryID:      "c-xyz",
+				CategoryName:    "Tech",
+				PublishedOn:     now,
+				IsLiked:         true,
+				IsFollowed:      true,
+				Description:     "Currently Go Programming going hype because it's popularity",
+				TotalViewer:     324,
+				TotalLike:       90,
+				TotalFollower:   25,
+				TotalComment:    42,
+				CreatorID:       "u-abcdefg",
+				CreatorUsername: "erikrios",
+				CreatorName:     "Erik Rio Setiawan",
+			},
+		}
+
+		dummyPagination := response.Pagination[response.ManyThread]{
+			List: dummyThreads,
+			PageInfo: response.PageInfo{
+				Limit:     20,
+				Page:      1,
+				PageTotal: 1,
+				Total:     15,
+			},
+		}
+		dummyResp := model.NewResponse("success", "Get threads by username successful.", dummyPagination)
+
+		mockUserService.On(
+			"GetAllThreadByUsername",
+			mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", "")),
+			mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+			mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+		).Return(
+			func(ctx context.Context,
+				accessorUserID string,
+				username string,
+				page uint,
+				limit uint,
+			) response.Pagination[response.ManyThread] {
+				return dummyPagination
+			},
+			func(ctx context.Context,
+				accessorUserID string,
+				username string,
+				page uint,
+				limit uint,
+			) error {
+				return nil
+			},
+		).Once()
+
+		t.Run("it should return 200 status code with valid response, when there is no error", func(t *testing.T) {
+			controller := NewGuestController(mockThreadService, mockUserService)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/users", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			if assert.NoError(t, controller.getUserThreads(c)) {
+				assert.Equal(t, http.StatusOK, rec.Code)
+
+				body := rec.Body.String()
+
+				gotResponse := model.NewResponse("", "", response.Pagination[response.ManyThread]{})
+
+				if err := json.Unmarshal([]byte(body), &gotResponse); assert.NoError(t, err) {
+					assert.Equal(t, dummyResp.Data.PageInfo, gotResponse.Data.PageInfo)
+					assert.ElementsMatch(t, dummyResp.Data.List, gotResponse.Data.List)
+				}
+			}
+		})
+	})
+
+	t.Run("failed scenario", func(t *testing.T) {})
+	testCases := []struct {
+		name                 string
+		expectedStatusCode   int
+		expectedErrorMessage string
+		mockBehaviours       func()
+	}{
+		{
+			name:                 "it should return 500 status code, when error happened",
+			expectedStatusCode:   http.StatusInternalServerError,
+			expectedErrorMessage: "Something went wrong.",
+			mockBehaviours: func() {
+				mockUserService.On(
+					"GetAllThreadByUsername",
+					mock.AnythingOfType(fmt.Sprintf("%T", context.Background())),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", "")),
+					mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+					mock.AnythingOfType(fmt.Sprintf("%T", uint(0))),
+				).Return(
+					func(ctx context.Context,
+						accessorUserID string,
+						username string,
+						page uint,
+						limit uint,
+					) response.Pagination[response.ManyThread] {
+						return response.Pagination[response.ManyThread]{}
+					},
+					func(ctx context.Context,
+						accessorUserID string,
+						username string,
+						page uint,
+						limit uint,
+					) error {
+						return service.ErrRepository
+					},
+				).Once()
+			},
+		},
+	}
+
+	for _, testCase := range testCases {
+		t.Run(testCase.name, func(t *testing.T) {
+			testCase.mockBehaviours()
+
+			controller := NewGuestController(mockThreadService, mockUserService)
+
+			e := echo.New()
+			req := httptest.NewRequest(http.MethodGet, "/api/v1/guest/users", nil)
+			rec := httptest.NewRecorder()
+			c := e.NewContext(req, rec)
+
+			gotErr := controller.getUserThreads(c)
+			if assert.Error(t, gotErr) {
+				if echoHTTPError, ok := gotErr.(*echo.HTTPError); assert.Equal(t, true, ok) {
+					assert.Equal(t, testCase.expectedStatusCode, echoHTTPError.Code)
+					assert.Equal(t, testCase.expectedErrorMessage, echoHTTPError.Message)
+				}
+			}
+		})
+	}
+}
