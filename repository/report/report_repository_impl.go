@@ -136,12 +136,12 @@ func (r *reportRepositoryImpl) Insert(
 	ID,
 	moderatorID,
 	userID,
-	threadID,
+	commentID,
 	reason string,
 ) (err error) {
-	statement := "INSERT INTO user_banneds (id, moderator_id, user_id, thread_id, reason) VALUES ($1, $2, $3, $4, $5);"
+	statement := "INSERT INTO user_banneds (id, moderator_id, user_id, comment_id, reason) VALUES ($1, $2, $3, $4, $5);"
 
-	result, dbErr := r.db.ExecContext(ctx, statement, ID, moderatorID, userID, threadID, reason)
+	result, dbErr := r.db.ExecContext(ctx, statement, ID, moderatorID, userID, commentID, reason)
 	if dbErr != nil {
 		log.Println(dbErr)
 		err = repository.ErrDatabase
