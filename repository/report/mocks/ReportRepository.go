@@ -35,13 +35,13 @@ func (_m *ReportRepository) GetReportsWithPagination(ctx context.Context, pageIn
 	return r0, r1
 }
 
-// Insert provides a mock function with given fields: ctx, ID, moderatorID, userID, threadID, reason
-func (_m *ReportRepository) Insert(ctx context.Context, ID string, moderatorID string, userID string, threadID string, reason string) error {
-	ret := _m.Called(ctx, ID, moderatorID, userID, threadID, reason)
+// Insert provides a mock function with given fields: ctx, ID, moderatorID, userID, commentID, reason
+func (_m *ReportRepository) Insert(ctx context.Context, ID string, moderatorID string, userID string, commentID string, reason string) error {
+	ret := _m.Called(ctx, ID, moderatorID, userID, commentID, reason)
 
 	var r0 error
 	if rf, ok := ret.Get(0).(func(context.Context, string, string, string, string, string) error); ok {
-		r0 = rf(ctx, ID, moderatorID, userID, threadID, reason)
+		r0 = rf(ctx, ID, moderatorID, userID, commentID, reason)
 	} else {
 		r0 = ret.Error(0)
 	}

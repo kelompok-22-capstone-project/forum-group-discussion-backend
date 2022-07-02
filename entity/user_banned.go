@@ -7,6 +7,7 @@ type UserBanned struct {
 	Moderator Moderator
 	User      User
 	Thread    Thread
+	Comment   Comment
 	Reason    string
 	Status    string
 	CreatedAt time.Time

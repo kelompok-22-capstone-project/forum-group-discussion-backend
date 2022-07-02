@@ -2281,7 +2281,7 @@ const docTemplate = `{
                     "minLength": 2,
                     "x-order": "0"
                 },
-                "threadID": {
+                "commentID": {
                     "type": "string",
                     "maxLength": 10,
                     "minLength": 2,
@@ -2601,46 +2601,55 @@ const docTemplate = `{
                     "type": "string",
                     "x-order": "1"
                 },
-                "threadTitle": {
+                "moderatorUsername": {
                     "type": "string",
                     "x-order": "10"
+                },
+                "moderatorName": {
+                    "type": "string",
+                    "x-order": "11"
+                },
+                "userID": {
+                    "type": "string",
+                    "x-order": "12"
+                },
+                "username": {
+                    "type": "string",
+                    "x-order": "13"
+                },
+                "name": {
+                    "type": "string",
+                    "x-order": "14"
+                },
+                "reason": {
+                    "type": "string",
+                    "x-order": "15"
+                },
+                "status": {
+                    "type": "string",
+                    "x-order": "16"
+                },
+                "threadID": {
+                    "type": "string",
+                    "x-order": "17"
+                },
+                "threadTitle": {
+                    "type": "string",
+                    "x-order": "18"
                 },
                 "reportedOn": {
                     "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
-                    "x-order": "11"
+                    "x-order": "19"
                 },
-                "moderatorUsername": {
+                "comment": {
                     "type": "string",
-                    "x-order": "2"
+                    "x-order": "20"
                 },
-                "moderatorName": {
+                "commentPublishedOn": {
+                    "description": "ReportedOn layout format: time.RFC822 (02 Jan 06 15:04 MST)",
                     "type": "string",
-                    "x-order": "3"
-                },
-                "userID": {
-                    "type": "string",
-                    "x-order": "4"
-                },
-                "username": {
-                    "type": "string",
-                    "x-order": "5"
-                },
-                "name": {
-                    "type": "string",
-                    "x-order": "6"
-                },
-                "reason": {
-                    "type": "string",
-                    "x-order": "7"
-                },
-                "status": {
-                    "type": "string",
-                    "x-order": "8"
-                },
-                "threadID": {
-                    "type": "string",
-                    "x-order": "9"
+                    "x-order": "21"
                 }
             }
         },
@@ -2785,7 +2794,7 @@ const docTemplate = `{
 // SwaggerInfo holds exported Swagger Info so clients can modify it
 var SwaggerInfo = &swag.Spec{
 	Version:          "1.0",
-	Host:             "moot-rest-api.herokuapp.com",
+	Host:             "erik.my.id",
 	BasePath:         "/api/v1",
 	Schemes:          []string{"https", "http"},
 	Title:            "Forum Group Discussion API",

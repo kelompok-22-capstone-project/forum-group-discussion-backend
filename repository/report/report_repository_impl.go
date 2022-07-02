@@ -23,19 +23,23 @@ func (r *reportRepositoryImpl) GetReportsWithPagination(
 	pageInfo entity.PageInfo,
 	reportStatus entity.ReportStatus,
 ) (pagination entity.Pagination[entity.UserBanned], err error) {
-	statement := `SELECT t.id AS report_id,
+	statement := `SELECT t.id           AS report_id,
        t.moderator_id AS moderator_id,
        m.user_id      AS moderator_user_id,
        u1.username    AS moderator_username,
        u1.name        AS moderator_name,
-       m.thread_id    AS thread_id,
+       m.thread_id    AS moderator_thread_id,
        m.created_at   AS moderator_created_at,
        m.updated_at   AS moderator_updated_at,
        t.user_id      AS reported_user_id,
        u2.username    AS reported_username,
        u2.name        AS reported_name,
-			 th.id 					AS thread_id,
-		   th.title       AS thread_title,
+       th.id          AS thread_id,
+       th.title       AS thread_title,
+       c.id           AS comment_id,
+       c.comment      AS comment,
+       c.created_at   AS comment_created_at,
+       c.updated_at   AS comment_updated_at,
        t.reason       AS reason,
        t.status       AS status,
        t.created_at   AS created_at,
@@ -44,7 +48,8 @@ FROM user_banneds t
          INNER JOIN moderators m on m.id = t.moderator_id
          INNER JOIN users u1 on m.user_id = u1.id
          INNER JOIN users u2 on t.user_id = u2.id
-				 INNER JOIN threads th on th.id = t.thread_id
+         INNER JOIN comments c on c.id = t.comment_id
+         INNER JOIN threads th on c.thread_id = th.id
 WHERE t.status = $1
 OFFSET $2 LIMIT $3;`
 
@@ -85,6 +90,10 @@ OFFSET $2 LIMIT $3;`
 			&userBanned.User.Name,
 			&userBanned.Thread.ID,
 			&userBanned.Thread.Title,
+			&userBanned.Comment.ID,
+			&userBanned.Comment.Comment,
+			&userBanned.Comment.CreatedAt,
+			&userBanned.Comment.UpdatedAt,
 			&userBanned.Reason,
 			&userBanned.Status,
 			&userBanned.CreatedAt,
@@ -136,12 +145,12 @@ func (r *reportRepositoryImpl) Insert(
 	ID,
 	moderatorID,
 	userID,
-	threadID,
+	commentID,
 	reason string,
 ) (err error) {
-	statement := "INSERT INTO user_banneds (id, moderator_id, user_id, thread_id, reason) VALUES ($1, $2, $3, $4, $5);"
+	statement := "INSERT INTO user_banneds (id, moderator_id, user_id, comment_id, reason) VALUES ($1, $2, $3, $4, $5);"
 
-	result, dbErr := r.db.ExecContext(ctx, statement, ID, moderatorID, userID, threadID, reason)
+	result, dbErr := r.db.ExecContext(ctx, statement, ID, moderatorID, userID, commentID, reason)
 	if dbErr != nil {
 		log.Println(dbErr)
 		err = repository.ErrDatabase
