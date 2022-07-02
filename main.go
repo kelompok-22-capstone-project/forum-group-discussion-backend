@@ -45,7 +45,7 @@ import (
 // @in                          header
 // @name                        Authorization
 
-// @host      moot-rest-api.herokuapp.com
+// @host      erik.my.id
 // @BasePath  /api/v1
 // @schemes   https http
 func main() {
