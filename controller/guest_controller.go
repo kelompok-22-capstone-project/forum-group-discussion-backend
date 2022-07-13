@@ -50,12 +50,12 @@ func (g *guestController) getThreads(c echo.Context) error {
 	search := c.QueryParam("search")
 
 	page, convErr := strconv.Atoi(pageStr)
-	if convErr != nil {
+	if convErr != nil || page < 0 {
 		page = 0
 	}
 
 	limit, convErr := strconv.Atoi(limitStr)
-	if convErr != nil {
+	if convErr != nil || limit < 0 {
 		limit = 0
 	}
 
@@ -111,12 +111,12 @@ func (g *guestController) getThreadComments(c echo.Context) error {
 	limitStr := c.QueryParam("limit")
 
 	page, convErr := strconv.Atoi(pageStr)
-	if convErr != nil {
+	if convErr != nil || page < 0 {
 		page = 0
 	}
 
 	limit, convErr := strconv.Atoi(limitStr)
-	if convErr != nil {
+	if convErr != nil || limit < 0 {
 		limit = 0
 	}
 
@@ -151,12 +151,12 @@ func (g *guestController) getUsers(c echo.Context) error {
 	keyword := c.QueryParam("keyword")
 
 	page, convErr := strconv.Atoi(pageStr)
-	if convErr != nil {
+	if convErr != nil || page < 0 {
 		page = 0
 	}
 
 	limit, convErr := strconv.Atoi(limitStr)
-	if convErr != nil {
+	if convErr != nil || limit < 0 {
 		limit = 0
 	}
 
@@ -223,12 +223,12 @@ func (g *guestController) getUserThreads(c echo.Context) error {
 	limitStr := c.QueryParam("limit")
 
 	page, convErr := strconv.Atoi(pageStr)
-	if convErr != nil {
+	if convErr != nil || page < 0 {
 		page = 0
 	}
 
 	limit, convErr := strconv.Atoi(limitStr)
-	if convErr != nil {
+	if convErr != nil || limit < 0 {
 		limit = 0
 	}
 

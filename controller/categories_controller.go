@@ -174,12 +174,12 @@ func (c *categoriesController) getCategoryThreads(e echo.Context) error {
 	limitStr := e.QueryParam("limit")
 
 	page, convErr := strconv.Atoi(pageStr)
-	if convErr != nil {
+	if convErr != nil || page < 0 {
 		page = 0
 	}
 
 	limit, convErr := strconv.Atoi(limitStr)
-	if convErr != nil {
+	if convErr != nil || limit < 0 {
 		limit = 0
 	}
 
