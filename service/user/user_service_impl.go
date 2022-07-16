@@ -144,11 +144,11 @@ func (u *userServiceImpl) GetAll(
 	limit uint,
 	keyword string,
 ) (r response.Pagination[response.User], err error) {
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
 
-	if limit == 0 {
+	if limit <= 0 {
 		limit = 20
 	}
 
@@ -337,11 +337,11 @@ func (u *userServiceImpl) GetAllThreadByUsername(
 	page uint,
 	limit uint,
 ) (rs response.Pagination[response.ManyThread], err error) {
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
 
-	if limit == 0 {
+	if limit <= 0 {
 		limit = 10
 	}
 

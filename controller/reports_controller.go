@@ -84,12 +84,12 @@ func (r *reportsController) getReports(c echo.Context) error {
 	limitStr := c.QueryParam("limit")
 
 	page, convErr := strconv.Atoi(pageStr)
-	if convErr != nil {
+	if convErr != nil || page < 0 {
 		page = 0
 	}
 
 	limit, convErr := strconv.Atoi(limitStr)
-	if convErr != nil {
+	if convErr != nil || limit < 0 {
 		limit = 0
 	}
 

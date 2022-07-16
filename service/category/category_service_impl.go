@@ -129,11 +129,11 @@ func (c *categoryServiceImpl) GetAllByCategory(
 	page uint,
 	limit uint,
 ) (rs response.Pagination[response.ManyThread], err error) {
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
 
-	if limit == 0 {
+	if limit <= 0 {
 		limit = 10
 	}
 

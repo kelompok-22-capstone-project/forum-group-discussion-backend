@@ -48,11 +48,11 @@ func (r *reportServiceImpl) GetAll(
 		return
 	}
 
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
 
-	if limit == 0 {
+	if limit <= 0 {
 		limit = 20
 	}
 

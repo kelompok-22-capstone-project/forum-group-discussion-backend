@@ -43,11 +43,11 @@ func (t *threadServiceImpl) GetAll(
 	limit uint,
 	query string,
 ) (rs response.Pagination[response.ManyThread], err error) {
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
 
-	if limit == 0 {
+	if limit <= 0 {
 		limit = 10
 	}
 
@@ -277,11 +277,11 @@ func (t *threadServiceImpl) GetComments(
 	page uint,
 	limit uint,
 ) (rs response.Pagination[response.Comment], err error) {
-	if page == 0 {
+	if page <= 0 {
 		page = 1
 	}
 
-	if limit == 0 {
+	if limit <= 0 {
 		limit = 20
 	}
 
