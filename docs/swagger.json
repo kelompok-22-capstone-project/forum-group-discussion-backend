@@ -19,7 +19,7 @@
         },
         "version": "1.0"
     },
-    "host": "erik.my.id",
+    "host": "moot-rest-api.herokuapp.com",
     "basePath": "/api/v1",
     "paths": {
         "/admin/dashboard": {

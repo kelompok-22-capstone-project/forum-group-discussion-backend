@@ -616,7 +616,7 @@ definitions:
         type: string
         x-order: "1"
     type: object
-host: erik.my.id
+host: moot-rest-api.herokuapp.com
 info:
   contact:
     email: erikriosetiawan15@gmail.com
